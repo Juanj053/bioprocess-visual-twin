@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bioprocess-visual-twin"
+version = "1.0.0"
+description = "Physics-based interactive digital twin for aerobic stirred-tank and airlift bioreactors with real-time fluid visualization and SCADA telemetry."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Juan José Álvarez Morales", email = "jjalvarezm77@gmail.com" }
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "scipy>=1.10.0",
+    "numpy>=1.24.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+]
+
+[project.scripts]
+bioprocess-twin = "bioprocess_twin.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Juanj053/bioprocess-visual-twin"
+"Live Interactive Demo" = "https://juanj053.github.io/bioprocess-visual-twin/"
+Repository = "https://github.com/Juanj053/bioprocess-visual-twin.git"
+"LinkedIn Author" = "https://www.linkedin.com/in/juanj-alva"
+"Elevate Biotech" = "https://github.com/Juanj053"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bioprocess_twin"]

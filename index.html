@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bioprocess Visual Twin | Interactive Bioreactor Simulator</title>
+  <meta name="description" content="Physics-based interactive digital twin for aerobic stirred-tank and airlift bioreactors with real-time fluid visualization and SCADA telemetry.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #07090e;
+      color: #e2e8f0;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Glow and Glassmorphism accents */
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.35);
+    }
+    .glow-emerald {
+      box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.35);
+    }
+    /* Custom Range Sliders */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: #1e293b;
+      height: 6px;
+      border-radius: 9999px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #06b6d4;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.8);
+      transition: all 0.15s ease-in-out;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      background: #22d3ee;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-cyan-500 selection:text-black">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur sticky top-0 z-50 px-4 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 via-emerald-500 to-teal-400 flex items-center justify-center font-bold text-slate-950 text-xl shadow-lg shadow-cyan-500/20">
+        🧬
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
+            BIOPROCESS VISUAL TWIN <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-800/50 font-mono">v1.0-LIVE</span>
+          </h1>
+        </div>
+        <p class="text-xs text-slate-400">Physics-Informed Real-Time Bioreactor Fluid & Telemetry Simulator • <a href="https://www.linkedin.com/in/juanj-alva" target="_blank" class="text-cyan-400 hover:underline">Ing. Juan José Álvarez Morales</a></p>
+      </div>
+    </div>
+
+    <!-- REACTOR SELECTOR PILLS -->
+    <div class="flex items-center bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+      <button id="type-str-rushton" onclick="setReactorType('str_rushton')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-cyan-500 text-slate-950 font-semibold shadow">
+        ⚙️ STR (Rushton)
+      </button>
+      <button id="type-str-marine" onclick="setReactorType('str_marine')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-white">
+        ⚓ STR (Marine Propeller)
+      </button>
+      <button id="type-airlift" onclick="setReactorType('airlift')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-white">
+        🫧 Airlift Loop
+      </button>
+      <button id="type-pbr" onclick="setReactorType('pbr')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-white">
+        🌱 Photobioreactor
+      </button>
+    </div>
+
+    <!-- PLAYBACK & ACTION CONTROLS -->
+    <div class="flex items-center gap-2">
+      <div class="flex items-center bg-slate-900/90 rounded-xl p-1 border border-slate-800">
+        <button id="btn-play-pause" onclick="togglePlayPause()" class="p-2 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 font-mono text-xs flex items-center gap-1.5 transition">
+          <span id="play-icon">⏸️</span> <span id="play-text" class="hidden sm:inline">PAUSE</span>
+        </button>
+        <button onclick="setSpeed(1)" id="btn-speed-1" class="px-2 py-1 text-xs font-mono text-slate-400 hover:text-white rounded">1x</button>
+        <button onclick="setSpeed(5)" id="btn-speed-5" class="px-2 py-1 text-xs font-mono text-cyan-400 bg-cyan-950/60 font-bold rounded">5x</button>
+        <button onclick="setSpeed(20)" id="btn-speed-20" class="px-2 py-1 text-xs font-mono text-slate-400 hover:text-white rounded">20x</button>
+        <button onclick="resetSimulation()" class="p-2 text-xs text-slate-400 hover:text-rose-400 rounded-lg hover:bg-rose-950/30 transition" title="Reset Batch">
+          🔄
+        </button>
+      </div>
+
+      <button onclick="injectFeedPulse()" class="px-3 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold rounded-xl text-xs hover:brightness-110 active:scale-95 transition shadow-lg shadow-amber-500/20 flex items-center gap-1.5">
+        🧪 Feed Pulse (+5g/L)
+      </button>
+
+      <button onclick="exportCSV()" class="px-3 py-2 bg-slate-800 text-slate-200 hover:bg-slate-700 rounded-xl text-xs font-mono transition flex items-center gap-1">
+        📥 CSV
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT GRID -->
+  <main class="flex-1 p-3 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 max-w-[1700px] w-full mx-auto">
+
+    <!-- LEFT COLUMN: PHYSICAL VESSEL SIMULATION CANVAS (5 Cols) -->
+    <section class="lg:col-span-5 flex flex-col gap-4">
+      <div class="glass-panel rounded-2xl p-4 flex flex-col flex-1 relative overflow-hidden">
+        
+        <!-- Header overlay inside canvas box -->
+        <div class="flex items-center justify-between mb-2 z-10">
+          <div class="flex items-center gap-2">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="vessel-badge-title" class="text-xs font-mono font-bold tracking-wider text-cyan-300 uppercase">20 L Bench-Scale Stirred Tank (Rushton)</span>
+          </div>
+          <div class="text-xs font-mono bg-slate-950/70 border border-slate-800 px-2 py-1 rounded-md text-slate-300">
+            Time: <span id="disp-batch-time" class="text-emerald-400 font-bold">0.00 h</span> (<span id="disp-batch-days" class="text-slate-400">Day 0.0</span>)
+          </div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="flex-1 min-h-[460px] relative flex items-center justify-center rounded-xl bg-gradient-to-b from-slate-950/80 to-slate-900/60 border border-slate-800/60 overflow-hidden">
+          <canvas id="bioreactorCanvas" width="540" height="660" class="max-w-full h-auto cursor-crosshair"></canvas>
+
+          <!-- Floating Feed Animation Notification -->
+          <div id="feed-notification" class="absolute top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-950 font-bold px-3 py-1 rounded-full text-xs opacity-0 transition-opacity duration-300 pointer-events-none shadow-lg">
+            + Glucose Feed Pulse Injected
+          </div>
+
+          <!-- Vessel In-situ Sensor Labels (Overlay) -->
+          <div class="absolute bottom-3 left-3 flex flex-wrap gap-2 text-[10px] font-mono text-slate-400 pointer-events-none">
+            <span class="bg-slate-950/80 px-2 py-0.5 rounded border border-slate-800">OD600: <b id="overlay-od" class="text-emerald-400">0.82</b></span>
+            <span class="bg-slate-950/80 px-2 py-0.5 rounded border border-slate-800">Shear: <b id="overlay-shear" class="text-cyan-400">12.4 s⁻¹</b></span>
+            <span class="bg-slate-950/80 px-2 py-0.5 rounded border border-slate-800">Turbidity: <b id="overlay-turbidity" class="text-amber-400">Low</b></span>
+          </div>
+        </div>
+
+        <!-- Vessel Mini Quick Controls -->
+        <div class="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80">
+          <div>
+            <div class="flex justify-between text-xs mb-1 font-mono">
+              <span class="text-slate-400">Agitation:</span>
+              <span id="val-rpm" class="text-cyan-400 font-bold">450 RPM</span>
+            </div>
+            <input type="range" id="input-rpm" min="50" max="900" value="450" step="10" oninput="updateControls()" class="w-full">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1 font-mono">
+              <span class="text-slate-400">Aeration:</span>
+              <span id="val-vvm" class="text-cyan-400 font-bold">1.20 vvm</span>
+            </div>
+            <input type="range" id="input-vvm" min="0.1" max="3.0" value="1.2" step="0.1" oninput="updateControls()" class="w-full">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: SCADA TELEMETRY & CHARTS (7 Cols) -->
+    <section class="lg:col-span-7 flex flex-col gap-4">
+      
+      <!-- 4 CIRCULAR GAUGES & METRIC CARDS -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <!-- Biomass Card -->
+        <div class="glass-panel p-3 rounded-2xl flex flex-col justify-between border-l-4 border-l-emerald-500">
+          <div class="flex justify-between items-start">
+            <span class="text-[11px] font-mono text-slate-400 uppercase">Biomass X</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 font-mono">g/L</span>
+          </div>
+          <div class="my-1">
+            <span id="kpi-biomass" class="text-2xl font-extrabold text-emerald-400 font-mono">0.80</span>
+          </div>
+          <div class="text-[10px] text-slate-400 flex justify-between font-mono">
+            <span>Growth μ:</span>
+            <span id="kpi-mu" class="text-emerald-300 font-bold">0.31 h⁻¹</span>
+          </div>
+        </div>
+
+        <!-- Glucose Substrate Card -->
+        <div class="glass-panel p-3 rounded-2xl flex flex-col justify-between border-l-4 border-l-amber-500">
+          <div class="flex justify-between items-start">
+            <span class="text-[11px] font-mono text-slate-400 uppercase">Substrate S</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 font-mono">g/L</span>
+          </div>
+          <div class="my-1">
+            <span id="kpi-substrate" class="text-2xl font-extrabold text-amber-400 font-mono">35.00</span>
+          </div>
+          <div class="text-[10px] text-slate-400 flex justify-between font-mono">
+            <span>Consumed:</span>
+            <span id="kpi-s-consumed" class="text-amber-300 font-bold">0.0 %</span>
+          </div>
+        </div>
+
+        <!-- Dissolved Oxygen Card -->
+        <div class="glass-panel p-3 rounded-2xl flex flex-col justify-between border-l-4 border-l-cyan-500">
+          <div class="flex justify-between items-start">
+            <span class="text-[11px] font-mono text-slate-400 uppercase">Dissolved O₂</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-400 font-mono">% SAT</span>
+          </div>
+          <div class="my-1">
+            <span id="kpi-oxygen" class="text-2xl font-extrabold text-cyan-400 font-mono">100.0</span>
+          </div>
+          <div class="text-[10px] text-slate-400 flex justify-between font-mono">
+            <span>kla transfer:</span>
+            <span id="kpi-kla" class="text-cyan-300 font-bold">65.0 h⁻¹</span>
+          </div>
+        </div>
+
+        <!-- Recombinant Product Card -->
+        <div class="glass-panel p-3 rounded-2xl flex flex-col justify-between border-l-4 border-l-purple-500">
+          <div class="flex justify-between items-start">
+            <span class="text-[11px] font-mono text-slate-400 uppercase">Target Product</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-purple-950 text-purple-400 font-mono">g/L</span>
+          </div>
+          <div class="my-1">
+            <span id="kpi-product" class="text-2xl font-extrabold text-purple-400 font-mono">0.00</span>
+          </div>
+          <div class="text-[10px] text-slate-400 flex justify-between font-mono">
+            <span>Yield Y_P/S:</span>
+            <span id="kpi-yps" class="text-purple-300 font-bold">0.85</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- REAL-TIME TELEMETRY STREAMING CHART -->
+      <div class="glass-panel rounded-2xl p-4 flex-1 flex flex-col min-h-[320px]">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono font-bold text-white uppercase tracking-wider">SCADA Multi-Channel Telemetry Stream</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">60 FPS Sync</span>
+          </div>
+          <!-- Legend Toggles -->
+          <div class="flex items-center gap-3 text-xs font-mono">
+            <span class="flex items-center gap-1 text-emerald-400"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Biomass (g/L)</span>
+            <span class="flex items-center gap-1 text-amber-400"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Substrate (g/L)</span>
+            <span class="flex items-center gap-1 text-cyan-400"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> DO (% Sat)</span>
+            <span class="flex items-center gap-1 text-purple-400"><span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span> Product (g/L)</span>
+          </div>
+        </div>
+        <div class="flex-1 relative w-full h-[260px]">
+          <canvas id="telemetryChart"></canvas>
+        </div>
+      </div>
+
+      <!-- ADVANCED PROCESS ENGINEERING METRICS & SLIDERS -->
+      <div class="glass-panel rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Hydrodynamics & Scale-up -->
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/60 flex flex-col justify-between">
+          <h4 class="text-xs font-mono text-cyan-400 font-bold mb-2 flex items-center gap-1.5">
+            <span>🌀</span> HYDRODYNAMICS & SCALE
+          </h4>
+          <div class="space-y-1.5 text-xs font-mono">
+            <div class="flex justify-between"><span class="text-slate-400">Reynolds (Re):</span> <span id="disp-reynolds" class="text-white font-bold">42,500</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">Tip Speed (v_tip):</span> <span id="disp-tip-speed" class="text-white font-bold">2.12 m/s</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">Power P/V:</span> <span id="disp-power-density" class="text-white font-bold">1.82 kW/m³</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">Flow Regime:</span> <span class="text-emerald-400 font-bold">Fully Turbulent</span></div>
+          </div>
+        </div>
+
+        <!-- Stoichiometry & Carbon Balance -->
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/60 flex flex-col justify-between">
+          <h4 class="text-xs font-mono text-amber-400 font-bold mb-2 flex items-center gap-1.5">
+            <span>⚖️</span> CARBON BALANCE AUDITOR
+          </h4>
+          <div class="space-y-1.5 text-xs font-mono">
+            <div class="flex justify-between"><span class="text-slate-400">C-Carbon Fed:</span> <span id="disp-c-in" class="text-white font-bold">14.0 g C/L</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">C-Incorporated:</span> <span id="disp-c-fixed" class="text-emerald-400 font-bold">5.8 g C/L</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">CO₂ Respiration:</span> <span id="disp-c-co2" class="text-amber-400 font-bold">8.2 g C/L</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">Recovery Balance:</span> <span class="text-cyan-400 font-bold">99.8%</span></div>
+          </div>
+        </div>
+
+        <!-- Environmental Setpoints (T & pH) -->
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/60 flex flex-col justify-between">
+          <h4 class="text-xs font-mono text-emerald-400 font-bold mb-2 flex items-center gap-1.5">
+            <span>🌡️</span> THERMAL & pH CONTROLLERS
+          </h4>
+          <div class="space-y-2">
+            <div>
+              <div class="flex justify-between text-xs font-mono mb-1">
+                <span class="text-slate-400">Broth Temp:</span>
+                <span id="disp-temp" class="text-white font-bold">30.0 °C</span>
+              </div>
+              <input type="range" id="input-temp" min="20" max="42" value="30" step="0.5" oninput="updateControls()" class="w-full">
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-mono mb-1">
+                <span class="text-slate-400">Broth pH:</span>
+                <span id="disp-ph" class="text-white font-bold">6.85 pH</span>
+              </div>
+              <input type="range" id="input-ph" min="5.5" max="8.0" value="6.8" step="0.1" oninput="updateControls()" class="w-full">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- JAVASCRIPT KINETIC ENGINE & CANVAS RENDERER -->
+  <script>
+    /* =========================================================================
+       1. BIOPROCESS KINETIC ENGINE (Coupled Ordinary Differential Equations)
+       ========================================================================= */
+    const State = {
+      // Configuration
+      reactorType: 'str_rushton', // 'str_rushton', 'str_marine', 'airlift', 'pbr'
+      volume_L: 20.0,
+      
+      // Environmental & physical inputs
+      rpm: 450,
+      vvm: 1.2,
+      temp_C: 30.0,
+      ph: 6.85,
+      
+      // Dynamic variables
+      time_h: 0.0,
+      X: 0.80,         // Biomass [g/L]
+      S: 35.0,         // Glucose substrate [g/L]
+      CL: 0.0078,      // Dissolved Oxygen [g/L] (7.8 mg/L ~ 100%)
+      P: 0.00,         // Recombinant Product [g/L]
+      C_star: 0.0078,  // Equilibrium DO [g/L]
+      
+      // Kinetic parameters
+      mu_max: 0.35,
+      Ks: 2.0,
+      Ko: 0.0008,
+      kd: 0.012,
+      Yxs: 0.48,
+      ms: 0.020,
+      Yxo: 1.10,
+      mo: 0.015,
+      Yps: 0.85,
+      alpha: 0.15,
+      beta: 0.010,
+      
+      // Simulation loop state
+      isRunning: true,
+      speedMultiplier: 5, // hours simulated per wall-clock second
+      feedPulseActive: false,
+      feedPulseTimer: 0,
+    };
+
+    // Telemetry History for Chart.js
+    const historyData = {
+      labels: [],
+      biomass: [],
+      substrate: [],
+      oxygen: [],
+      product: []
+    };
+
+    /* =========================================================================
+       2. HYDRODYNAMICS & MASS TRANSFER CORRELATIONS
+       ========================================================================= */
+    function computeHydrodynamics() {
+      const D_tank = 0.25; // Tank diameter [m] (20 L vessel)
+      const D_impeller = D_tank * 0.35; // Impeller diameter [m]
+      const rho = 1000; // Liquid density [kg/m^3]
+      const mu_visc = 0.001; // Water viscosity [Pa*s]
+      const N_rps = State.rpm / 60.0;
+      
+      // Reynolds Number
+      const Re = (rho * N_rps * Math.pow(D_impeller, 2)) / mu_visc;
+      
+      // Tip speed v_tip = pi * D_i * N
+      const v_tip = Math.PI * D_impeller * N_rps;
+
+      // Power Number Np based on impeller type
+      let Np = 5.0; // Rushton 6-blade
+      if (State.reactorType === 'str_marine') Np = 0.87;
+      if (State.reactorType === 'airlift') Np = 0.0;
+      if (State.reactorType === 'pbr') Np = 0.1;
+
+      // Power draw P = Np * rho * N^3 * D^5 [Watts]
+      const P_watts = Np * rho * Math.pow(N_rps, 3) * Math.pow(D_impeller, 5);
+      const P_density_kW_m3 = (P_watts / (State.volume_L / 1000.0)) / 1000.0;
+
+      // Gas superficial velocity vs = Fg / A_tank [m/s]
+      const Fg_m3_s = (State.vvm * State.volume_L) / (1000.0 * 60.0);
+      const A_tank = Math.PI * Math.pow(D_tank / 2.0, 2);
+      const vs_m_s = Fg_m3_s / A_tank;
+
+      // Volumetric mass transfer coefficient kla (Van't Riet correlation)
+      let kla = 0.026 * Math.pow((P_watts / (State.volume_L / 1000.0)), 0.4) * Math.pow(vs_m_s, 0.5) * 3600.0;
+      if (State.reactorType === 'airlift') {
+        kla = 0.32 * Math.pow(vs_m_s, 0.7) * 3600.0; // Bubble column correlation
+      }
+      kla = Math.max(15.0, Math.min(180.0, kla));
+
+      return { Re, v_tip, P_density_kW_m3, kla };
+    }
+
+    /* =========================================================================
+       3. KINETIC STEPPING (Runge-Kutta / Euler Integration dt)
+       ========================================================================= */
+    function stepKinetics(dt_hours) {
+      if (!State.isRunning) return;
+
+      const hydro = computeHydrodynamics();
+      const kla = hydro.kla;
+
+      // Feed pulse integration
+      if (State.feedPulseActive) {
+        State.S += 5.0; // Instantaneous pulse injection
+        State.feedPulseActive = false;
+      }
+
+      // Dual Monod specific growth rate mu
+      let mu = 0.0;
+      if (State.S > 1e-4 && State.CL > 1e-6) {
+        // Temperature & pH inhibition factors
+        const temp_factor = Math.exp(-Math.pow((State.temp_C - 30.0) / 7.0, 2));
+        const ph_factor = Math.exp(-Math.pow((State.ph - 6.85) / 1.1, 2));
+        
+        mu = State.mu_max * (State.S / (State.Ks + State.S)) * (State.CL / (State.Ko + State.CL)) * temp_factor * ph_factor;
+      }
+
+      // Specific production & respiration rates
+      const q_P = State.S > 1e-4 ? (State.alpha * mu + State.beta) : 0.0;
+      const q_O2 = State.S > 1e-4 ? ((mu / State.Yxo) + State.mo) : 0.0;
+
+      // ODE rates
+      const dX_dt = (mu - State.kd) * State.X;
+      const dS_dt = State.S > 1e-4 ? - ((mu / State.Yxs) + State.ms + (q_P / State.Yps)) * State.X : 0.0;
+      const dCL_dt = kla * (State.C_star - State.CL) - q_O2 * State.X;
+      const dP_dt = q_P * State.X;
+
+      // Update state
+      State.X = Math.max(0.01, State.X + dX_dt * dt_hours);
+      State.S = Math.max(0.0, State.S + dS_dt * dt_hours);
+      State.CL = Math.max(0.0001, Math.min(State.C_star * 1.05, State.CL + dCL_dt * dt_hours));
+      State.P = Math.max(0.0, State.P + dP_dt * dt_hours);
+      State.time_h += dt_hours;
+
+      return { mu, kla, hydro };
+    }
+
+    /* =========================================================================
+       4. HIGH-PERFORMANCE 60 FPS CANVAS BIOPROCESS VISUAL RENDERER
+       ========================================================================= */
+    const canvas = document.getElementById('bioreactorCanvas');
+    const ctx = canvas.getContext('2d');
+    let impellerAngle = 0.0;
+
+    // Particle Bubble System
+    const bubbles = [];
+    for (let i = 0; i < 90; i++) {
+      bubbles.push({
+        x: Math.random(),
+        y: Math.random(),
+        r: 1.5 + Math.random() * 3.5,
+        speed: 0.002 + Math.random() * 0.005,
+        oscAmp: 2 + Math.random() * 4,
+        oscFreq: 2 + Math.random() * 6
+      });
+    }
+
+    function renderBioreactor(timestamp) {
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      // Geometry coordinates
+      const vLeft = W * 0.15;
+      const vRight = W * 0.85;
+      const vTop = H * 0.12;
+      const vBottom = H * 0.88;
+      const vWidth = vRight - vLeft;
+      const vHeight = vBottom - vTop;
+      const liquidLevelY = vTop + vHeight * 0.22; // Broth surface
+
+      // --- A. VESSEL HEATING/COOLING JACKET ---
+      const jacketOffset = 14;
+      ctx.save();
+      ctx.strokeStyle = State.temp_C > 30.5 ? 'rgba(239, 68, 68, 0.4)' : (State.temp_C < 29.5 ? 'rgba(59, 130, 246, 0.4)' : 'rgba(16, 185, 129, 0.25)');
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.arc(W / 2, vBottom - 40, (vWidth / 2) + jacketOffset, 0.15 * Math.PI, 0.85 * Math.PI, false);
+      ctx.stroke();
+      ctx.restore();
+
+      // --- B. BROTH LIQUID WITH DYNAMIC BIOMASS TURBIDITY & DO COLOR ---
+      ctx.save();
+      // Color shifts from crystal pale nutrient (OD low) to turbid golden amber (OD high)
+      const biomassNorm = Math.min(1.0, (State.X - 0.8) / 10.0);
+      const r_col = Math.round(180 + biomassNorm * 35);
+      const g_col = Math.round(210 - biomassNorm * 80);
+      const b_col = Math.round(190 - biomassNorm * 120);
+      const brothAlpha = 0.45 + biomassNorm * 0.50; // High OD = dense turbid opacity
+
+      const brothGrad = ctx.createLinearGradient(vLeft, liquidLevelY, vRight, vBottom);
+      brothGrad.addColorStop(0, `rgba(${r_col}, ${g_col}, ${b_col}, ${brothAlpha * 0.8})`);
+      brothGrad.addColorStop(0.5, `rgba(${r_col - 20}, ${g_col - 30}, ${b_col - 20}, ${brothAlpha})`);
+      brothGrad.addColorStop(1, `rgba(${r_col - 40}, ${g_col - 50}, ${b_col - 30}, ${brothAlpha * 1.1})`);
+
+      // Fluid path with curved torispherical bottom
+      ctx.fillStyle = brothGrad;
+      ctx.beginPath();
+      ctx.moveTo(vLeft + 2, liquidLevelY);
+      
+      // Surface wave & vortex oscillation
+      const vortexDepth = (State.rpm / 900) * 18;
+      ctx.quadraticCurveTo(W / 2, liquidLevelY + vortexDepth + Math.sin(timestamp * 0.005) * 2, vRight - 2, liquidLevelY);
+      ctx.lineTo(vRight - 2, vBottom - 50);
+      ctx.quadraticCurveTo(W / 2, vBottom + 8, vLeft + 2, vBottom - 50);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // --- C. AIRLIFT / DRAFT TUBE OR STR BAFFLES ---
+      if (State.reactorType === 'airlift') {
+        // Internal Draft Tube
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.fillStyle = 'rgba(6, 182, 212, 0.05)';
+        ctx.lineWidth = 2.5;
+        const dtWidth = vWidth * 0.38;
+        const dtLeft = (W - dtWidth) / 2;
+        const dtTop = liquidLevelY + 30;
+        const dtHeight = vHeight * 0.52;
+        ctx.strokeRect(dtLeft, dtTop, dtWidth, dtHeight);
+        ctx.fillRect(dtLeft, dtTop, dtWidth, dtHeight);
+        ctx.restore();
+      } else {
+        // Wall Baffles (Anti-vortex plates)
+        ctx.save();
+        ctx.fillStyle = 'rgba(148, 163, 184, 0.3)';
+        ctx.fillRect(vLeft + 3, liquidLevelY, 6, vHeight * 0.65);
+        ctx.fillRect(vRight - 9, liquidLevelY, 6, vHeight * 0.65);
+        ctx.restore();
+      }
+
+      // --- D. SPRAYING BUBBLE PARTICLES (AERATION MICRO-SPARGER) ---
+      ctx.save();
+      const aerationSpeedFactor = State.vvm * 1.4;
+      bubbles.forEach((b) => {
+        // Bubble ascension
+        b.y -= b.speed * aerationSpeedFactor;
+        if (b.y < 0) b.y = 1.0;
+
+        // Position mapping inside broth
+        const bubY = liquidLevelY + (1.0 - b.y) * (vBottom - liquidLevelY - 40);
+        const horizSpread = (b.x - 0.5) * (vWidth * 0.65);
+        const bubX = (W / 2) + horizSpread + Math.sin(timestamp * 0.003 * b.oscFreq + b.y * 10) * b.oscAmp;
+
+        // Render bubble
+        ctx.beginPath();
+        ctx.arc(bubX, bubY, b.r, 0, 2 * Math.PI);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+        ctx.shadowColor = 'rgba(6, 182, 212, 0.6)';
+        ctx.shadowBlur = 4;
+        ctx.fill();
+      });
+      ctx.restore();
+
+      // --- E. IMPELLER SHAFT AND ROTATING BLADES (FOR STR) ---
+      if (State.reactorType.startsWith('str')) {
+        ctx.save();
+        // Central drive shaft
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect((W / 2) - 4, vTop - 15, 8, vHeight * 0.75);
+
+        // Update angle based on RPM
+        impellerAngle += (State.rpm / 60.0) * (2 * Math.PI) * 0.016;
+
+        const impellerLevels = [vBottom - 90, vBottom - 180];
+        impellerLevels.forEach((impY) => {
+          ctx.save();
+          ctx.translate(W / 2, impY);
+          
+          if (State.reactorType === 'str_rushton') {
+            // Rushton 6-blade disk turbine projection
+            ctx.fillStyle = '#64748b';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 48, 10, 0, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // 6 Rotating vertical blades
+            for (let i = 0; i < 6; i++) {
+              const a = impellerAngle + (i * Math.PI / 3);
+              const bladeX = Math.cos(a) * 44;
+              const bladeHeight = 22;
+              const bladeAlpha = Math.sin(a) > 0 ? 0.95 : 0.45;
+              ctx.fillStyle = `rgba(226, 232, 240, ${bladeAlpha})`;
+              ctx.fillRect(bladeX - 3, -bladeHeight / 2, 6, bladeHeight);
+            }
+          } else {
+            // Marine hydrofoil propeller
+            for (let i = 0; i < 3; i++) {
+              const a = impellerAngle + (i * 2 * Math.PI / 3);
+              ctx.save();
+              ctx.rotate(a);
+              ctx.fillStyle = '#cbd5e1';
+              ctx.beginPath();
+              ctx.ellipse(22, 0, 20, 6, 0.2, 0, 2 * Math.PI);
+              ctx.fill();
+              ctx.restore();
+            }
+          }
+          ctx.restore();
+        });
+        ctx.restore();
+      }
+
+      // --- F. VIRTUAL IN-SITU SENSORS (pH, DO, PT100, Antifoam) ---
+      ctx.save();
+      // DO Sensor (Right probe with cyan luminescent tip)
+      const doProbeX = vRight - 28;
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(doProbeX, vTop);
+      ctx.lineTo(doProbeX, liquidLevelY + 140);
+      ctx.stroke();
+      // DO Luminescent Optical Tip
+      ctx.fillStyle = '#06b6d4';
+      ctx.shadowColor = '#06b6d4';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.arc(doProbeX, liquidLevelY + 142, 4.5, 0, 2 * Math.PI);
+      ctx.fill();
+
+      // pH Glass Electrode (Left probe with silver-grey body)
+      const phProbeX = vLeft + 28;
+      ctx.strokeStyle = '#64748b';
+      ctx.beginPath();
+      ctx.moveTo(phProbeX, vTop);
+      ctx.lineTo(phProbeX, liquidLevelY + 110);
+      ctx.stroke();
+      // Glass Bulb
+      ctx.fillStyle = '#38bdf8';
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(phProbeX, liquidLevelY + 112, 4.0, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.restore();
+
+      // --- G. FEED LIQUID PULSE DROPLET ANIMATION ---
+      if (State.feedPulseTimer > 0) {
+        ctx.save();
+        ctx.strokeStyle = '#f59e0b';
+        ctx.fillStyle = '#f59e0b';
+        ctx.lineWidth = 3;
+        const feedPortX = (W / 2) + 40;
+        ctx.beginPath();
+        ctx.moveTo(feedPortX, vTop - 10);
+        ctx.lineTo(feedPortX, liquidLevelY + 20);
+        ctx.stroke();
+        // Droplet ripple
+        ctx.beginPath();
+        ctx.arc(feedPortX, liquidLevelY + 20, (1.0 - State.feedPulseTimer) * 18, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.restore();
+        State.feedPulseTimer -= 0.04;
+      }
+
+      // --- H. GLASS VESSEL WALLS & SPECULAR HIGHLIGHTS ---
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(vLeft, vTop);
+      ctx.lineTo(vLeft, vBottom - 50);
+      ctx.quadraticCurveTo(W / 2, vBottom + 12, vRight, vBottom - 50);
+      ctx.lineTo(vRight, vTop);
+      ctx.stroke();
+
+      // Specular Glass Reflection Sheen
+      const glassGrad = ctx.createLinearGradient(vLeft, vTop, vLeft + 40, vTop);
+      glassGrad.addColorStop(0, 'rgba(255, 255, 255, 0.28)');
+      glassGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+      ctx.fillStyle = glassGrad;
+      ctx.fillRect(vLeft + 3, vTop, 35, vHeight * 0.85);
+      ctx.restore();
+
+      requestAnimationFrame(renderBioreactor);
+    }
+
+    /* =========================================================================
+       5. TELEMETRY CHART INITIALIZATION (Chart.js)
+       ========================================================================= */
+    const chartCtx = document.getElementById('telemetryChart').getContext('2d');
+    const telemetryChart = new Chart(chartCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: 'Biomass X (g/L)',
+            data: [],
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            borderWidth: 2.2,
+            tension: 0.3,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Substrate S (g/L)',
+            data: [],
+            borderColor: '#f59e0b',
+            backgroundColor: 'transparent',
+            borderWidth: 2.2,
+            tension: 0.3,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Dissolved O₂ (% Sat)',
+            data: [],
+            borderColor: '#06b6d4',
+            backgroundColor: 'transparent',
+            borderWidth: 1.8,
+            borderDash: [4, 4],
+            tension: 0.3,
+            yAxisID: 'y1'
+          },
+          {
+            label: 'Product P (g/L)',
+            data: [],
+            borderColor: '#a855f7',
+            backgroundColor: 'transparent',
+            borderWidth: 2.2,
+            tension: 0.3,
+            yAxisID: 'y'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'Cultivation Time [Hours]', color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } },
+            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+            ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 9 }, maxTicksLimit: 8 }
+          },
+          y: {
+            title: { display: true, text: 'Concentration [g/L]', color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } },
+            min: 0,
+            max: 42,
+            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+            ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 9 } }
+          },
+          y1: {
+            position: 'right',
+            title: { display: true, text: 'Dissolved O₂ [%]', color: '#06b6d4', font: { family: 'JetBrains Mono', size: 10 } },
+            min: 0,
+            max: 110,
+            grid: { drawOnChartArea: false },
+            ticks: { color: '#06b6d4', font: { family: 'JetBrains Mono', size: 9 } }
+          }
+        }
+      }
+    });
+
+    /* =========================================================================
+       6. SIMULATION MAIN EVENT LOOP
+       ========================================================================= */
+    let lastTimestamp = performance.now();
+    let chartSampleTimer = 0;
+
+    function mainSimulationLoop(currentTimestamp) {
+      const deltaSec = (currentTimestamp - lastTimestamp) / 1000.0;
+      lastTimestamp = currentTimestamp;
+
+      if (State.isRunning && deltaSec < 0.5) {
+        // dt in hours = real delta seconds * speed multiplier / 3600
+        const dt_hours = (deltaSec * State.speedMultiplier);
+        const simStep = stepKinetics(dt_hours);
+
+        // Update DOM Telemetry readouts
+        document.getElementById('disp-batch-time').innerText = `${State.time_h.toFixed(2)} h`;
+        document.getElementById('disp-batch-days').innerText = `Day ${(State.time_h / 24.0).toFixed(1)}`;
+        
+        document.getElementById('kpi-biomass').innerText = State.X.toFixed(2);
+        document.getElementById('kpi-substrate').innerText = State.S.toFixed(2);
+        const doSatPercent = ((State.CL / State.C_star) * 100.0);
+        document.getElementById('kpi-oxygen').innerText = doSatPercent.toFixed(1);
+        document.getElementById('kpi-product').innerText = State.P.toFixed(2);
+        
+        if (simStep) {
+          document.getElementById('kpi-mu').innerText = `${simStep.mu.toFixed(2)} h⁻¹`;
+          document.getElementById('kpi-kla').innerText = `${simStep.kla.toFixed(1)} h⁻¹`;
+          document.getElementById('disp-reynolds').innerText = Math.round(simStep.hydro.Re).toLocaleString();
+          document.getElementById('disp-tip-speed').innerText = `${simStep.hydro.v_tip.toFixed(2)} m/s`;
+          document.getElementById('disp-power-density').innerText = `${simStep.hydro.P_density_kW_m3.toFixed(2)} kW/m³`;
+          
+          document.getElementById('overlay-od').innerText = (State.X * 1.05).toFixed(2);
+          document.getElementById('overlay-shear').innerText = `${(simStep.hydro.v_tip * 6.0).toFixed(1)} s⁻¹`;
+          document.getElementById('overlay-turbidity').innerText = State.X > 6.0 ? 'High' : (State.X > 2.5 ? 'Moderate' : 'Low');
+
+          // Carbon calculations
+          const sConsumed = Math.max(0.0, 35.0 - State.S);
+          const cIn = (sConsumed * 0.40).toFixed(1);
+          const cFixed = (((State.X - 0.8) * 0.48) + (State.P * 0.45)).toFixed(1);
+          document.getElementById('disp-c-in').innerText = `${cIn} g C/L`;
+          document.getElementById('disp-c-fixed').innerText = `${cFixed} g C/L`;
+          document.getElementById('disp-c-co2').innerText = `${Math.max(0.0, cIn - cFixed).toFixed(1)} g C/L`;
+        }
+
+        // Push to Chart.js history
+        chartSampleTimer += dt_hours;
+        if (chartSampleTimer >= 0.25) { // Sample every 15 simulation minutes
+          chartSampleTimer = 0;
+          telemetryChart.data.labels.push(State.time_h.toFixed(1));
+          telemetryChart.data.datasets[0].data.push(State.X);
+          telemetryChart.data.datasets[1].data.push(State.S);
+          telemetryChart.data.datasets[2].data.push(doSatPercent);
+          telemetryChart.data.datasets[3].data.push(State.P);
+
+          // Keep sliding window of 60 points
+          if (telemetryChart.data.labels.length > 70) {
+            telemetryChart.data.labels.shift();
+            telemetryChart.data.datasets.forEach(ds => ds.data.shift());
+          }
+          telemetryChart.update();
+        }
+      }
+
+      requestAnimationFrame(mainSimulationLoop);
+    }
+
+    /* =========================================================================
+       7. UI INTERACTION HANDLERS & REACTOR SWITCHER
+       ======================================================================== */
+    function setReactorType(type) {
+      State.reactorType = type;
+      ['str-rushton', 'str-marine', 'airlift', 'pbr'].forEach(id => {
+        const btn = document.getElementById(`type-${id}`);
+        btn.classList.remove('bg-cyan-500', 'text-slate-950', 'font-semibold', 'shadow');
+        btn.classList.add('text-slate-400');
+      });
+
+      const activeBtn = document.getElementById(`type-${type.replace('_', '-')}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-400');
+        activeBtn.classList.add('bg-cyan-500', 'text-slate-950', 'font-semibold', 'shadow');
+      }
+
+      const titles = {
+        'str_rushton': '20 L Bench-Scale Stirred Tank (Rushton Turbines)',
+        'str_marine': '20 L Mammalian Stirred Tank (Axial Marine Propeller)',
+        'airlift': '20 L Airlift Loop Bioreactor (Concentric Draft Tube)',
+        'pbr': '20 L Tubular Photobioreactor (Algae/Cyanobacteria)'
+      };
+      document.getElementById('vessel-badge-title').innerText = titles[type];
+    }
+
+    function togglePlayPause() {
+      State.isRunning = !State.isRunning;
+      const btn = document.getElementById('btn-play-pause');
+      const icon = document.getElementById('play-icon');
+      const text = document.getElementById('play-text');
+      if (State.isRunning) {
+        icon.innerText = '⏸️';
+        text.innerText = 'PAUSE';
+        btn.classList.remove('bg-emerald-500/20', 'text-emerald-400');
+        btn.classList.add('bg-amber-500/20', 'text-amber-400');
+      } else {
+        icon.innerText = '▶️';
+        text.innerText = 'PLAY';
+        btn.classList.remove('bg-amber-500/20', 'text-amber-400');
+        btn.classList.add('bg-emerald-500/20', 'text-emerald-400');
+      }
+    }
+
+    function setSpeed(spd) {
+      State.speedMultiplier = spd;
+      [1, 5, 20].forEach(s => {
+        const btn = document.getElementById(`btn-speed-${s}`);
+        btn.classList.remove('text-cyan-400', 'bg-cyan-950/60', 'font-bold');
+        btn.classList.add('text-slate-400');
+      });
+      const activeBtn = document.getElementById(`btn-speed-${spd}`);
+      activeBtn.classList.remove('text-slate-400');
+      activeBtn.classList.add('text-cyan-400', 'bg-cyan-950/60', 'font-bold');
+    }
+
+    function updateControls() {
+      State.rpm = parseFloat(document.getElementById('input-rpm').value);
+      State.vvm = parseFloat(document.getElementById('input-vvm').value);
+      State.temp_C = parseFloat(document.getElementById('input-temp').value);
+      State.ph = parseFloat(document.getElementById('input-ph').value);
+
+      document.getElementById('val-rpm').innerText = `${State.rpm} RPM`;
+      document.getElementById('val-vvm').innerText = `${State.vvm.toFixed(1)} vvm`;
+      document.getElementById('disp-temp').innerText = `${State.temp_C.toFixed(1)} °C`;
+      document.getElementById('disp-ph').innerText = `${State.ph.toFixed(2)} pH`;
+    }
+
+    function injectFeedPulse() {
+      State.feedPulseActive = true;
+      State.feedPulseTimer = 1.0;
+      
+      const notif = document.getElementById('feed-notification');
+      notif.classList.remove('opacity-0');
+      notif.classList.add('opacity-100');
+      setTimeout(() => {
+        notif.classList.remove('opacity-100');
+        notif.classList.add('opacity-0');
+      }, 1400);
+    }
+
+    function resetSimulation() {
+      State.time_h = 0.0;
+      State.X = 0.80;
+      State.S = 35.0;
+      State.CL = State.C_star;
+      State.P = 0.0;
+      telemetryChart.data.labels = [];
+      telemetryChart.data.datasets.forEach(ds => ds.data = []);
+      telemetryChart.update();
+    }
+
+    function exportCSV() {
+      let csv = "Time_h,Biomass_g_L,Substrate_g_L,DissolvedOxygen_pct,Product_g_L\n";
+      const labels = telemetryChart.data.labels;
+      const b = telemetryChart.data.datasets[0].data;
+      const s = telemetryChart.data.datasets[1].data;
+      const doP = telemetryChart.data.datasets[2].data;
+      const p = telemetryChart.data.datasets[3].data;
+
+      for (let i = 0; i < labels.length; i++) {
+        csv += `${labels[i]},${b[i]},${s[i]},${doP[i]},${p[i]}\n`;
+      }
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `bioprocess_run_${State.reactorType}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Launch Renderers & Event Loops
+    requestAnimationFrame(renderBioreactor);
+    requestAnimationFrame(mainSimulationLoop);
+  </script>
+</body>
+</html>

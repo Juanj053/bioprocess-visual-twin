@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this bioprocess simulator in your research, teaching, or industrial biomanufacturing workflows, please cite it as below."
+authors:
+  - family-names: "Álvarez Morales"
+    given-names: "Juan José"
+    orcid: "https://orcid.org/0009-0004-9844-3866"
+    affiliation: "Elevate Biotech & Agromanper"
+title: "bioprocess-visual-twin: Physics-based Interactive Bioreactor Digital Twin and Real-time SCADA Telemetry Simulator"
+version: 1.0.0
+date-released: 2026-10-28
+url: "https://github.com/Juanj053/bioprocess-visual-twin"
+repository-code: "https://github.com/Juanj053/bioprocess-visual-twin"
+license: MIT
+keywords:
+  - bioreactor-simulator
+  - digital-twin
+  - bioprocess-engineering
+  - fermentation
+  - stirred-tank-reactor
+  - airlift-bioreactor
+  - monod-kinetics
+  - scada-telemetry
