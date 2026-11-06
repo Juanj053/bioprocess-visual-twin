@@ -10,12 +10,13 @@
   <a href="https://github.com/Juanj053/bioprocess-visual-twin/actions"><img src="https://img.shields.io/badge/CI-passing-brightgreen?style=for-the-badge&logo=githubactions&logoColor=white" alt="CI"></a>
   <a href="https://www.linkedin.com/in/juanj-alva"><img src="https://img.shields.io/badge/LinkedIn-Juan%20Jos%C3%A9%20%C3%81lvarez-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License"></a>
-  <img src="https://img.shields.io/badge/Engine-60%20FPS%20Canvas%202D-10B981?style=for-the-badge" alt="Engine">
+  <img src="https://img.shields.io/badge/3D%20Engine-Three.js%20WebGL-10B981?style=for-the-badge&logo=threedotjs&logoColor=white" alt="Engine">
+  <img src="https://img.shields.io/badge/Controls-360%C2%B0%20OrbitControls-06B6D4?style=for-the-badge" alt="Orbit">
 </p>
 
 ---
 
-### 🌐 [Click Here to Launch the Live Interactive Simulator (No Install Required)](https://juanj053.github.io/bioprocess-visual-twin/)
+### 🌐 [Click Here to Launch the Live Interactive 3D Simulator (No Install Required)](https://juanj053.github.io/bioprocess-visual-twin/)
 
 ---
 
@@ -23,25 +24,28 @@
 
 In biochemical engineering and precision industrial biotechnology, computer simulations are traditionally confined to abstract terminal logs or static 2D Matplotlib plots. Engineers and students rarely get to **see and feel** the physical coupling between agitation speed, aeration micro-bubbles, fluid shear, and microbial biomass proliferation.
 
-**`bioprocess-visual-twin`** bridges computational ODE kinetics with real-time **high-performance 60 FPS fluid rendering**. It allows bioengineers, researchers, and operators to interactively experiment with:
-- **Agitation speed (RPM)** and the formation of a physical surface vortex.
-- **Aeration rates (vvm)** and microbubble ascension dynamics.
-- **Broth optical turbidity ($OD_{600}$)** shifting from translucent nutrient broth to dense golden-amber cell suspensions.
-- **Thermal jackets** and in-situ polarographic DO/pH sensor probes.
-- **Fed-batch substrate pulse injection** with immediate kinetic metabolic response.
+**`bioprocess-visual-twin`** bridges computational ODE kinetics with real-time **photorealistic 3D WebGL rendering powered by Three.js**. It allows bioengineers, researchers, and operators to interactively experiment with:
+- **360° Interactive OrbitControls**: Pan, tilt, and zoom around the vessel in 3D with pre-configured camera view presets (Front, Impeller zoom, Vortex top-down).
+- **Physical Borosilicate Glass & Stainless 316L Headplate**: PBR transmission materials with specular highlights, tri-clamp ports, and motor housing.
+- **Dynamic 3D Impeller Swirl**: Rotating dual Rushton turbines or marine axial hydrofoils driving fluid mixing at real RPM.
+- **Interactive 3D Bubble Swarm**: Helical swirl, radial dispersion, and buoyancy velocity scaling dynamically with aeration (vvm).
+- **Broth Optical Turbidity ($OD_{600}$)**: Transitioning from translucent nutrient broth to dense golden-amber cell suspensions as biomass grows.
+- **Active Thermal Jacket**: Real-time status glow reflecting heating/cooling PID controllers.
+- **Fed-batch substrate pulse injection**: Instant visual and kinetic response upon glucose feeding.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        BIOPROCESS VISUAL TWIN SYSTEM ARCHITECTURE                      │
+│                      BIOPROCESS VISUAL TWIN 3D ARCHITECTURE (THREE.JS)                 │
 └───────────────────────────────────────────┬────────────────────────────────────────────┘
                                             │
         ┌───────────────────────────────────┼───────────────────────────────────┐
         ▼                                   ▼                                   ▼
-[ 60 FPS FLUID RENDERER ]           [ COUPLED ODE ENGINE ]              [ REAL-TIME SCADA ]
-• Dynamic Broth Turbidity           • Dual Monod Growth: μ(S, CL)       • Biomass & Glucose Curves
-• Impeller Blade Perspective        • Pirt Substrate Balance: dS/dt     • Dissolved O2 & Product
-• Micro-Bubble Particle System      • Oxygen Transfer: kla(C* - CL)     • Hydrodynamics: Re, P/V, kla
-• Torispherical Dish Geometry       • Luedeking-Piret: dP/dt            • Carbon Balance Auditor (99.8%)
+[ 3D WEBGL PBR RENDERER ]           [ COUPLED ODE ENGINE ]              [ REAL-TIME SCADA ]
+• 360° OrbitControls Camera         • Dual Monod Growth: μ(S, CL)       • Biomass & Glucose Curves
+• Borosilicate Glass Transmission   • Pirt Substrate Balance: dS/dt     • Dissolved O2 & Product
+• Rushton & Marine 3D Impellers     • Oxygen Transfer: kla(C* - CL)     • Hydrodynamics: Re, P/V, kla
+• 3D Helical Bubble Swarm           • Luedeking-Piret: dP/dt            • Carbon Balance Auditor (99.8%)
+• Optical Turbidity (OD600)         • Temperature & pH Arrhenius        • Instant CSV Data Export
 ```
 
 ---

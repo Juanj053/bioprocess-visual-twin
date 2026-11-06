@@ -3,28 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bioprocess Visual Twin | Interactive Bioreactor Simulator</title>
-  <meta name="description" content="Physics-based interactive digital twin for aerobic stirred-tank and airlift bioreactors with real-time fluid visualization and SCADA telemetry.">
+  <title>Bioprocess Visual Twin 3D | Interactive Bioreactor Simulator</title>
+  <meta name="description" content="Photorealistic 3D WebGL physics-informed digital twin for aerobic stirred-tank and airlift bioreactors with real-time fluid visualization and SCADA telemetry.">
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Chart.js for SCADA Real-time Telemetry -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <!-- Three.js (r128) & OrbitControls from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
       background-color: #07090e;
       color: #e2e8f0;
+      overflow-x: hidden;
     }
     .font-mono {
       font-family: 'JetBrains Mono', monospace;
     }
-    /* Glow and Glassmorphism accents */
     .glass-panel {
-      background: rgba(15, 23, 42, 0.75);
+      background: rgba(15, 23, 42, 0.78);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
     }
     .glow-cyan {
       box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.35);
@@ -32,7 +43,6 @@
     .glow-emerald {
       box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.35);
     }
-    /* Custom Range Sliders */
     input[type=range] {
       -webkit-appearance: none;
       background: #1e293b;
@@ -53,12 +63,24 @@
       transform: scale(1.2);
       background: #22d3ee;
     }
+    /* 3D Canvas Container */
+    #canvas-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 520px;
+    }
+    #threeCanvas {
+      width: 100% !important;
+      height: 100% !important;
+      outline: none;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col selection:bg-cyan-500 selection:text-black">
 
   <!-- TOP NAVIGATION BAR -->
-  <header class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur sticky top-0 z-50 px-4 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+  <header class="border-b border-slate-800/80 bg-slate-950/85 backdrop-blur sticky top-0 z-50 px-4 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 via-emerald-500 to-teal-400 flex items-center justify-center font-bold text-slate-950 text-xl shadow-lg shadow-cyan-500/20">
         🧬
@@ -66,10 +88,10 @@
       <div>
         <div class="flex items-center gap-2">
           <h1 class="text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
-            BIOPROCESS VISUAL TWIN <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-800/50 font-mono">v1.0-LIVE</span>
+            BIOPROCESS VISUAL TWIN 3D <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-800/50 font-mono">3D-WEBGL</span>
           </h1>
         </div>
-        <p class="text-xs text-slate-400">Physics-Informed Real-Time Bioreactor Fluid & Telemetry Simulator • <a href="https://www.linkedin.com/in/juanj-alva" target="_blank" class="text-cyan-400 hover:underline">Ing. Juan José Álvarez Morales</a></p>
+        <p class="text-xs text-slate-400">Physics-Informed Real-Time Bioreactor 3D Digital Twin & SCADA Telemetry • <a href="https://www.linkedin.com/in/juanj-alva" target="_blank" class="text-cyan-400 hover:underline">Ing. Juan José Álvarez Morales</a></p>
       </div>
     </div>
 
@@ -114,9 +136,9 @@
   </header>
 
   <!-- MAIN VIEWPORT GRID -->
-  <main class="flex-1 p-3 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 max-w-[1700px] w-full mx-auto">
+  <main class="flex-1 p-3 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 max-w-[1780px] w-full mx-auto">
 
-    <!-- LEFT COLUMN: PHYSICAL VESSEL SIMULATION CANVAS (5 Cols) -->
+    <!-- LEFT COLUMN: 3D PHOTOREALISTIC WEBGL VIEWPORT (5 Cols) -->
     <section class="lg:col-span-5 flex flex-col gap-4">
       <div class="glass-panel rounded-2xl p-4 flex flex-col flex-1 relative overflow-hidden">
         
@@ -126,25 +148,40 @@
             <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span id="vessel-badge-title" class="text-xs font-mono font-bold tracking-wider text-cyan-300 uppercase">20 L Bench-Scale Stirred Tank (Rushton)</span>
           </div>
-          <div class="text-xs font-mono bg-slate-950/70 border border-slate-800 px-2 py-1 rounded-md text-slate-300">
+          <div class="text-xs font-mono bg-slate-950/80 border border-slate-800 px-2 py-1 rounded-md text-slate-300">
             Time: <span id="disp-batch-time" class="text-emerald-400 font-bold">0.00 h</span> (<span id="disp-batch-days" class="text-slate-400">Day 0.0</span>)
           </div>
         </div>
 
-        <!-- Canvas Container -->
-        <div class="flex-1 min-h-[460px] relative flex items-center justify-center rounded-xl bg-gradient-to-b from-slate-950/80 to-slate-900/60 border border-slate-800/60 overflow-hidden">
-          <canvas id="bioreactorCanvas" width="540" height="660" class="max-w-full h-auto cursor-crosshair"></canvas>
+        <!-- 3D Canvas Container with WebGL -->
+        <div id="canvas-container" class="flex-1 min-h-[500px] relative flex items-center justify-center rounded-xl bg-gradient-to-b from-slate-950/90 to-slate-900/80 border border-slate-800/80 overflow-hidden group">
+          
+          <canvas id="threeCanvas"></canvas>
 
           <!-- Floating Feed Animation Notification -->
-          <div id="feed-notification" class="absolute top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-950 font-bold px-3 py-1 rounded-full text-xs opacity-0 transition-opacity duration-300 pointer-events-none shadow-lg">
+          <div id="feed-notification" class="absolute top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-950 font-bold px-3 py-1 rounded-full text-xs opacity-0 transition-opacity duration-300 pointer-events-none shadow-lg z-20">
             + Glucose Feed Pulse Injected
           </div>
 
-          <!-- Vessel In-situ Sensor Labels (Overlay) -->
-          <div class="absolute bottom-3 left-3 flex flex-wrap gap-2 text-[10px] font-mono text-slate-400 pointer-events-none">
-            <span class="bg-slate-950/80 px-2 py-0.5 rounded border border-slate-800">OD600: <b id="overlay-od" class="text-emerald-400">0.82</b></span>
-            <span class="bg-slate-950/80 px-2 py-0.5 rounded border border-slate-800">Shear: <b id="overlay-shear" class="text-cyan-400">12.4 s⁻¹</b></span>
-            <span class="bg-slate-950/80 px-2 py-0.5 rounded border border-slate-800">Turbidity: <b id="overlay-turbidity" class="text-amber-400">Low</b></span>
+          <!-- 3D Camera Preset Overlay Bar -->
+          <div class="absolute top-3 left-3 flex items-center gap-1.5 bg-slate-950/80 backdrop-blur border border-slate-800/80 px-2 py-1 rounded-lg z-20 text-[11px] font-mono">
+            <span class="text-slate-400 mr-1">🎥 3D Camera:</span>
+            <button onclick="setCameraView('front')" class="px-2 py-0.5 rounded hover:bg-slate-800 text-cyan-400 transition">Front</button>
+            <button onclick="setCameraView('impeller')" class="px-2 py-0.5 rounded hover:bg-slate-800 text-slate-300 hover:text-white transition">Impeller</button>
+            <button onclick="setCameraView('top')" class="px-2 py-0.5 rounded hover:bg-slate-800 text-slate-300 hover:text-white transition">Vortex</button>
+            <button onclick="resetCameraView()" class="px-1.5 py-0.5 rounded hover:bg-slate-800 text-slate-400" title="Reset View">🔄</button>
+          </div>
+
+          <!-- In-situ 3D Sensor Badges (Overlay) -->
+          <div class="absolute bottom-3 left-3 flex flex-wrap gap-2 text-[10px] font-mono text-slate-400 pointer-events-none z-20">
+            <span class="bg-slate-950/85 backdrop-blur px-2 py-0.5 rounded border border-slate-800">OD600: <b id="overlay-od" class="text-emerald-400">0.82</b></span>
+            <span class="bg-slate-950/85 backdrop-blur px-2 py-0.5 rounded border border-slate-800">Shear: <b id="overlay-shear" class="text-cyan-400">12.4 s⁻¹</b></span>
+            <span class="bg-slate-950/85 backdrop-blur px-2 py-0.5 rounded border border-slate-800">Turbidity: <b id="overlay-turbidity" class="text-amber-400">Low (Clear)</b></span>
+          </div>
+
+          <!-- Interactive Hint -->
+          <div class="absolute bottom-3 right-3 text-[10px] font-mono text-slate-500 bg-slate-950/70 px-2 py-0.5 rounded border border-slate-800/60 pointer-events-none z-20 hidden sm:block">
+            🖱️ Click & Drag to Rotate 360° • Scroll to Zoom
           </div>
         </div>
 
@@ -309,23 +346,20 @@
 
   </main>
 
-  <!-- JAVASCRIPT KINETIC ENGINE & CANVAS RENDERER -->
+  <!-- JAVASCRIPT: BIOPROCESS KINETIC ENGINE & THREE.JS 3D RENDERER -->
   <script>
     /* =========================================================================
-       1. BIOPROCESS KINETIC ENGINE (Coupled Ordinary Differential Equations)
+       1. GLOBAL SIMULATION STATE
        ========================================================================= */
     const State = {
-      // Configuration
       reactorType: 'str_rushton', // 'str_rushton', 'str_marine', 'airlift', 'pbr'
       volume_L: 20.0,
       
-      // Environmental & physical inputs
       rpm: 450,
       vvm: 1.2,
       temp_C: 30.0,
       ph: 6.85,
       
-      // Dynamic variables
       time_h: 0.0,
       X: 0.80,         // Biomass [g/L]
       S: 35.0,         // Glucose substrate [g/L]
@@ -333,7 +367,6 @@
       P: 0.00,         // Recombinant Product [g/L]
       C_star: 0.0078,  // Equilibrium DO [g/L]
       
-      // Kinetic parameters
       mu_max: 0.35,
       Ks: 2.0,
       Ko: 0.0008,
@@ -346,99 +379,72 @@
       alpha: 0.15,
       beta: 0.010,
       
-      // Simulation loop state
       isRunning: true,
-      speedMultiplier: 5, // hours simulated per wall-clock second
+      speedMultiplier: 5,
       feedPulseActive: false,
-      feedPulseTimer: 0,
-    };
-
-    // Telemetry History for Chart.js
-    const historyData = {
-      labels: [],
-      biomass: [],
-      substrate: [],
-      oxygen: [],
-      product: []
+      feedPulseTimer: 0.0
     };
 
     /* =========================================================================
-       2. HYDRODYNAMICS & MASS TRANSFER CORRELATIONS
+       2. HYDRODYNAMICS & PROCESS CORRELATIONS
        ========================================================================= */
     function computeHydrodynamics() {
-      const D_tank = 0.25; // Tank diameter [m] (20 L vessel)
-      const D_impeller = D_tank * 0.35; // Impeller diameter [m]
-      const rho = 1000; // Liquid density [kg/m^3]
-      const mu_visc = 0.001; // Water viscosity [Pa*s]
+      const D_tank = 0.25; // [m]
+      const D_impeller = D_tank * 0.35; // [m]
+      const rho = 1000; // [kg/m^3]
+      const mu_visc = 0.001; // [Pa*s]
       const N_rps = State.rpm / 60.0;
       
-      // Reynolds Number
       const Re = (rho * N_rps * Math.pow(D_impeller, 2)) / mu_visc;
-      
-      // Tip speed v_tip = pi * D_i * N
       const v_tip = Math.PI * D_impeller * N_rps;
 
-      // Power Number Np based on impeller type
       let Np = 5.0; // Rushton 6-blade
       if (State.reactorType === 'str_marine') Np = 0.87;
       if (State.reactorType === 'airlift') Np = 0.0;
       if (State.reactorType === 'pbr') Np = 0.1;
 
-      // Power draw P = Np * rho * N^3 * D^5 [Watts]
       const P_watts = Np * rho * Math.pow(N_rps, 3) * Math.pow(D_impeller, 5);
       const P_density_kW_m3 = (P_watts / (State.volume_L / 1000.0)) / 1000.0;
 
-      // Gas superficial velocity vs = Fg / A_tank [m/s]
       const Fg_m3_s = (State.vvm * State.volume_L) / (1000.0 * 60.0);
       const A_tank = Math.PI * Math.pow(D_tank / 2.0, 2);
       const vs_m_s = Fg_m3_s / A_tank;
 
-      // Volumetric mass transfer coefficient kla (Van't Riet correlation)
       let kla = 0.026 * Math.pow((P_watts / (State.volume_L / 1000.0)), 0.4) * Math.pow(vs_m_s, 0.5) * 3600.0;
       if (State.reactorType === 'airlift') {
-        kla = 0.32 * Math.pow(vs_m_s, 0.7) * 3600.0; // Bubble column correlation
+        kla = 0.32 * Math.pow(vs_m_s, 0.7) * 3600.0;
       }
       kla = Math.max(15.0, Math.min(180.0, kla));
 
       return { Re, v_tip, P_density_kW_m3, kla };
     }
 
-    /* =========================================================================
-       3. KINETIC STEPPING (Runge-Kutta / Euler Integration dt)
-       ========================================================================= */
     function stepKinetics(dt_hours) {
       if (!State.isRunning) return;
 
       const hydro = computeHydrodynamics();
       const kla = hydro.kla;
 
-      // Feed pulse integration
       if (State.feedPulseActive) {
-        State.S += 5.0; // Instantaneous pulse injection
+        State.S += 5.0;
         State.feedPulseActive = false;
       }
 
-      // Dual Monod specific growth rate mu
       let mu = 0.0;
       if (State.S > 1e-4 && State.CL > 1e-6) {
-        // Temperature & pH inhibition factors
         const temp_factor = Math.exp(-Math.pow((State.temp_C - 30.0) / 7.0, 2));
         const ph_factor = Math.exp(-Math.pow((State.ph - 6.85) / 1.1, 2));
-        
         mu = State.mu_max * (State.S / (State.Ks + State.S)) * (State.CL / (State.Ko + State.CL)) * temp_factor * ph_factor;
       }
 
-      // Specific production & respiration rates
       const q_P = State.S > 1e-4 ? (State.alpha * mu + State.beta) : 0.0;
       const q_O2 = State.S > 1e-4 ? ((mu / State.Yxo) + State.mo) : 0.0;
 
-      // ODE rates
       const dX_dt = (mu - State.kd) * State.X;
       const dS_dt = State.S > 1e-4 ? - ((mu / State.Yxs) + State.ms + (q_P / State.Yps)) * State.X : 0.0;
       const dCL_dt = kla * (State.C_star - State.CL) - q_O2 * State.X;
       const dP_dt = q_P * State.X;
 
-      // Update state
       State.X = Math.max(0.01, State.X + dX_dt * dt_hours);
       State.S = Math.max(0.0, State.S + dS_dt * dt_hours);
       State.CL = Math.max(0.0001, Math.min(State.C_star * 1.05, State.CL + dCL_dt * dt_hours));
@@ -449,249 +455,519 @@
     }
 
     /* =========================================================================
-       4. HIGH-PERFORMANCE 60 FPS CANVAS BIOPROCESS VISUAL RENDERER
+       3. THREE.JS PHOTOREALISTIC 3D BIOREACTOR ENGINE
        ========================================================================= */
-    const canvas = document.getElementById('bioreactorCanvas');
-    const ctx = canvas.getContext('2d');
-    let impellerAngle = 0.0;
+    let scene, camera, renderer, controls;
+    let vesselGroup, impellerShaftGroup, rushtonGroup, marineGroup, airliftGroup, pbrGroup;
+    let liquidMesh, liquidSurfaceMesh, glassVesselMesh, thermalJacketMesh;
+    let bubbleParticles = [];
+    let feedDroplets = [];
+    const NUM_BUBBLES = 180;
 
-    // Particle Bubble System
-    const bubbles = [];
-    for (let i = 0; i < 90; i++) {
-      bubbles.push({
-        x: Math.random(),
-        y: Math.random(),
-        r: 1.5 + Math.random() * 3.5,
-        speed: 0.002 + Math.random() * 0.005,
-        oscAmp: 2 + Math.random() * 4,
-        oscFreq: 2 + Math.random() * 6
+    function initThreeScene() {
+      const container = document.getElementById('canvas-container');
+      const canvas = document.getElementById('threeCanvas');
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      // 1. Scene & Camera
+      scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x07090e, 0.06);
+
+      camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 50);
+      camera.position.set(0, 0.8, 5.0);
+
+      // 2. Renderer
+      renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        antialias: true,
+        alpha: true,
+        powerPreference: 'high-performance'
       });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.25;
+
+      // 3. Orbit Controls
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.maxPolarAngle = Math.PI / 2 + 0.15;
+      controls.minDistance = 2.0;
+      controls.maxDistance = 8.5;
+      controls.target.set(0, 0.1, 0);
+
+      // 4. Lighting Rig
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+      scene.add(ambientLight);
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
+      keyLight.position.set(4, 7, 5);
+      scene.add(keyLight);
+
+      const cyanRimLight = new THREE.DirectionalLight(0x06b6d4, 1.2);
+      cyanRimLight.position.set(-5, 3, -4);
+      scene.add(cyanRimLight);
+
+      const bottomLight = new THREE.PointLight(0x10b981, 1.4, 6);
+      bottomLight.position.set(0, -2.5, 0);
+      scene.add(bottomLight);
+
+      // 5. Construct Bioreactor 3D Models
+      buildBioreactor3D();
+
+      // 6. Window Resize Handler
+      window.addEventListener('resize', onWindowResize);
     }
 
-    function renderBioreactor(timestamp) {
-      const W = canvas.width;
-      const H = canvas.height;
-      ctx.clearRect(0, 0, W, H);
+    function buildBioreactor3D() {
+      vesselGroup = new THREE.Group();
+      scene.add(vesselGroup);
 
-      // Geometry coordinates
-      const vLeft = W * 0.15;
-      const vRight = W * 0.85;
-      const vTop = H * 0.12;
-      const vBottom = H * 0.88;
-      const vWidth = vRight - vLeft;
-      const vHeight = vBottom - vTop;
-      const liquidLevelY = vTop + vHeight * 0.22; // Broth surface
-
-      // --- A. VESSEL HEATING/COOLING JACKET ---
-      const jacketOffset = 14;
-      ctx.save();
-      ctx.strokeStyle = State.temp_C > 30.5 ? 'rgba(239, 68, 68, 0.4)' : (State.temp_C < 29.5 ? 'rgba(59, 130, 246, 0.4)' : 'rgba(16, 185, 129, 0.25)');
-      ctx.lineWidth = 6;
-      ctx.beginPath();
-      ctx.arc(W / 2, vBottom - 40, (vWidth / 2) + jacketOffset, 0.15 * Math.PI, 0.85 * Math.PI, false);
-      ctx.stroke();
-      ctx.restore();
-
-      // --- B. BROTH LIQUID WITH DYNAMIC BIOMASS TURBIDITY & DO COLOR ---
-      ctx.save();
-      // Color shifts from crystal pale nutrient (OD low) to turbid golden amber (OD high)
-      const biomassNorm = Math.min(1.0, (State.X - 0.8) / 10.0);
-      const r_col = Math.round(180 + biomassNorm * 35);
-      const g_col = Math.round(210 - biomassNorm * 80);
-      const b_col = Math.round(190 - biomassNorm * 120);
-      const brothAlpha = 0.45 + biomassNorm * 0.50; // High OD = dense turbid opacity
-
-      const brothGrad = ctx.createLinearGradient(vLeft, liquidLevelY, vRight, vBottom);
-      brothGrad.addColorStop(0, `rgba(${r_col}, ${g_col}, ${b_col}, ${brothAlpha * 0.8})`);
-      brothGrad.addColorStop(0.5, `rgba(${r_col - 20}, ${g_col - 30}, ${b_col - 20}, ${brothAlpha})`);
-      brothGrad.addColorStop(1, `rgba(${r_col - 40}, ${g_col - 50}, ${b_col - 30}, ${brothAlpha * 1.1})`);
-
-      // Fluid path with curved torispherical bottom
-      ctx.fillStyle = brothGrad;
-      ctx.beginPath();
-      ctx.moveTo(vLeft + 2, liquidLevelY);
-      
-      // Surface wave & vortex oscillation
-      const vortexDepth = (State.rpm / 900) * 18;
-      ctx.quadraticCurveTo(W / 2, liquidLevelY + vortexDepth + Math.sin(timestamp * 0.005) * 2, vRight - 2, liquidLevelY);
-      ctx.lineTo(vRight - 2, vBottom - 50);
-      ctx.quadraticCurveTo(W / 2, vBottom + 8, vLeft + 2, vBottom - 50);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-
-      // --- C. AIRLIFT / DRAFT TUBE OR STR BAFFLES ---
-      if (State.reactorType === 'airlift') {
-        // Internal Draft Tube
-        ctx.save();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-        ctx.fillStyle = 'rgba(6, 182, 212, 0.05)';
-        ctx.lineWidth = 2.5;
-        const dtWidth = vWidth * 0.38;
-        const dtLeft = (W - dtWidth) / 2;
-        const dtTop = liquidLevelY + 30;
-        const dtHeight = vHeight * 0.52;
-        ctx.strokeRect(dtLeft, dtTop, dtWidth, dtHeight);
-        ctx.fillRect(dtLeft, dtTop, dtWidth, dtHeight);
-        ctx.restore();
-      } else {
-        // Wall Baffles (Anti-vortex plates)
-        ctx.save();
-        ctx.fillStyle = 'rgba(148, 163, 184, 0.3)';
-        ctx.fillRect(vLeft + 3, liquidLevelY, 6, vHeight * 0.65);
-        ctx.fillRect(vRight - 9, liquidLevelY, 6, vHeight * 0.65);
-        ctx.restore();
-      }
-
-      // --- D. SPRAYING BUBBLE PARTICLES (AERATION MICRO-SPARGER) ---
-      ctx.save();
-      const aerationSpeedFactor = State.vvm * 1.4;
-      bubbles.forEach((b) => {
-        // Bubble ascension
-        b.y -= b.speed * aerationSpeedFactor;
-        if (b.y < 0) b.y = 1.0;
-
-        // Position mapping inside broth
-        const bubY = liquidLevelY + (1.0 - b.y) * (vBottom - liquidLevelY - 40);
-        const horizSpread = (b.x - 0.5) * (vWidth * 0.65);
-        const bubX = (W / 2) + horizSpread + Math.sin(timestamp * 0.003 * b.oscFreq + b.y * 10) * b.oscAmp;
-
-        // Render bubble
-        ctx.beginPath();
-        ctx.arc(bubX, bubY, b.r, 0, 2 * Math.PI);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
-        ctx.shadowColor = 'rgba(6, 182, 212, 0.6)';
-        ctx.shadowBlur = 4;
-        ctx.fill();
+      // --- A. MATERIALS ---
+      // Glass (Borosilicate transmission)
+      const glassMat = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        metalness: 0.02,
+        roughness: 0.04,
+        transmission: 0.94,
+        ior: 1.52,
+        thickness: 0.8,
+        transparent: true,
+        opacity: 0.85,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.05,
+        side: THREE.DoubleSide,
+        depthWrite: false
       });
-      ctx.restore();
 
-      // --- E. IMPELLER SHAFT AND ROTATING BLADES (FOR STR) ---
-      if (State.reactorType.startsWith('str')) {
-        ctx.save();
-        // Central drive shaft
-        ctx.fillStyle = '#94a3b8';
-        ctx.fillRect((W / 2) - 4, vTop - 15, 8, vHeight * 0.75);
+      // Stainless Steel 316L (Polished)
+      const steelMat = new THREE.MeshStandardMaterial({
+        color: 0x94a3b8,
+        metalness: 0.95,
+        roughness: 0.18
+      });
 
-        // Update angle based on RPM
-        impellerAngle += (State.rpm / 60.0) * (2 * Math.PI) * 0.016;
+      // Dark Matte Anodized (Motor & clamps)
+      const darkMetalMat = new THREE.MeshStandardMaterial({
+        color: 0x1e293b,
+        metalness: 0.8,
+        roughness: 0.35
+      });
 
-        const impellerLevels = [vBottom - 90, vBottom - 180];
-        impellerLevels.forEach((impY) => {
-          ctx.save();
-          ctx.translate(W / 2, impY);
+      // Liquid Broth Material
+      const liquidMat = new THREE.MeshPhysicalMaterial({
+        color: 0x38bdf8,
+        metalness: 0.0,
+        roughness: 0.15,
+        transmission: 0.70,
+        ior: 1.34,
+        thickness: 1.2,
+        transparent: true,
+        opacity: 0.85,
+        depthWrite: false
+      });
+
+      // Thermal Jacket Glass/Metal
+      const jacketMat = new THREE.MeshPhysicalMaterial({
+        color: 0x10b981,
+        metalness: 0.1,
+        roughness: 0.1,
+        transmission: 0.80,
+        transparent: true,
+        opacity: 0.35,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+
+      // --- B. GLASS VESSEL CYLINDER & TORISPHERICAL BOTTOM ---
+      const tankRadius = 0.88;
+      const tankHeight = 2.3;
+      
+      // Upper Cylinder
+      const cylGeo = new THREE.CylinderGeometry(tankRadius, tankRadius, tankHeight, 48, 1, true);
+      glassVesselMesh = new THREE.Mesh(cylGeo, glassMat);
+      glassVesselMesh.position.y = 0.15;
+      vesselGroup.add(glassVesselMesh);
+
+      // Curved Torispherical Dish Bottom
+      const dishGeo = new THREE.SphereGeometry(tankRadius, 48, 24, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
+      const dishMesh = new THREE.Mesh(dishGeo, glassMat);
+      dishMesh.position.y = -1.0;
+      vesselGroup.add(dishMesh);
+
+      // --- C. THERMAL JACKET ---
+      const jacketGeo = new THREE.CylinderGeometry(tankRadius + 0.08, tankRadius + 0.08, 1.3, 40, 1, true);
+      thermalJacketMesh = new THREE.Mesh(jacketGeo, jacketMat);
+      thermalJacketMesh.position.y = -0.35;
+      vesselGroup.add(thermalJacketMesh);
+
+      // Jacket inlet/outlet nozzles
+      const nozzleGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.25, 16);
+      const noz1 = new THREE.Mesh(nozzleGeo, steelMat);
+      noz1.rotation.z = Math.PI / 2;
+      noz1.position.set(tankRadius + 0.15, -0.6, 0);
+      vesselGroup.add(noz1);
+      const noz2 = new THREE.Mesh(nozzleGeo, steelMat);
+      noz2.rotation.z = Math.PI / 2;
+      noz2.position.set(-tankRadius - 0.15, -0.1, 0);
+      vesselGroup.add(noz2);
+
+      // --- D. BROTH LIQUID INTERIOR ---
+      const liqRadius = tankRadius * 0.97;
+      const liqHeight = 1.7;
+      const liqCylGeo = new THREE.CylinderGeometry(liqRadius, liqRadius, liqHeight, 48, 1, false);
+      liquidMesh = new THREE.Mesh(liqCylGeo, liquidMat);
+      liquidMesh.position.y = -0.15;
+      vesselGroup.add(liquidMesh);
+
+      const liqDishGeo = new THREE.SphereGeometry(liqRadius, 48, 24, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
+      const liqDishMesh = new THREE.Mesh(liqDishGeo, liquidMat);
+      liqDishMesh.position.y = -1.0;
+      vesselGroup.add(liqDishMesh);
+
+      // Liquid Top Surface (Meniscus / Vortex)
+      const surfGeo = new THREE.ConeGeometry(liqRadius, 0.1, 48, 1, false);
+      surfGeo.rotateX(Math.PI);
+      liquidSurfaceMesh = new THREE.Mesh(surfGeo, liquidMat);
+      liquidSurfaceMesh.position.y = 0.70;
+      vesselGroup.add(liquidSurfaceMesh);
+
+      // --- E. STAINLESS HEADPLATE & PORTS ---
+      const headplateGeo = new THREE.CylinderGeometry(tankRadius + 0.12, tankRadius + 0.12, 0.08, 48);
+      const headplate = new THREE.Mesh(headplateGeo, steelMat);
+      headplate.position.y = tankHeight / 2 + 0.15;
+      vesselGroup.add(headplate);
+
+      // 8 Headplate Clamping Bolts
+      for (let i = 0; i < 8; i++) {
+        const ang = (i * Math.PI * 2) / 8;
+        const boltGeo = new THREE.CylinderGeometry(0.035, 0.035, 0.12, 12);
+        const bolt = new THREE.Mesh(boltGeo, darkMetalMat);
+        bolt.position.set(Math.cos(ang) * (tankRadius + 0.06), headplate.position.y + 0.05, Math.sin(ang) * (tankRadius + 0.06));
+        vesselGroup.add(bolt);
+      }
+
+      // Motor Mount & Drive Top Motor
+      const motorBaseGeo = new THREE.CylinderGeometry(0.24, 0.28, 0.18, 24);
+      const motorBase = new THREE.Mesh(motorBaseGeo, steelMat);
+      motorBase.position.y = headplate.position.y + 0.13;
+      vesselGroup.add(motorBase);
+
+      const motorBodyGeo = new THREE.CylinderGeometry(0.20, 0.20, 0.55, 24);
+      const motorBody = new THREE.Mesh(motorBodyGeo, darkMetalMat);
+      motorBody.position.y = motorBase.position.y + 0.35;
+      vesselGroup.add(motorBody);
+
+      // Condenser / Off-gas Exhaust Column
+      const condenserGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.7, 16);
+      const condenser = new THREE.Mesh(condenserGeo, steelMat);
+      condenser.position.set(-0.45, headplate.position.y + 0.38, -0.2);
+      vesselGroup.add(condenser);
+
+      const filterDiscGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.06, 24);
+      const filterDisc = new THREE.Mesh(filterDiscGeo, new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.5 }));
+      filterDisc.position.set(-0.45, condenser.position.y + 0.38, -0.2);
+      vesselGroup.add(filterDisc);
+
+      // Feed addition port with nozzle
+      const feedNozzleGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.3, 12);
+      const feedNozzle = new THREE.Mesh(feedNozzleGeo, steelMat);
+      feedNozzle.position.set(0.42, headplate.position.y + 0.15, 0.25);
+      vesselGroup.add(feedNozzle);
+
+      // --- F. 4 STAINLESS BAFFLES (ANTI-VORTEX WALL PLATES) ---
+      for (let i = 0; i < 4; i++) {
+        const bAng = (i * Math.PI) / 2;
+        const baffleGeo = new THREE.BoxGeometry(0.12, 1.8, 0.015);
+        const baffle = new THREE.Mesh(baffleGeo, steelMat);
+        baffle.position.set(Math.cos(bAng) * (tankRadius - 0.08), 0.0, Math.sin(bAng) * (tankRadius - 0.08));
+        baffle.rotation.y = -bAng;
+        vesselGroup.add(baffle);
+      }
+
+      // --- G. MICRO-SPARGER RING AT BOTTOM ---
+      const spargerRingGeo = new THREE.TorusGeometry(0.35, 0.02, 12, 32);
+      spargerRingGeo.rotateX(Math.PI / 2);
+      const spargerRing = new THREE.Mesh(spargerRingGeo, steelMat);
+      spargerRing.position.y = -0.85;
+      vesselGroup.add(spargerRing);
+
+      // Sparger delivery pipe
+      const spargerPipeGeo = new THREE.CylinderGeometry(0.02, 0.02, 2.1, 12);
+      const spargerPipe = new THREE.Mesh(spargerPipeGeo, steelMat);
+      spargerPipe.position.set(0.35, 0.2, 0.0);
+      vesselGroup.add(spargerPipe);
+
+      // --- H. IN-SITU ANALYTICAL SENSORS ---
+      // 1. DO Optical Probe (Right side, glowing cyan optical tip)
+      const doShaftGeo = new THREE.CylinderGeometry(0.03, 0.03, 1.7, 12);
+      const doShaft = new THREE.Mesh(doShaftGeo, steelMat);
+      doShaft.position.set(0.45, 0.25, -0.35);
+      vesselGroup.add(doShaft);
+      const doTipGeo = new THREE.SphereGeometry(0.035, 16, 16);
+      const doTip = new THREE.Mesh(doTipGeo, new THREE.MeshBasicMaterial({ color: 0x06b6d4 }));
+      doTip.position.set(0.45, -0.60, -0.35);
+      vesselGroup.add(doTip);
+
+      // 2. pH Glass Electrode (Left side, amber/blue tip)
+      const phShaftGeo = new THREE.CylinderGeometry(0.028, 0.028, 1.6, 12);
+      const phShaft = new THREE.Mesh(phShaftGeo, steelMat);
+      phShaft.position.set(-0.45, 0.30, 0.35);
+      vesselGroup.add(phShaft);
+      const phBulbGeo = new THREE.SphereGeometry(0.04, 16, 16);
+      const phBulb = new THREE.Mesh(phBulbGeo, new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, transmission: 0.8, roughness: 0.1 }));
+      phBulb.position.set(-0.45, -0.50, 0.35);
+      vesselGroup.add(phBulb);
+
+      // --- I. DRIVE SHAFT & ROTATING IMPELLERS ---
+      impellerShaftGroup = new THREE.Group();
+      vesselGroup.add(impellerShaftGroup);
+
+      // Central drive shaft
+      const shaftGeo = new THREE.CylinderGeometry(0.035, 0.035, 2.3, 16);
+      const shaft = new THREE.Mesh(shaftGeo, steelMat);
+      shaft.position.y = 0.1;
+      impellerShaftGroup.add(shaft);
+
+      // 1. RUSHTON 6-BLADE TURBINE GROUP
+      rushtonGroup = new THREE.Group();
+      impellerShaftGroup.add(rushtonGroup);
+
+      const rushtonLevels = [-0.70, -0.10];
+      rushtonLevels.forEach((levelY) => {
+        // Central disk
+        const diskGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.02, 32);
+        const disk = new THREE.Mesh(diskGeo, steelMat);
+        disk.position.y = levelY;
+        rushtonGroup.add(disk);
+
+        // 6 Vertical flat blades
+        for (let b = 0; b < 6; b++) {
+          const bAngle = (b * Math.PI * 2) / 6;
+          const bladeGeo = new THREE.BoxGeometry(0.14, 0.16, 0.015);
+          const blade = new THREE.Mesh(bladeGeo, steelMat);
+          blade.position.set(Math.cos(bAngle) * 0.24, levelY, Math.sin(bAngle) * 0.24);
+          blade.rotation.y = -bAngle;
+          rushtonGroup.add(blade);
+        }
+      });
+
+      // 2. MARINE AXIAL PROPELLER GROUP
+      marineGroup = new THREE.Group();
+      marineGroup.visible = false;
+      impellerShaftGroup.add(marineGroup);
+
+      [-0.65, -0.15].forEach((levelY) => {
+        const hubGeo = new THREE.SphereGeometry(0.09, 16, 16);
+        const hub = new THREE.Mesh(hubGeo, steelMat);
+        hub.position.y = levelY;
+        marineGroup.add(hub);
+
+        for (let b = 0; b < 3; b++) {
+          const bAngle = (b * Math.PI * 2) / 3;
+          const propBladeGeo = new THREE.BoxGeometry(0.28, 0.06, 0.02);
+          const propBlade = new THREE.Mesh(propBladeGeo, steelMat);
+          propBlade.position.set(Math.cos(bAngle) * 0.15, levelY, Math.sin(bAngle) * 0.15);
+          propBlade.rotation.y = -bAngle;
+          propBlade.rotation.x = 0.55; // Pitch angle
+          marineGroup.add(propBlade);
+        }
+      });
+
+      // 3. AIRLIFT LOOP DRAFT TUBE GROUP
+      airliftGroup = new THREE.Group();
+      airliftGroup.visible = false;
+      vesselGroup.add(airliftGroup);
+
+      const draftTubeGeo = new THREE.CylinderGeometry(0.46, 0.46, 1.4, 32, 1, true);
+      const draftTubeMat = new THREE.MeshPhysicalMaterial({
+        color: 0x06b6d4,
+        transmission: 0.85,
+        roughness: 0.1,
+        transparent: true,
+        opacity: 0.45,
+        side: THREE.DoubleSide
+      });
+      const draftTube = new THREE.Mesh(draftTubeGeo, draftTubeMat);
+      draftTube.position.y = -0.15;
+      airliftGroup.add(draftTube);
+
+      // 4. PHOTOBIOREACTOR (PBR) LED TUBES GROUP
+      pbrGroup = new THREE.Group();
+      pbrGroup.visible = false;
+      vesselGroup.add(pbrGroup);
+
+      for (let p = 0; p < 6; p++) {
+        const pAng = (p * Math.PI * 2) / 6;
+        const ledTubeGeo = new THREE.CylinderGeometry(0.03, 0.03, 1.7, 16);
+        const ledMat = new THREE.MeshBasicMaterial({ color: 0xec4899 });
+        const ledTube = new THREE.Mesh(ledTubeGeo, ledMat);
+        ledTube.position.set(Math.cos(pAng) * 0.70, 0.0, Math.sin(pAng) * 0.70);
+        pbrGroup.add(ledTube);
+      }
+
+      // --- J. 3D BUBBLE SWARM SYSTEM ---
+      const bubbleGeo = new THREE.SphereGeometry(0.025, 8, 8);
+      const bubbleMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        roughness: 0.1,
+        metalness: 0.1,
+        transparent: true,
+        opacity: 0.8
+      });
+
+      for (let i = 0; i < NUM_BUBBLES; i++) {
+        const bMesh = new THREE.Mesh(bubbleGeo, bubbleMat);
+        resetBubble(bMesh, true);
+        vesselGroup.add(bMesh);
+        bubbleParticles.push(bMesh);
+      }
+    }
+
+    function resetBubble(bMesh, initial = false) {
+      const spargerRadius = 0.35;
+      const angle = Math.random() * Math.PI * 2;
+      const r = Math.random() * spargerRadius;
+      
+      bMesh.position.x = Math.cos(angle) * r;
+      bMesh.position.z = Math.sin(angle) * r;
+      bMesh.position.y = initial ? (-0.85 + Math.random() * 1.5) : -0.85;
+
+      bMesh.userData = {
+        speedY: 0.008 + Math.random() * 0.015,
+        angle: angle,
+        orbitRadius: r,
+        swirlSpeed: (Math.random() - 0.5) * 0.05,
+        wobbleFreq: 2 + Math.random() * 4
+      };
+
+      const sc = 0.6 + Math.random() * 0.9;
+      bMesh.scale.set(sc, sc, sc);
+    }
+
+    function updateThreeVisuals(deltaSec) {
+      if (!vesselGroup) return;
+
+      // Rotate Drive Shaft & Impellers based on real RPM
+      const rps = State.rpm / 60.0;
+      const rotAngle = rps * (Math.PI * 2) * deltaSec;
+      if (impellerShaftGroup && State.reactorType.startsWith('str')) {
+        impellerShaftGroup.rotation.y += rotAngle;
+      }
+
+      // Dynamic Vortex depth on liquid surface
+      if (liquidSurfaceMesh) {
+        const vortexScaleY = Math.min(2.5, 0.4 + (State.rpm / 900.0) * 1.8);
+        liquidSurfaceMesh.scale.y = vortexScaleY;
+      }
+
+      // Dynamic Optical Turbidity & Color Shift based on Biomass & Oxygen
+      if (liquidMesh && liquidMesh.material) {
+        const biomassFrac = Math.min(1.0, (State.X - 0.8) / 10.0);
+        
+        // Color transition: pale cyan-emerald (fresh media) -> rich golden-amber (high OD biomass)
+        const baseColor = new THREE.Color(0x38bdf8); // Cyan
+        const matureColor = new THREE.Color(0xd97706); // Golden Amber
+        liquidMesh.material.color.lerpColors(baseColor, matureColor, biomassFrac);
+
+        // Opacity & transmission shift (dense cell suspension)
+        liquidMesh.material.transmission = THREE.MathUtils.lerp(0.75, 0.15, biomassFrac);
+        liquidMesh.material.roughness = THREE.MathUtils.lerp(0.12, 0.40, biomassFrac);
+        
+        if (liquidSurfaceMesh && liquidSurfaceMesh.material) {
+          liquidSurfaceMesh.material.color.copy(liquidMesh.material.color);
+        }
+      }
+
+      // Thermal Jacket Color Glow based on Temperature
+      if (thermalJacketMesh && thermalJacketMesh.material) {
+        if (State.temp_C > 30.5) {
+          thermalJacketMesh.material.color.setHex(0xef4444); // Heating alarm (red)
+        } else if (State.temp_C < 29.5) {
+          thermalJacketMesh.material.color.setHex(0x3b82f6); // Cooling active (blue)
+        } else {
+          thermalJacketMesh.material.color.setHex(0x10b981); // Nominal 30°C (emerald)
+        }
+      }
+
+      // Animate Bubble Swarm (Buoyancy + Impeller Swirl + Radial Dispersion)
+      const vvmFactor = State.vvm * 1.2;
+      const rpmFactor = State.rpm / 450.0;
+      const surfaceY = 0.68;
+
+      bubbleParticles.forEach((b) => {
+        const u = b.userData;
+        
+        // Ascend
+        b.position.y += u.speedY * vvmFactor;
+
+        // Swirl around shaft
+        if (State.reactorType.startsWith('str')) {
+          u.angle += (rps * 0.08 + u.swirlSpeed);
           
-          if (State.reactorType === 'str_rushton') {
-            // Rushton 6-blade disk turbine projection
-            ctx.fillStyle = '#64748b';
-            ctx.beginPath();
-            ctx.ellipse(0, 0, 48, 10, 0, 0, 2 * Math.PI);
-            ctx.fill();
-
-            // 6 Rotating vertical blades
-            for (let i = 0; i < 6; i++) {
-              const a = impellerAngle + (i * Math.PI / 3);
-              const bladeX = Math.cos(a) * 44;
-              const bladeHeight = 22;
-              const bladeAlpha = Math.sin(a) > 0 ? 0.95 : 0.45;
-              ctx.fillStyle = `rgba(226, 232, 240, ${bladeAlpha})`;
-              ctx.fillRect(bladeX - 3, -bladeHeight / 2, 6, bladeHeight);
-            }
-          } else {
-            // Marine hydrofoil propeller
-            for (let i = 0; i < 3; i++) {
-              const a = impellerAngle + (i * 2 * Math.PI / 3);
-              ctx.save();
-              ctx.rotate(a);
-              ctx.fillStyle = '#cbd5e1';
-              ctx.beginPath();
-              ctx.ellipse(22, 0, 20, 6, 0.2, 0, 2 * Math.PI);
-              ctx.fill();
-              ctx.restore();
-            }
+          // Centrifugal dispersion near lower & upper impellers
+          if (Math.abs(b.position.y - (-0.7)) < 0.25 || Math.abs(b.position.y - (-0.1)) < 0.25) {
+            u.orbitRadius = Math.min(0.78, u.orbitRadius + 0.005 * rpmFactor);
           }
-          ctx.restore();
-        });
-        ctx.restore();
+          
+          b.position.x = Math.cos(u.angle) * u.orbitRadius;
+          b.position.z = Math.sin(u.angle) * u.orbitRadius;
+        } else if (State.reactorType === 'airlift') {
+          // Airlift: Central riser ascending, outer downcomer descending
+          if (u.orbitRadius < 0.42) {
+            b.position.y += u.speedY * vvmFactor * 1.5; // Fast riser
+          } else {
+            b.position.y -= u.speedY * 0.5; // Downcomer recirculation
+            if (b.position.y < -0.85) b.position.y = -0.85;
+          }
+        }
+
+        // Reset if reached surface
+        if (b.position.y > surfaceY) {
+          resetBubble(b);
+        }
+      });
+
+      // Update OrbitControls
+      controls.update();
+
+      // Render 3D Frame
+      renderer.render(scene, camera);
+    }
+
+    function onWindowResize() {
+      const container = document.getElementById('canvas-container');
+      if (!container || !renderer || !camera) return;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    /* Camera Preset Controls */
+    function setCameraView(view) {
+      if (!camera || !controls) return;
+      if (view === 'front') {
+        camera.position.set(0, 0.8, 5.0);
+        controls.target.set(0, 0.1, 0);
+      } else if (view === 'impeller') {
+        camera.position.set(0.8, -0.2, 2.4);
+        controls.target.set(0, -0.4, 0);
+      } else if (view === 'top') {
+        camera.position.set(0, 3.8, 1.8);
+        controls.target.set(0, 0.3, 0);
       }
+    }
 
-      // --- F. VIRTUAL IN-SITU SENSORS (pH, DO, PT100, Antifoam) ---
-      ctx.save();
-      // DO Sensor (Right probe with cyan luminescent tip)
-      const doProbeX = vRight - 28;
-      ctx.strokeStyle = '#475569';
-      ctx.lineWidth = 5;
-      ctx.beginPath();
-      ctx.moveTo(doProbeX, vTop);
-      ctx.lineTo(doProbeX, liquidLevelY + 140);
-      ctx.stroke();
-      // DO Luminescent Optical Tip
-      ctx.fillStyle = '#06b6d4';
-      ctx.shadowColor = '#06b6d4';
-      ctx.shadowBlur = 10;
-      ctx.beginPath();
-      ctx.arc(doProbeX, liquidLevelY + 142, 4.5, 0, 2 * Math.PI);
-      ctx.fill();
-
-      // pH Glass Electrode (Left probe with silver-grey body)
-      const phProbeX = vLeft + 28;
-      ctx.strokeStyle = '#64748b';
-      ctx.beginPath();
-      ctx.moveTo(phProbeX, vTop);
-      ctx.lineTo(phProbeX, liquidLevelY + 110);
-      ctx.stroke();
-      // Glass Bulb
-      ctx.fillStyle = '#38bdf8';
-      ctx.shadowColor = '#38bdf8';
-      ctx.shadowBlur = 8;
-      ctx.beginPath();
-      ctx.arc(phProbeX, liquidLevelY + 112, 4.0, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.restore();
-
-      // --- G. FEED LIQUID PULSE DROPLET ANIMATION ---
-      if (State.feedPulseTimer > 0) {
-        ctx.save();
-        ctx.strokeStyle = '#f59e0b';
-        ctx.fillStyle = '#f59e0b';
-        ctx.lineWidth = 3;
-        const feedPortX = (W / 2) + 40;
-        ctx.beginPath();
-        ctx.moveTo(feedPortX, vTop - 10);
-        ctx.lineTo(feedPortX, liquidLevelY + 20);
-        ctx.stroke();
-        // Droplet ripple
-        ctx.beginPath();
-        ctx.arc(feedPortX, liquidLevelY + 20, (1.0 - State.feedPulseTimer) * 18, 0, 2 * Math.PI);
-        ctx.stroke();
-        ctx.restore();
-        State.feedPulseTimer -= 0.04;
-      }
-
-      // --- H. GLASS VESSEL WALLS & SPECULAR HIGHLIGHTS ---
-      ctx.save();
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-      ctx.lineWidth = 3.5;
-      ctx.beginPath();
-      ctx.moveTo(vLeft, vTop);
-      ctx.lineTo(vLeft, vBottom - 50);
-      ctx.quadraticCurveTo(W / 2, vBottom + 12, vRight, vBottom - 50);
-      ctx.lineTo(vRight, vTop);
-      ctx.stroke();
-
-      // Specular Glass Reflection Sheen
-      const glassGrad = ctx.createLinearGradient(vLeft, vTop, vLeft + 40, vTop);
-      glassGrad.addColorStop(0, 'rgba(255, 255, 255, 0.28)');
-      glassGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-      ctx.fillStyle = glassGrad;
-      ctx.fillRect(vLeft + 3, vTop, 35, vHeight * 0.85);
-      ctx.restore();
-
-      requestAnimationFrame(renderBioreactor);
+    function resetCameraView() {
+      setCameraView('front');
     }
 
     /* =========================================================================
-       5. TELEMETRY CHART INITIALIZATION (Chart.js)
+       4. TELEMETRY STREAMING CHART (Chart.js)
        ========================================================================= */
     const chartCtx = document.getElementById('telemetryChart').getContext('2d');
     const telemetryChart = new Chart(chartCtx, {
@@ -772,18 +1048,17 @@
     });
 
     /* =========================================================================
-       6. SIMULATION MAIN EVENT LOOP
+       5. MAIN SIMULATION & ANIMATION TICK LOOP
        ========================================================================= */
-    let lastTimestamp = performance.now();
-    let chartSampleTimer = 0;
+    let lastTime = performance.now();
+    let chartSampleTimer = 0.0;
 
-    function mainSimulationLoop(currentTimestamp) {
-      const deltaSec = (currentTimestamp - lastTimestamp) / 1000.0;
-      lastTimestamp = currentTimestamp;
+    function mainLoop(now) {
+      const deltaSec = Math.min((now - lastTime) / 1000.0, 0.1);
+      lastTime = now;
 
-      if (State.isRunning && deltaSec < 0.5) {
-        // dt in hours = real delta seconds * speed multiplier / 3600
-        const dt_hours = (deltaSec * State.speedMultiplier);
+      if (State.isRunning) {
+        const dt_hours = deltaSec * State.speedMultiplier;
         const simStep = stepKinetics(dt_hours);
 
         // Update DOM Telemetry readouts
@@ -805,7 +1080,7 @@
           
           document.getElementById('overlay-od').innerText = (State.X * 1.05).toFixed(2);
           document.getElementById('overlay-shear').innerText = `${(simStep.hydro.v_tip * 6.0).toFixed(1)} s⁻¹`;
-          document.getElementById('overlay-turbidity').innerText = State.X > 6.0 ? 'High' : (State.X > 2.5 ? 'Moderate' : 'Low');
+          document.getElementById('overlay-turbidity').innerText = State.X > 6.0 ? 'Dense (Turbid)' : (State.X > 2.5 ? 'Moderate' : 'Low (Clear)');
 
           // Carbon calculations
           const sConsumed = Math.max(0.0, 35.0 - State.S);
@@ -816,17 +1091,16 @@
           document.getElementById('disp-c-co2').innerText = `${Math.max(0.0, cIn - cFixed).toFixed(1)} g C/L`;
         }
 
-        // Push to Chart.js history
+        // Push to Chart.js
         chartSampleTimer += dt_hours;
-        if (chartSampleTimer >= 0.25) { // Sample every 15 simulation minutes
-          chartSampleTimer = 0;
+        if (chartSampleTimer >= 0.25) {
+          chartSampleTimer = 0.0;
           telemetryChart.data.labels.push(State.time_h.toFixed(1));
           telemetryChart.data.datasets[0].data.push(State.X);
           telemetryChart.data.datasets[1].data.push(State.S);
           telemetryChart.data.datasets[2].data.push(doSatPercent);
           telemetryChart.data.datasets[3].data.push(State.P);
 
-          // Keep sliding window of 60 points
           if (telemetryChart.data.labels.length > 70) {
             telemetryChart.data.labels.shift();
             telemetryChart.data.datasets.forEach(ds => ds.data.shift());
@@ -835,12 +1109,15 @@
         }
       }
 
-      requestAnimationFrame(mainSimulationLoop);
+      // Render 3D Frame
+      updateThreeVisuals(deltaSec);
+
+      requestAnimationFrame(mainLoop);
     }
 
     /* =========================================================================
-       7. UI INTERACTION HANDLERS & REACTOR SWITCHER
-       ======================================================================== */
+       6. UI INTERACTION HANDLERS & REACTOR SWITCHER
+       ========================================================================= */
     function setReactorType(type) {
       State.reactorType = type;
       ['str-rushton', 'str-marine', 'airlift', 'pbr'].forEach(id => {
@@ -862,6 +1139,13 @@
         'pbr': '20 L Tubular Photobioreactor (Algae/Cyanobacteria)'
       };
       document.getElementById('vessel-badge-title').innerText = titles[type];
+
+      // Toggle 3D Meshes
+      if (rushtonGroup) rushtonGroup.visible = (type === 'str_rushton');
+      if (marineGroup) marineGroup.visible = (type === 'str_marine');
+      if (airliftGroup) airliftGroup.visible = (type === 'airlift');
+      if (pbrGroup) pbrGroup.visible = (type === 'pbr');
+      if (impellerShaftGroup) impellerShaftGroup.visible = type.startsWith('str');
     }
 
     function togglePlayPause() {
@@ -908,8 +1192,6 @@
 
     function injectFeedPulse() {
       State.feedPulseActive = true;
-      State.feedPulseTimer = 1.0;
-      
       const notif = document.getElementById('feed-notification');
       notif.classList.remove('opacity-0');
       notif.classList.add('opacity-100');
@@ -952,9 +1234,11 @@
       document.body.removeChild(link);
     }
 
-    // Launch Renderers & Event Loops
-    requestAnimationFrame(renderBioreactor);
-    requestAnimationFrame(mainSimulationLoop);
+    // Initialize 3D WebGL scene and launch main loop
+    window.addEventListener('DOMContentLoaded', () => {
+      initThreeScene();
+      requestAnimationFrame(mainLoop);
+    });
   </script>
 </body>
 </html>
