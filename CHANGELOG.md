@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.0] - 2026-11-06
+
+### Added
+- **Automatic Light & Dark Mode Engine with Dynamic 3D & Telemetry Synchronization**:
+  - Full automatic OS detection via `prefers-color-scheme` with reactive listener for real-time system changes.
+  - Header segmented control allowing explicit user override between `System`, `Light`, and `Dark` with `localStorage` persistence.
+  - Three.js 3D Viewport synchronization: dynamically reconfigures scene clear color, background, and volumetric fog (`#f1f3f4` in light mode vs `#191a1d` in dark mode) for seamless surface integration.
+  - Chart.js Telemetry synchronization: scales, grid lines, and telemetry curve palettes adapt immediately to ambient theme without resetting batch history.
+
+### Changed
+- **Anti-Neon Minimalist Redesign (Google & Antigravity Aesthetic)**:
+  - Eliminated all neon accents, glowing cyan/magenta box-shadows, and saturated borders.
+  - Adopted quiet, laboratory-grade neutral surfaces: Google White/Gray-50 (`#ffffff` / `#f8f9fa`) in light mode and Charcoal/Slate (`#212226` / `#16171a`) in dark mode.
+  - Muted, intentional semantic status indicators (Google Blue, Sage Green, Warm Amber, Brick Red) reserved strictly for functional process feedback.
+  - Precision sliders and segmented controls with subtle border states and zero eye fatigue.
+
+---
+
 ## [1.2.1] - 2026-11-06
 
 ### Changed
