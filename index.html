@@ -291,6 +291,70 @@
         </div>
       </div>
 
+      <!-- FAULT INJECTION & CLOSED-LOOP CASCADE CONTROLLER (NEW v1.2.0) -->
+      <div class="glass-panel rounded-2xl p-4 border border-rose-900/40 bg-gradient-to-r from-slate-950/90 via-slate-900/85 to-slate-950/90">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono font-bold text-rose-400 uppercase tracking-wider">⚠️ Fault Injection & Closed-Loop Sandbox</span>
+            <span id="fault-badge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/60 font-semibold">NORMAL OPERATION</span>
+          </div>
+          <!-- Auto DO Toggle -->
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono text-slate-400">🤖 Auto DO (Cascade PID):</span>
+            <button id="btn-toggle-autodo" onclick="toggleAutoDO()" class="px-2.5 py-1 rounded text-xs font-mono font-bold bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">
+              OFF
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Fault Buttons -->
+          <div class="space-y-1.5">
+            <span class="text-[11px] font-mono text-slate-400 uppercase font-semibold">Inject Process Disturbance:</span>
+            <div class="grid grid-cols-2 gap-1.5 pt-1">
+              <button onclick="setFault('none')" class="fault-btn px-2 py-1 rounded text-[11px] font-mono font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-700/60 hover:bg-emerald-900 transition">✅ Clear Fault</button>
+              <button onclick="setFault('compressor')" class="fault-btn px-2 py-1 rounded text-[11px] font-mono font-semibold bg-rose-950/60 text-rose-300 border border-rose-800/40 hover:bg-rose-900 transition">❌ Fail Compressor</button>
+              <button onclick="setFault('impeller_stall')" class="fault-btn px-2 py-1 rounded text-[11px] font-mono font-semibold bg-rose-950/60 text-rose-300 border border-rose-800/40 hover:bg-rose-900 transition">⚙️ Stall Impeller</button>
+              <button onclick="setFault('sensor_drift')" class="fault-btn px-2 py-1 rounded text-[11px] font-mono font-semibold bg-amber-950/60 text-amber-300 border border-amber-800/40 hover:bg-amber-900 transition">📡 Sensor Drift (+25%)</button>
+              <button onclick="setFault('thermal_shock')" class="fault-btn px-2 py-1 rounded text-[11px] font-mono font-semibold bg-orange-950/60 text-orange-300 border border-orange-800/40 hover:bg-orange-900 transition col-span-2">🔥 Thermal Inactivation (42°C)</button>
+            </div>
+          </div>
+
+          <!-- Luedeking-Piret Kinetics Parameters -->
+          <div class="space-y-1.5 bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/50">
+            <div class="flex justify-between items-center text-[11px] font-mono">
+              <span class="text-purple-400 font-bold uppercase">Luedeking-Piret Parameters:</span>
+              <span id="lp-class" class="text-[9px] px-1.5 py-0.5 rounded bg-purple-950 text-purple-300">Mixed</span>
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] font-mono">
+                <span class="text-slate-400">Growth-Assoc (α):</span>
+                <span id="disp-alpha" class="text-purple-300 font-bold">0.15 g_P/g_X</span>
+              </div>
+              <input type="range" id="input-alpha" min="0" max="0.5" value="0.15" step="0.01" oninput="updateControls()" class="w-full">
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] font-mono">
+                <span class="text-slate-400">Non-Growth (β):</span>
+                <span id="disp-beta" class="text-purple-300 font-bold">0.010 g_P/g_X/h</span>
+              </div>
+              <input type="range" id="input-beta" min="0" max="0.05" value="0.01" step="0.002" oninput="updateControls()" class="w-full">
+            </div>
+          </div>
+
+          <!-- Alarm & Recovery Audit Status -->
+          <div class="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/60 flex flex-col justify-between font-mono text-[11px]">
+            <span class="text-cyan-400 font-bold uppercase flex items-center gap-1"><span>🛡️</span> SCADA Safety Interlocks</span>
+            <div class="space-y-1 my-1">
+              <div class="flex justify-between"><span class="text-slate-400">Hypoxia Risk:</span> <span id="alarm-hypoxia" class="text-emerald-400 font-semibold">Safe (&gt;20%)</span></div>
+              <div class="flex justify-between"><span class="text-slate-400">Shear Stress Limit:</span> <span id="alarm-shear" class="text-emerald-400 font-semibold">Optimal</span></div>
+              <div class="flex justify-between"><span class="text-slate-400">PID Actuator State:</span> <span id="status-actuator" class="text-slate-400">Manual Standby</span></div>
+            </div>
+            <div class="text-[9px] text-slate-500 italic">Inspired by Ashray et al. &amp; Pioreactor fault resilience</div>
+          </div>
+        </div>
+      </div>
+
       <!-- ADVANCED PROCESS ENGINEERING METRICS & SLIDERS -->
       <div class="glass-panel rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
         <!-- Hydrodynamics & Scale-up -->
@@ -360,6 +424,10 @@
       temp_C: 30.0,
       ph: 6.85,
       
+      activeFault: 'none', // 'none', 'compressor', 'impeller_stall', 'sensor_drift', 'thermal_shock'
+      autoDOEnabled: false,
+      targetDOSat: 30.0,
+      
       time_h: 0.0,
       X: 0.80,         // Biomass [g/L]
       S: 35.0,         // Glucose substrate [g/L]
@@ -393,7 +461,9 @@
       const D_impeller = D_tank * 0.35; // [m]
       const rho = 1000; // [kg/m^3]
       const mu_visc = 0.001; // [Pa*s]
-      const N_rps = State.rpm / 60.0;
+      const effectiveRpm = (State.activeFault === 'impeller_stall') ? 0.0 : State.rpm;
+      const effectiveVvm = (State.activeFault === 'compressor') ? 0.005 : State.vvm;
+      const N_rps = effectiveRpm / 60.0;
       
       const Re = (rho * N_rps * Math.pow(D_impeller, 2)) / mu_visc;
       const v_tip = Math.PI * D_impeller * N_rps;
@@ -406,21 +476,65 @@
       const P_watts = Np * rho * Math.pow(N_rps, 3) * Math.pow(D_impeller, 5);
       const P_density_kW_m3 = (P_watts / (State.volume_L / 1000.0)) / 1000.0;
 
-      const Fg_m3_s = (State.vvm * State.volume_L) / (1000.0 * 60.0);
+      const Fg_m3_s = (effectiveVvm * State.volume_L) / (1000.0 * 60.0);
       const A_tank = Math.PI * Math.pow(D_tank / 2.0, 2);
       const vs_m_s = Fg_m3_s / A_tank;
 
-      let kla = 0.026 * Math.pow((P_watts / (State.volume_L / 1000.0)), 0.4) * Math.pow(vs_m_s, 0.5) * 3600.0;
+      let kla = 0.026 * Math.pow(Math.max(1.0, (P_watts / (State.volume_L / 1000.0))), 0.4) * Math.pow(Math.max(0.0001, vs_m_s), 0.5) * 3600.0;
       if (State.reactorType === 'airlift') {
-        kla = 0.32 * Math.pow(vs_m_s, 0.7) * 3600.0;
+        kla = 0.32 * Math.pow(Math.max(0.0001, vs_m_s), 0.7) * 3600.0;
       }
-      kla = Math.max(15.0, Math.min(180.0, kla));
+      if (State.activeFault === 'compressor') {
+        kla = 1.8; // Mass transfer collapses to liquid surface diffusion
+      }
+      kla = Math.max(1.5, Math.min(180.0, kla));
 
       return { Re, v_tip, P_density_kW_m3, kla };
     }
 
     function stepKinetics(dt_hours) {
       if (!State.isRunning) return;
+
+      if (State.activeFault === 'thermal_shock') {
+        State.temp_C = 42.0;
+      }
+
+      // Closed-Loop Auto-DO Controller (Cascade PID simulation)
+      if (State.autoDOEnabled) {
+        const currentDOSat = (State.CL / State.C_star) * 100.0;
+        const doError = State.targetDOSat - currentDOSat;
+        
+        if (doError > 2.0) { // Oxygen deficit -> increase RPM then VVM
+          if (State.rpm < 800) {
+            State.rpm = Math.min(800, State.rpm + 12.0 * dt_hours * 60.0);
+          } else if (State.vvm < 2.5) {
+            State.vvm = Math.min(2.5, State.vvm + 0.15 * dt_hours * 60.0);
+          }
+          const act = document.getElementById('status-actuator');
+          if (act) { act.innerText = 'Boosting RPM/VVM ⚡'; act.className = 'text-cyan-400 font-bold'; }
+        } else if (doError < -5.0) { // Excess oxygen -> throttle back
+          if (State.vvm > 0.8) {
+            State.vvm = Math.max(0.8, State.vvm - 0.1 * dt_hours * 60.0);
+          } else if (State.rpm > 300) {
+            State.rpm = Math.max(300, State.rpm - 10.0 * dt_hours * 60.0);
+          }
+          const act = document.getElementById('status-actuator');
+          if (act) { act.innerText = 'Throttling Down 💤'; act.className = 'text-slate-400'; }
+        } else {
+          const act = document.getElementById('status-actuator');
+          if (act) { act.innerText = 'Holding Setpoint (30%) 🔒'; act.className = 'text-emerald-400 font-bold'; }
+        }
+        
+        // Update input range UI
+        const inRpm = document.getElementById('input-rpm');
+        if (inRpm) inRpm.value = Math.round(State.rpm);
+        const valRpm = document.getElementById('val-rpm');
+        if (valRpm) valRpm.innerText = `${Math.round(State.rpm)} RPM`;
+        const inVvm = document.getElementById('input-vvm');
+        if (inVvm) inVvm.value = State.vvm.toFixed(1);
+        const valVvm = document.getElementById('val-vvm');
+        if (valVvm) valVvm.innerText = `${State.vvm.toFixed(1)} vvm`;
+      }
 
       const hydro = computeHydrodynamics();
       const kla = hydro.kla;
@@ -850,8 +964,9 @@
     function updateThreeVisuals(deltaSec) {
       if (!vesselGroup) return;
 
-      // Rotate Drive Shaft & Impellers based on real RPM
-      const rps = State.rpm / 60.0;
+      // Rotate Drive Shaft & Impellers based on real RPM (unless stalled)
+      const effectiveRpm = (State.activeFault === 'impeller_stall') ? 0.0 : State.rpm;
+      const rps = effectiveRpm / 60.0;
       const rotAngle = rps * (Math.PI * 2) * deltaSec;
       if (impellerShaftGroup && State.reactorType.startsWith('str')) {
         impellerShaftGroup.rotation.y += rotAngle;
@@ -859,7 +974,7 @@
 
       // Dynamic Vortex depth on liquid surface
       if (liquidSurfaceMesh) {
-        const vortexScaleY = Math.min(2.5, 0.4 + (State.rpm / 900.0) * 1.8);
+        const vortexScaleY = (State.activeFault === 'impeller_stall') ? 0.2 : Math.min(2.5, 0.4 + (State.rpm / 900.0) * 1.8);
         liquidSurfaceMesh.scale.y = vortexScaleY;
       }
 
@@ -893,11 +1008,17 @@
       }
 
       // Animate Bubble Swarm (Buoyancy + Impeller Swirl + Radial Dispersion)
+      const isAerationCut = (State.activeFault === 'compressor' || State.vvm <= 0.05);
       const vvmFactor = State.vvm * 1.2;
-      const rpmFactor = State.rpm / 450.0;
+      const rpmFactor = effectiveRpm / 450.0;
       const surfaceY = 0.68;
 
       bubbleParticles.forEach((b) => {
+        if (isAerationCut) {
+          b.visible = false;
+          return;
+        }
+        b.visible = true;
         const u = b.userData;
         
         // Ascend
@@ -1067,9 +1188,42 @@
         
         document.getElementById('kpi-biomass').innerText = State.X.toFixed(2);
         document.getElementById('kpi-substrate').innerText = State.S.toFixed(2);
-        const doSatPercent = ((State.CL / State.C_star) * 100.0);
-        document.getElementById('kpi-oxygen').innerText = doSatPercent.toFixed(1);
+        
+        // Dissolved Oxygen with sensor drift simulation
+        const actualDOSatPercent = ((State.CL / State.C_star) * 100.0);
+        let displayedDO = actualDOSatPercent;
+        if (State.activeFault === 'sensor_drift') {
+          displayedDO += 25.0; // Simulated decalibration offset
+        }
+        displayedDO = Math.max(0.0, Math.min(130.0, displayedDO));
+        document.getElementById('kpi-oxygen').innerText = displayedDO.toFixed(1);
         document.getElementById('kpi-product').innerText = State.P.toFixed(2);
+        
+        // Safety Interlocks & Alarms
+        const hypoxiaAlarm = document.getElementById('alarm-hypoxia');
+        if (hypoxiaAlarm) {
+          if (actualDOSatPercent < 15.0) {
+            hypoxiaAlarm.innerText = 'CRITICAL ANXIOUS (<15%) 🚨';
+            hypoxiaAlarm.className = 'text-rose-500 font-bold animate-pulse';
+          } else if (actualDOSatPercent < 25.0) {
+            hypoxiaAlarm.innerText = 'Warning: Low O₂ ⚠️';
+            hypoxiaAlarm.className = 'text-amber-400 font-bold';
+          } else {
+            hypoxiaAlarm.innerText = 'Safe (>20%) ✅';
+            hypoxiaAlarm.className = 'text-emerald-400 font-semibold';
+          }
+        }
+
+        const shearAlarm = document.getElementById('alarm-shear');
+        if (shearAlarm && simStep) {
+          if (simStep.hydro.v_tip > 3.0) {
+            shearAlarm.innerText = 'High Shear Risk ⚠️';
+            shearAlarm.className = 'text-rose-400 font-bold';
+          } else {
+            shearAlarm.innerText = 'Optimal (<3.0 m/s) ✅';
+            shearAlarm.className = 'text-emerald-400 font-semibold';
+          }
+        }
         
         if (simStep) {
           document.getElementById('kpi-mu').innerText = `${simStep.mu.toFixed(2)} h⁻¹`;
@@ -1184,10 +1338,78 @@
       State.temp_C = parseFloat(document.getElementById('input-temp').value);
       State.ph = parseFloat(document.getElementById('input-ph').value);
 
-      document.getElementById('val-rpm').innerText = `${State.rpm} RPM`;
+      const inAlpha = document.getElementById('input-alpha');
+      if (inAlpha) State.alpha = parseFloat(inAlpha.value);
+      const inBeta = document.getElementById('input-beta');
+      if (inBeta) State.beta = parseFloat(inBeta.value);
+
+      document.getElementById('val-rpm').innerText = `${Math.round(State.rpm)} RPM`;
       document.getElementById('val-vvm').innerText = `${State.vvm.toFixed(1)} vvm`;
       document.getElementById('disp-temp').innerText = `${State.temp_C.toFixed(1)} °C`;
       document.getElementById('disp-ph').innerText = `${State.ph.toFixed(2)} pH`;
+
+      const dispAlpha = document.getElementById('disp-alpha');
+      if (dispAlpha) dispAlpha.innerText = `${State.alpha.toFixed(2)} g_P/g_X`;
+      const dispBeta = document.getElementById('disp-beta');
+      if (dispBeta) dispBeta.innerText = `${State.beta.toFixed(3)} g_P/g_X/h`;
+
+      const lpClass = document.getElementById('lp-class');
+      if (lpClass) {
+        if (State.alpha > 0.05 && State.beta <= 0.002) {
+          lpClass.innerText = 'Primary (Growth-Assoc)';
+        } else if (State.alpha <= 0.02 && State.beta > 0.002) {
+          lpClass.innerText = 'Secondary (Non-Growth)';
+        } else {
+          lpClass.innerText = 'Mixed (Classic)';
+        }
+      }
+    }
+
+    function setFault(type) {
+      State.activeFault = type;
+      const badge = document.getElementById('fault-badge');
+      if (!badge) return;
+
+      if (type === 'none') {
+        badge.innerText = 'NORMAL OPERATION';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/60 font-semibold';
+      } else if (type === 'compressor') {
+        badge.innerText = 'AIR COMPRESSOR COLLAPSE (0 vvm)';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-950 text-rose-400 border border-rose-800/60 font-bold animate-pulse';
+      } else if (type === 'impeller_stall') {
+        badge.innerText = 'AGITATOR MOTOR STALL (0 RPM)';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-950 text-rose-400 border border-rose-800/60 font-bold animate-pulse';
+      } else if (type === 'sensor_drift') {
+        badge.innerText = 'SENSOR DECALIBRATION (+25% DRIFT)';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-950 text-amber-400 border border-amber-800/60 font-bold';
+      } else if (type === 'thermal_shock') {
+        badge.innerText = 'THERMAL INACTIVATION RUNAWAY (42°C)';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-orange-950 text-orange-400 border border-orange-800/60 font-bold animate-pulse';
+        State.temp_C = 42.0;
+        const inTemp = document.getElementById('input-temp');
+        if (inTemp) inTemp.value = 42.0;
+        const dispTemp = document.getElementById('disp-temp');
+        if (dispTemp) dispTemp.innerText = '42.0 °C';
+      }
+    }
+
+    function toggleAutoDO() {
+      State.autoDOEnabled = !State.autoDOEnabled;
+      const btn = document.getElementById('btn-toggle-autodo');
+      if (!btn) return;
+
+      if (State.autoDOEnabled) {
+        btn.innerText = 'ON (ACTIVE)';
+        btn.className = 'px-2.5 py-1 rounded text-xs font-mono font-bold bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/30 transition';
+      } else {
+        btn.innerText = 'OFF';
+        btn.className = 'px-2.5 py-1 rounded text-xs font-mono font-bold bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition';
+        const act = document.getElementById('status-actuator');
+        if (act) {
+          act.innerText = 'Manual Standby';
+          act.className = 'text-slate-400';
+        }
+      }
     }
 
     function injectFeedPulse() {

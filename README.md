@@ -132,6 +132,15 @@ bioprocess-visual-twin/
 
 ---
 
+## 💡 Academic Inspiration & Open-Source References
+
+This digital twin simulator synthesizes pioneering open-source principles and industrial control architectures:
+- **Fault Resilience & Perfusion Modeling:** Process disturbance concepts and real-time fault injection architectures inspired by the open-source mammalian digital twin work of *Ashray et al.* ([`bioreactor-digital-twin`](https://github.com/Ashray16/bioreactor-digital-twin)).
+- **Cascading Process Control:** Cascade dissolved oxygen control and aeration loops influenced by the open-source automated bioreactor platform *Pioreactor* ([`Pioreactor/pioreactor`](https://github.com/Pioreactor/pioreactor)).
+- **Biochemical Engineering Principles:** Multiphase mass transfer correlations ($k_L a$ via Van't Riet, 1979) and mixed-growth product formation (*Luedeking & Piret, 1959*) adapted from standard biochemical engineering treatises (*Bailey & Ollis; Doran, 2013*).
+
+---
+
 ## 📜 Citation
 
 If you utilize this simulator in your academic coursework, research publications, or industrial training programs, please cite:
