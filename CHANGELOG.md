@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.1] - 2026-11-06
+
+### Changed
+- **Institutional Frontend Redesign (Google Minimalist & Antigravity Aesthetic)**:
+  - Eliminated all consumer emojis, replacing them with crisp, geometric, monochromatic inline SVGs for all vessel types, playback actions, sensors, alarms, and disturbance sandboxes.
+  - Institutional Typography: Integrated Inter & Plus Jakarta Sans with JetBrains Mono tabular numbers (`font-variant-numeric: tabular-nums`) across all SCADA KPI figures to prevent digit shifting during real-time streaming.
+  - Google Dark Surface & Elevation: Replaced legacy saturated gradients with an obsidian dark theme (`#080b11`), hairline borders (`border-white/[0.07]`), and discrete colored status dots (`w-1.5 h-1.5 rounded-full`).
+  - Google Segmented Controls: Converted reactor selection tabs, speed pills, and fault injection switches into sleek segmented control bars.
+  - Metric Card Refactor: Replaced heavy colored left borders (`border-l-4`) with elevated Google Cloud Monitoring-style cards featuring live status chips and uppercase micro-labels.
+- **Fixed**:
+  - Resolved `doSatPercent` variable scope in telemetry chart loop.
+  - Removed deprecated `thickness` property from Three.js r128 `MeshPhysicalMaterial`, achieving 0 console errors and clean rendering.
+  - Added embedded SVG favicon to avoid browser 404 requests.
+
+---
+
 ## [1.2.0] - 2026-11-06
 
 ### Added
