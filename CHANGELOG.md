@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.0] - 2026-11-06
+
+### Added
+- **Multilanguage (i18n) Engine**:
+  - Full trilingual support for English (`EN`), Español (`ES`), and Deutsch (`DE`).
+  - Seamless in-app language switching via header segmented controls and setup modal with `localStorage` preference persistence.
+  - Complete localized dictionary covering vessel classifications, telemetry streaming axes, SCADA metrics, fault injection sandboxes, and safety alarms.
+- **Batch Setup & Biological Benchmark Strain Presets**:
+  - Interactive Batch Setup modal accessible on startup and via the `Batch Setup` header control.
+  - Pre-configured literature-validated organism presets:
+    - *Escherichia coli BL21(DE3)*: Rapid aerobic bacterium for recombinant synthesis ($\mu_{\max} = 0.65\text{ h}^{-1}$).
+    - *Pichia pastoris (K. phaffii)*: High cell-density methylotrophic yeast ($\mu_{\max} = 0.22\text{ h}^{-1}$).
+    - *Saccharomyces cerevisiae*: Facultative Crabtree yeast ($\mu_{\max} = 0.38\text{ h}^{-1}$).
+    - *CHO Cells (Mammalian)*: Shear-sensitive therapeutic mAb suspension culture ($\mu_{\max} = 0.038\text{ h}^{-1}$).
+  - Parameter customization for initial biomass ($X_0$), glucose substrate ($S_0$), volume ($V$), broth temperature, and pH.
+- **Static Culture Vessel (5th Reactor Class)**:
+  - Added `Static Vessel` (`Recipiente Estático` / `Statisches Gefäß`) for unagitated stationary bioprocesses.
+  - 3D physical modeling in Three.js with passive headspace breather filter, perfectly calm flat broth surface, and deactivated drive shaft.
+  - Physical decoupling: locks mechanical agitation to $0\text{ RPM}$ and sparging to $0\text{ VVM}$, shifting oxygenation purely to passive surface diffusion ($k_L a = 1.0\text{ h}^{-1}$) with zero shear risk.
+
+---
+
 ## [1.3.0] - 2026-11-06
 
 ### Added

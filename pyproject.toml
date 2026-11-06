@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "bioprocess-visual-twin"
-version = "1.3.0"
+version = "1.4.0"
 description = "Physics-based interactive digital twin for aerobic stirred-tank and airlift bioreactors with real-time fluid visualization and SCADA telemetry."
 readme = "README.md"
 requires-python = ">=3.10"

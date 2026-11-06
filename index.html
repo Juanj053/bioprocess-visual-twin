@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bioprocess Visual Twin 3D | Interactive Bioreactor Simulator</title>
-  <meta name="description" content="Physics-informed WebGL 3D digital twin for stirred-tank and airlift bioreactors with real-time SCADA telemetry, fault injection, and closed-loop control.">
+  <meta name="description" content="Physics-informed WebGL 3D digital twin for stirred-tank, airlift, and static bioreactors with real-time SCADA telemetry, fault injection, strain presets, and closed-loop control.">
   
   <!-- Favicon (Clean SVG) -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231a73e8'><circle cx='12' cy='12' r='10'/></svg>">
@@ -163,12 +163,19 @@
       height: 100% !important;
       outline: none;
     }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col selection:bg-blue-500/20 selection:text-blue-900 dark:selection:text-blue-200">
 
   <!-- TOP APP BAR / HEADER (Google Minimalist) -->
-  <header class="border-b border-gray-200 dark:border-white/[0.08] bg-white/95 dark:bg-[#1b1c20]/95 backdrop-blur-md sticky top-0 z-50 px-4 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-4 transition-colors">
+  <header class="border-b border-gray-200 dark:border-white/[0.08] bg-white/95 dark:bg-[#1b1c20]/95 backdrop-blur-md sticky top-0 z-40 px-4 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-4 transition-colors">
     
     <!-- BRAND / TITLE -->
     <div class="flex items-center gap-3">
@@ -186,40 +193,57 @@
       </div>
       <div>
         <div class="flex items-center gap-2">
-          <h1 class="text-sm font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+          <h1 id="app-title" class="text-sm font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             Bioprocess Visual Twin
           </h1>
-          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-[#35373c] font-mono">v1.3.0</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-[#35373c] font-mono">v1.4.0</span>
           <span class="hidden sm:inline-block text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-300 font-mono border border-gray-200 dark:border-[#35373c]">3D-WEBGL</span>
         </div>
-        <p class="text-[11px] text-gray-500 dark:text-gray-400">Physics-Informed Real-Time Digital Twin &bull; <a href="https://www.linkedin.com/in/juanj-alva" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">Ing. Juan José Álvarez Morales</a></p>
+        <p id="app-subtitle" class="text-[11px] text-gray-500 dark:text-gray-400">Physics-Informed Real-Time Digital Twin &bull; <a href="https://www.linkedin.com/in/juanj-alva" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">Ing. Juan José Álvarez Morales</a></p>
       </div>
     </div>
 
-    <!-- REACTOR SELECTOR (Segmented Tab Bar) -->
+    <!-- REACTOR SELECTOR (5 Vessel Classes) -->
     <div class="segmented-control gap-1">
       <button id="type-str-rushton" onclick="setReactorType('str_rushton')" class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42] inline-flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5 text-gray-700 dark:text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v4m0 12v4M2 12h4m12 0h4m-3.5-6.5l-2.8 2.8m-7.4 7.4l-2.8 2.8m0-13l2.8 2.8m7.4 7.4l2.8 2.8"></path></svg>
-        <span>STR (Rushton)</span>
+        <span data-i18n="reactor_rushton">STR (Rushton)</span>
       </button>
       <button id="type-str-marine" onclick="setReactorType('str_marine')" class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-transparent inline-flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2.5"></circle><path d="M12 9.5C12 5 15 3 17 5s-1.5 4.5-5 4.5zm-2.2 3.8C6.5 15.5 4 17.5 4.5 19.5s4 .5 5.3-2.7zm4.4 0C17.5 15.5 20 17.5 19.5 19.5s-4 .5-5.3-2.7z"></path></svg>
-        <span>STR (Marine)</span>
+        <span data-i18n="reactor_marine">STR (Marine)</span>
       </button>
       <button id="type-airlift" onclick="setReactorType('airlift')" class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-transparent inline-flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V8a5 5 0 0110 0v8a5 5 0 01-10 0z"></path><path d="M17 12l2 2-2 2M7 12L5 10l2-2"></path></svg>
-        <span>Airlift Loop</span>
+        <span data-i18n="reactor_airlift">Airlift Loop</span>
       </button>
       <button id="type-pbr" onclick="setReactorType('pbr')" class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-transparent inline-flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41m14.14-14.14l-1.41 1.41"></path></svg>
-        <span>Photobioreactor</span>
+        <span data-i18n="reactor_pbr">Photobioreactor</span>
+      </button>
+      <button id="type-static" onclick="setReactorType('static')" class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-transparent inline-flex items-center gap-1.5" title="Static Cultivation Vessel (No Agitation, Passive Aeration)">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="10" width="18" height="10" rx="2"></rect><path d="M7 10V6a2 2 0 012-2h6a2 2 0 012 2v4"></path></svg>
+        <span data-i18n="reactor_static">Static Vessel</span>
       </button>
     </div>
 
-    <!-- THEME SWITCHER & PLAYBACK ACTIONS -->
+    <!-- LANGUAGE, THEME & ACTION CONTROLS -->
     <div class="flex items-center gap-2">
       
-      <!-- THEME SELECTOR PILLS (Auto / Light / Dark) -->
+      <!-- SETUP & STRAIN BUTTON -->
+      <button id="btn-open-setup" onclick="openSetupModal()" class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-[#212226] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-[#35373c] text-xs font-medium shadow-sm hover:bg-gray-50 dark:hover:bg-[#2b2d32] transition inline-flex items-center gap-1.5" title="Configure Batch Parameters & Select Strain">
+        <svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7m0-4V3m8 18v-9m0-4V3m8 18v-5m0-4V3M1 14h6m2-6h6m2 8h6"></path></svg>
+        <span data-i18n="btn_setup">Batch Setup</span>
+      </button>
+
+      <!-- LANGUAGE SELECTOR (EN / ES / DE) -->
+      <div class="segmented-control gap-0.5" title="Switch Interface Language">
+        <button id="lang-en" onclick="setLanguage('en')" class="px-2 py-1 rounded-lg text-xs font-mono font-medium transition bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42]">EN</button>
+        <button id="lang-es" onclick="setLanguage('es')" class="px-2 py-1 text-xs font-mono font-medium transition text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-lg">ES</button>
+        <button id="lang-de" onclick="setLanguage('de')" class="px-2 py-1 text-xs font-mono font-medium transition text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-lg">DE</button>
+      </div>
+
+      <!-- THEME SELECTOR (Auto / Light / Dark) -->
       <div class="segmented-control gap-0.5" title="Switch Theme (System / Light / Dark)">
         <button id="theme-system" onclick="setTheme('system')" class="p-1.5 rounded-lg text-xs transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" title="Automatic System Theme">
           <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
@@ -251,7 +275,7 @@
       <!-- GLUCOSE FEED PULSE -->
       <button onclick="injectFeedPulse()" class="px-3 py-1.5 bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-[#35373c] font-medium rounded-xl text-xs transition active:scale-95 inline-flex items-center gap-1.5 shadow-sm">
         <svg class="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2h6"></path><path d="M9 3v18M18 15v6m-3-3h6"></path></svg>
-        <span>Feed Pulse (+5g/L)</span>
+        <span data-i18n="btn_pulse">Feed Pulse (+5g/L)</span>
       </button>
 
       <!-- CSV EXPORT -->
@@ -276,7 +300,7 @@
             <span id="vessel-badge-title" class="text-xs font-mono font-semibold tracking-wide text-gray-800 dark:text-gray-200 uppercase">20 L Bench-Scale Stirred Tank (Rushton)</span>
           </div>
           <div class="text-xs font-mono bg-white/90 dark:bg-[#1b1c20]/90 border border-gray-200 dark:border-white/[0.08] px-2.5 py-1 rounded-md text-gray-700 dark:text-gray-300">
-            Time: <span id="disp-batch-time" class="text-gray-900 dark:text-gray-100 font-bold tabular-nums">0.00 h</span> (<span id="disp-batch-days" class="text-gray-500 dark:text-gray-400 tabular-nums">Day 0.0</span>)
+            <span data-i18n="time_lbl">Time:</span> <span id="disp-batch-time" class="text-gray-900 dark:text-gray-100 font-bold tabular-nums">0.00 h</span> (<span id="disp-batch-days" class="text-gray-500 dark:text-gray-400 tabular-nums">Day 0.0</span>)
           </div>
         </div>
 
@@ -294,11 +318,11 @@
           <div class="absolute top-3 left-3 flex items-center gap-1 bg-white/90 dark:bg-[#1b1c20]/90 backdrop-blur-md border border-gray-200 dark:border-white/[0.08] px-2 py-1 rounded-lg z-20 text-[11px] font-mono">
             <span class="text-gray-500 dark:text-gray-400 flex items-center gap-1 mr-1">
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-              <span>View:</span>
+              <span data-i18n="cam_view">View:</span>
             </span>
-            <button onclick="setCameraView('front')" class="px-2 py-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 font-medium transition">Front</button>
-            <button onclick="setCameraView('impeller')" class="px-2 py-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition">Impeller</button>
-            <button onclick="setCameraView('top')" class="px-2 py-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition">Vortex</button>
+            <button onclick="setCameraView('front')" class="px-2 py-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 font-medium transition" data-i18n="cam_front">Front</button>
+            <button onclick="setCameraView('impeller')" class="px-2 py-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition" data-i18n="cam_impeller">Impeller</button>
+            <button onclick="setCameraView('top')" class="px-2 py-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition" data-i18n="cam_vortex">Vortex</button>
             <button onclick="resetCameraView()" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition" title="Reset View">
               <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
             </button>
@@ -312,18 +336,18 @@
             </span>
             <span class="bg-white/90 dark:bg-[#1b1c20]/90 backdrop-blur-md px-2.5 py-1 rounded-md border border-gray-200 dark:border-white/[0.08] flex items-center gap-1.5 shadow-sm">
               <span class="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
-              <span>Shear:</span> <b id="overlay-shear" class="text-gray-900 dark:text-gray-100 tabular-nums">12.4 s⁻¹</b>
+              <span data-i18n="sensor_shear">Shear:</span> <b id="overlay-shear" class="text-gray-900 dark:text-gray-100 tabular-nums">12.4 s⁻¹</b>
             </span>
             <span class="bg-white/90 dark:bg-[#1b1c20]/90 backdrop-blur-md px-2.5 py-1 rounded-md border border-gray-200 dark:border-white/[0.08] flex items-center gap-1.5 shadow-sm">
               <span class="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400"></span>
-              <span>Turbidity:</span> <b id="overlay-turbidity" class="text-gray-900 dark:text-gray-100">Low (Clear)</b>
+              <span data-i18n="sensor_turb">Turbidity:</span> <b id="overlay-turbidity" class="text-gray-900 dark:text-gray-100">Low (Clear)</b>
             </span>
           </div>
 
           <!-- Interactive 3D Orbit Hint -->
           <div class="absolute bottom-3 right-3 text-[10px] font-mono text-gray-500 dark:text-gray-400 bg-white/80 dark:bg-[#1b1c20]/80 px-2.5 py-1 rounded-md border border-gray-200 dark:border-white/[0.06] pointer-events-none z-20 hidden sm:flex items-center gap-1.5 shadow-sm">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10M12 2v4M12 22v-4M2 12h4M22 12h-4"></path></svg>
-            <span>Drag to Rotate &bull; Scroll to Zoom</span>
+            <span data-i18n="hint_3d">Drag to Rotate &bull; Scroll to Zoom</span>
           </div>
         </div>
 
@@ -331,17 +355,17 @@
         <div class="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-gray-200 dark:border-white/[0.06]">
           <div>
             <div class="flex justify-between text-xs mb-1 font-mono">
-              <span class="text-gray-500 dark:text-gray-400">Agitation:</span>
+              <span class="text-gray-500 dark:text-gray-400" data-i18n="lbl_agitation">Agitation:</span>
               <span id="val-rpm" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">450 RPM</span>
             </div>
-            <input type="range" id="input-rpm" min="50" max="900" value="450" step="10" oninput="updateControls()" class="w-full">
+            <input type="range" id="input-rpm" min="0" max="900" value="450" step="10" oninput="updateControls()" class="w-full">
           </div>
           <div>
             <div class="flex justify-between text-xs mb-1 font-mono">
-              <span class="text-gray-500 dark:text-gray-400">Aeration:</span>
+              <span class="text-gray-500 dark:text-gray-400" data-i18n="lbl_aeration">Aeration:</span>
               <span id="val-vvm" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">1.20 vvm</span>
             </div>
-            <input type="range" id="input-vvm" min="0.1" max="3.0" value="1.2" step="0.1" oninput="updateControls()" class="w-full">
+            <input type="range" id="input-vvm" min="0.0" max="3.0" value="1.2" step="0.1" oninput="updateControls()" class="w-full">
           </div>
         </div>
       </div>
@@ -357,7 +381,7 @@
           <div class="flex justify-between items-start">
             <span class="text-[11px] font-mono tracking-wider text-gray-500 dark:text-gray-400 uppercase flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
-              <span>Biomass X</span>
+              <span data-i18n="kpi_biomass_title">Biomass X</span>
             </span>
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#282a2e] text-gray-700 dark:text-gray-300 font-mono border border-gray-200 dark:border-[#383b42]">g/L</span>
           </div>
@@ -365,7 +389,7 @@
             <span id="kpi-biomass" class="text-2xl font-bold font-mono tracking-tight text-gray-900 dark:text-gray-100 tabular-nums">0.80</span>
           </div>
           <div class="text-[10px] text-gray-500 dark:text-gray-400 flex justify-between font-mono pt-1 border-t border-gray-100 dark:border-white/[0.04]">
-            <span>Growth &mu;:</span>
+            <span data-i18n="kpi_growth_rate">Growth &mu;:</span>
             <span id="kpi-mu" class="text-emerald-700 dark:text-emerald-400 font-medium tabular-nums">0.31 h⁻¹</span>
           </div>
         </div>
@@ -375,7 +399,7 @@
           <div class="flex justify-between items-start">
             <span class="text-[11px] font-mono tracking-wider text-gray-500 dark:text-gray-400 uppercase flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400"></span>
-              <span>Substrate S</span>
+              <span data-i18n="kpi_substrate_title">Substrate S</span>
             </span>
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#282a2e] text-gray-700 dark:text-gray-300 font-mono border border-gray-200 dark:border-[#383b42]">g/L</span>
           </div>
@@ -383,7 +407,7 @@
             <span id="kpi-substrate" class="text-2xl font-bold font-mono tracking-tight text-gray-900 dark:text-gray-100 tabular-nums">35.00</span>
           </div>
           <div class="text-[10px] text-gray-500 dark:text-gray-400 flex justify-between font-mono pt-1 border-t border-gray-100 dark:border-white/[0.04]">
-            <span>Consumed:</span>
+            <span data-i18n="kpi_consumed">Consumed:</span>
             <span id="kpi-s-consumed" class="text-amber-700 dark:text-amber-400 font-medium tabular-nums">0.0 %</span>
           </div>
         </div>
@@ -393,7 +417,7 @@
           <div class="flex justify-between items-start">
             <span class="text-[11px] font-mono tracking-wider text-gray-500 dark:text-gray-400 uppercase flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
-              <span>Dissolved O₂</span>
+              <span data-i18n="kpi_oxygen_title">Dissolved O₂</span>
             </span>
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#282a2e] text-gray-700 dark:text-gray-300 font-mono border border-gray-200 dark:border-[#383b42]">% SAT</span>
           </div>
@@ -401,7 +425,7 @@
             <span id="kpi-oxygen" class="text-2xl font-bold font-mono tracking-tight text-gray-900 dark:text-gray-100 tabular-nums">100.0</span>
           </div>
           <div class="text-[10px] text-gray-500 dark:text-gray-400 flex justify-between font-mono pt-1 border-t border-gray-100 dark:border-white/[0.04]">
-            <span>kla transfer:</span>
+            <span data-i18n="kpi_kla">kla transfer:</span>
             <span id="kpi-kla" class="text-blue-700 dark:text-blue-400 font-medium tabular-nums">65.0 h⁻¹</span>
           </div>
         </div>
@@ -411,7 +435,7 @@
           <div class="flex justify-between items-start">
             <span class="text-[11px] font-mono tracking-wider text-gray-500 dark:text-gray-400 uppercase flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-purple-600 dark:bg-purple-400"></span>
-              <span>Target Product</span>
+              <span data-i18n="kpi_product_title">Target Product</span>
             </span>
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#282a2e] text-gray-700 dark:text-gray-300 font-mono border border-gray-200 dark:border-[#383b42]">g/L</span>
           </div>
@@ -419,7 +443,7 @@
             <span id="kpi-product" class="text-2xl font-bold font-mono tracking-tight text-gray-900 dark:text-gray-100 tabular-nums">0.00</span>
           </div>
           <div class="text-[10px] text-gray-500 dark:text-gray-400 flex justify-between font-mono pt-1 border-t border-gray-100 dark:border-white/[0.04]">
-            <span>Yield Y_P/S:</span>
+            <span data-i18n="kpi_yield">Yield Y_P/S:</span>
             <span id="kpi-yps" class="text-purple-700 dark:text-purple-400 font-medium tabular-nums">0.85</span>
           </div>
         </div>
@@ -429,15 +453,15 @@
       <div class="google-card rounded-2xl p-4 flex-1 flex flex-col min-h-[320px]">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
           <div class="flex items-center gap-2">
-            <span class="text-xs font-mono font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">SCADA Multi-Channel Telemetry Stream</span>
-            <span class="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-300 font-mono border border-gray-200 dark:border-[#383b42]">60 FPS Sync</span>
+            <span class="text-xs font-mono font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider" data-i18n="chart_title">SCADA Multi-Channel Telemetry Stream</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-300 font-mono border border-gray-200 dark:border-[#383b42]" data-i18n="chart_fps">60 FPS Sync</span>
           </div>
           <!-- Clean Google-style Legend Chips -->
           <div class="flex items-center gap-3 text-xs font-mono">
-            <span class="flex items-center gap-1.5 text-gray-700 dark:text-gray-300"><span class="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400"></span> Biomass (g/L)</span>
-            <span class="flex items-center gap-1.5 text-gray-700 dark:text-gray-300"><span class="w-2 h-2 rounded-full bg-amber-600 dark:bg-amber-400"></span> Substrate (g/L)</span>
-            <span class="flex items-center gap-1.5 text-gray-700 dark:text-gray-300"><span class="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span> DO (% Sat)</span>
-            <span class="flex items-center gap-1.5 text-gray-700 dark:text-gray-300"><span class="w-2 h-2 rounded-full bg-purple-600 dark:bg-purple-400"></span> Product (g/L)</span>
+            <span class="flex items-center gap-1.5 text-gray-700 dark:text-gray-300"><span class="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400"></span> <span data-i18n="leg_biomass">Biomass (g/L)</span></span>
+            <span class="flex items-center gap-1.5 text-gray-700 dark:text-gray-300"><span class="w-2 h-2 rounded-full bg-amber-600 dark:bg-amber-400"></span> <span data-i18n="leg_substrate">Substrate (g/L)</span></span>
+            <span class="flex items-center gap-1.5 text-gray-700 dark:text-gray-300"><span class="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span> <span data-i18n="leg_do">DO (% Sat)</span></span>
+            <span class="flex items-center gap-1.5 text-gray-700 dark:text-gray-300"><span class="w-2 h-2 rounded-full bg-purple-600 dark:bg-purple-400"></span> <span data-i18n="leg_product">Product (g/L)</span></span>
           </div>
         </div>
         <div class="flex-1 relative w-full h-[260px]">
@@ -450,15 +474,15 @@
         <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-gray-200 dark:border-white/[0.06]">
           <div class="flex items-center gap-2">
             <svg class="w-4 h-4 text-gray-700 dark:text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            <span class="text-xs font-mono font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Process Disturbance &amp; Recovery Sandbox</span>
+            <span class="text-xs font-mono font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider" data-i18n="sandbox_title">Process Disturbance &amp; Recovery Sandbox</span>
             <span id="fault-badge" class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#383b42] font-medium inline-flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
-              <span>NORMAL OPERATION</span>
+              <span data-i18n="fault_normal">NORMAL OPERATION</span>
             </span>
           </div>
           <!-- Auto DO Toggle -->
           <div class="flex items-center gap-2">
-            <span class="text-xs font-mono text-gray-500 dark:text-gray-400">Auto DO (Cascade PID):</span>
+            <span class="text-xs font-mono text-gray-500 dark:text-gray-400" data-i18n="lbl_autodo">Auto DO (Cascade PID):</span>
             <button id="btn-toggle-autodo" onclick="toggleAutoDO()" class="px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-white dark:bg-[#2b2d32] text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-[#383b42] inline-flex items-center gap-1.5 transition">
               <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
               <span>OFF</span>
@@ -469,27 +493,27 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Fault Buttons -->
           <div class="space-y-1.5">
-            <span class="text-[11px] font-mono text-gray-500 dark:text-gray-400 uppercase font-medium">Inject Disturbance:</span>
+            <span class="text-[11px] font-mono text-gray-500 dark:text-gray-400 uppercase font-medium" data-i18n="inject_disturbance">Inject Disturbance:</span>
             <div class="grid grid-cols-2 gap-1.5 pt-1">
               <button onclick="setFault('none')" class="fault-btn px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-white dark:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-[#383b42] hover:bg-gray-50 dark:hover:bg-[#32353b] transition inline-flex items-center justify-center gap-1.5 shadow-sm">
                 <svg class="w-3 h-3 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Clear Fault</span>
+                <span data-i18n="btn_clear_fault">Clear Fault</span>
               </button>
               <button onclick="setFault('compressor')" class="fault-btn px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-white dark:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-[#383b42] hover:bg-gray-50 dark:hover:bg-[#32353b] transition inline-flex items-center justify-center gap-1.5 shadow-sm">
                 <svg class="w-3 h-3 text-red-600 dark:text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 11-12.73 0M12 2v10"></path></svg>
-                <span>Compressor Stop</span>
+                <span data-i18n="btn_compressor_stop">Compressor Stop</span>
               </button>
               <button onclick="setFault('impeller_stall')" class="fault-btn px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-white dark:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-[#383b42] hover:bg-gray-50 dark:hover:bg-[#32353b] transition inline-flex items-center justify-center gap-1.5 shadow-sm">
                 <svg class="w-3 h-3 text-red-600 dark:text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
-                <span>Stall Impeller</span>
+                <span data-i18n="btn_stall_impeller">Stall Impeller</span>
               </button>
               <button onclick="setFault('sensor_drift')" class="fault-btn px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-white dark:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-[#383b42] hover:bg-gray-50 dark:hover:bg-[#32353b] transition inline-flex items-center justify-center gap-1.5 shadow-sm">
                 <svg class="w-3 h-3 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                <span>Sensor Drift (+25%)</span>
+                <span data-i18n="btn_sensor_drift">Sensor Drift (+25%)</span>
               </button>
               <button onclick="setFault('thermal_shock')" class="fault-btn px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-white dark:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-[#383b42] hover:bg-gray-50 dark:hover:bg-[#32353b] transition col-span-2 inline-flex items-center justify-center gap-1.5 shadow-sm">
                 <svg class="w-3 h-3 text-red-600 dark:text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"></path></svg>
-                <span>Thermal Runaway (42&deg;C Inactivation)</span>
+                <span data-i18n="btn_thermal_shock">Thermal Runaway (42&deg;C Inactivation)</span>
               </button>
             </div>
           </div>
@@ -497,19 +521,19 @@
           <!-- Luedeking-Piret Kinetics Parameters -->
           <div class="space-y-1.5 bg-gray-50 dark:bg-[#1c1d21] p-3 rounded-xl border border-gray-200 dark:border-white/[0.06]">
             <div class="flex justify-between items-center text-[11px] font-mono">
-              <span class="text-gray-700 dark:text-gray-300 font-semibold uppercase">Luedeking-Piret Kinetics:</span>
+              <span class="text-gray-700 dark:text-gray-300 font-semibold uppercase" data-i18n="lp_kinetics_title">Luedeking-Piret Kinetics:</span>
               <span id="lp-class" class="text-[9px] px-1.5 py-0.5 rounded bg-gray-200 dark:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#383b42]">Mixed</span>
             </div>
             <div>
               <div class="flex justify-between text-[10px] font-mono">
-                <span class="text-gray-500 dark:text-gray-400">Growth-Assoc (&alpha;):</span>
+                <span class="text-gray-500 dark:text-gray-400" data-i18n="lp_alpha_lbl">Growth-Assoc (&alpha;):</span>
                 <span id="disp-alpha" class="text-gray-900 dark:text-gray-100 font-medium tabular-nums">0.15 g_P/g_X</span>
               </div>
               <input type="range" id="input-alpha" min="0" max="0.5" value="0.15" step="0.01" oninput="updateControls()" class="w-full">
             </div>
             <div>
               <div class="flex justify-between text-[10px] font-mono">
-                <span class="text-gray-500 dark:text-gray-400">Non-Growth (&beta;):</span>
+                <span class="text-gray-500 dark:text-gray-400" data-i18n="lp_beta_lbl">Non-Growth (&beta;):</span>
                 <span id="disp-beta" class="text-gray-900 dark:text-gray-100 font-medium tabular-nums">0.010 g_P/g_X/h</span>
               </div>
               <input type="range" id="input-beta" min="0" max="0.05" value="0.01" step="0.002" oninput="updateControls()" class="w-full">
@@ -520,25 +544,25 @@
           <div class="bg-gray-50 dark:bg-[#1c1d21] p-3 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between font-mono text-[11px]">
             <span class="text-gray-700 dark:text-gray-300 font-semibold uppercase flex items-center gap-1.5">
               <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-              <span>Safety Interlocks</span>
+              <span data-i18n="safety_title">Safety Interlocks</span>
             </span>
             <div class="space-y-1.5 my-1">
               <div class="flex justify-between items-center">
-                <span class="text-gray-500 dark:text-gray-400 text-[10px]">Hypoxia Risk:</span>
+                <span class="text-gray-500 dark:text-gray-400 text-[10px]" data-i18n="risk_hypoxia">Hypoxia Risk:</span>
                 <span id="alarm-hypoxia" class="text-emerald-700 dark:text-emerald-400 font-medium inline-flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
                   <span>Safe (&gt;20%)</span>
                 </span>
               </div>
               <div class="flex justify-between items-center">
-                <span class="text-gray-500 dark:text-gray-400 text-[10px]">Shear Stress:</span>
+                <span class="text-gray-500 dark:text-gray-400 text-[10px]" data-i18n="risk_shear">Shear Stress:</span>
                 <span id="alarm-shear" class="text-emerald-700 dark:text-emerald-400 font-medium inline-flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
                   <span>Optimal (&lt;3.0 m/s)</span>
                 </span>
               </div>
               <div class="flex justify-between items-center">
-                <span class="text-gray-500 dark:text-gray-400 text-[10px]">PID Actuator:</span>
+                <span class="text-gray-500 dark:text-gray-400 text-[10px]" data-i18n="status_actuator_lbl">PID Actuator:</span>
                 <span id="status-actuator" class="text-gray-500 dark:text-gray-400 font-medium inline-flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
                   <span>Manual Standby</span>
@@ -556,13 +580,13 @@
         <div class="bg-gray-50 dark:bg-[#1c1d21] p-3.5 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
           <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2 flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 000 20 14.5 14.5 0 000-20"></path><path d="M2 12h20"></path></svg>
-            <span>HYDRODYNAMICS &amp; SCALE</span>
+            <span data-i18n="hydro_title">HYDRODYNAMICS &amp; SCALE</span>
           </h4>
           <div class="space-y-1.5 text-xs font-mono">
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]">Reynolds (Re):</span> <span id="disp-reynolds" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">42,500</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]">Tip Speed (v_tip):</span> <span id="disp-tip-speed" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">2.12 m/s</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]">Power P/V:</span> <span id="disp-power-density" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">1.82 kW/m³</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]">Flow Regime:</span> <span class="text-emerald-700 dark:text-emerald-400 font-medium">Fully Turbulent</span></div>
+            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_re">Reynolds (Re):</span> <span id="disp-reynolds" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">42,500</span></div>
+            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_vtip">Tip Speed (v_tip):</span> <span id="disp-tip-speed" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">2.12 m/s</span></div>
+            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_pv">Power P/V:</span> <span id="disp-power-density" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">1.82 kW/m³</span></div>
+            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_regime">Flow Regime:</span> <span id="disp-regime" class="text-emerald-700 dark:text-emerald-400 font-medium">Fully Turbulent</span></div>
           </div>
         </div>
 
@@ -570,13 +594,13 @@
         <div class="bg-gray-50 dark:bg-[#1c1d21] p-3.5 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
           <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2 flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 7l9-4 9 4M6 21h12M4 7l2 7h4L8 7M16 7l2 7h4l-2-7"></path></svg>
-            <span>CARBON BALANCE AUDITOR</span>
+            <span data-i18n="carbon_title">CARBON BALANCE AUDITOR</span>
           </h4>
           <div class="space-y-1.5 text-xs font-mono">
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]">C-Carbon Fed:</span> <span id="disp-c-in" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">14.0 g C/L</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]">C-Incorporated:</span> <span id="disp-c-fixed" class="text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">5.8 g C/L</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]">CO₂ Respiration:</span> <span id="disp-c-co2" class="text-amber-700 dark:text-amber-400 font-semibold tabular-nums">8.2 g C/L</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]">Recovery Balance:</span> <span class="text-blue-700 dark:text-blue-400 font-medium tabular-nums">99.8%</span></div>
+            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_fed">C-Carbon Fed:</span> <span id="disp-c-in" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">14.0 g C/L</span></div>
+            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_fixed">C-Incorporated:</span> <span id="disp-c-fixed" class="text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">5.8 g C/L</span></div>
+            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_co2">CO₂ Respiration:</span> <span id="disp-c-co2" class="text-amber-700 dark:text-amber-400 font-semibold tabular-nums">8.2 g C/L</span></div>
+            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_balance">Recovery Balance:</span> <span class="text-blue-700 dark:text-blue-400 font-medium tabular-nums">99.8%</span></div>
           </div>
         </div>
 
@@ -584,19 +608,19 @@
         <div class="bg-gray-50 dark:bg-[#1c1d21] p-3.5 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
           <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2 flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"></path></svg>
-            <span>THERMAL &amp; pH CONTROLLERS</span>
+            <span data-i18n="controllers_title">THERMAL &amp; pH CONTROLLERS</span>
           </h4>
           <div class="space-y-2">
             <div>
               <div class="flex justify-between text-xs font-mono mb-1">
-                <span class="text-gray-500 dark:text-gray-400 text-[11px]">Broth Temp:</span>
+                <span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="temp_lbl">Broth Temp:</span>
                 <span id="disp-temp" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">30.0 °C</span>
               </div>
               <input type="range" id="input-temp" min="20" max="42" value="30" step="0.5" oninput="updateControls()" class="w-full">
             </div>
             <div>
               <div class="flex justify-between text-xs font-mono mb-1">
-                <span class="text-gray-500 dark:text-gray-400 text-[11px]">Broth pH:</span>
+                <span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="ph_lbl">Broth pH:</span>
                 <span id="disp-ph" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">6.85 pH</span>
               </div>
               <input type="range" id="input-ph" min="5.5" max="8.0" value="6.8" step="0.1" oninput="updateControls()" class="w-full">
@@ -608,10 +632,478 @@
 
   </main>
 
-  <!-- JAVASCRIPT: THEME ENGINE, BIOPROCESS KINETICS & THREE.JS 3D RENDERER -->
+  <!-- BATCH ONBOARDING & SETUP MODAL -->
+  <div id="modal-setup" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+    <div class="google-card rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      
+      <!-- Modal Header -->
+      <div class="flex items-start justify-between pb-4 border-b border-gray-200 dark:border-white/[0.08]">
+        <div>
+          <h2 id="modal-title" class="text-lg font-semibold text-gray-900 dark:text-gray-100">Bioprocess Batch Configuration</h2>
+          <p id="modal-subtitle" class="text-xs text-gray-500 dark:text-gray-400 mt-1">Select organism benchmark model and configure initial batch operating parameters.</p>
+        </div>
+        <button id="btn-close-setup" onclick="closeSetupModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg transition" title="Close Modal">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <!-- Language Selector within Modal -->
+      <div class="mt-4 pb-4 border-b border-gray-100 dark:border-white/[0.04]">
+        <label class="block text-xs font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2" data-i18n="modal_sec_lang">Select Interface Language:</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="setLanguage('en')" id="modal-lang-en" class="px-3 py-2 rounded-xl text-xs font-medium border border-gray-200 dark:border-[#383b42] text-center transition bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm">
+            <span class="block font-semibold">English</span>
+            <span class="text-[10px] text-gray-400">EN</span>
+          </button>
+          <button onclick="setLanguage('es')" id="modal-lang-es" class="px-3 py-2 rounded-xl text-xs font-medium border border-gray-200 dark:border-[#383b42] text-center transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+            <span class="block font-semibold">Español</span>
+            <span class="text-[10px] text-gray-400">ES</span>
+          </button>
+          <button onclick="setLanguage('de')" id="modal-lang-de" class="px-3 py-2 rounded-xl text-xs font-medium border border-gray-200 dark:border-[#383b42] text-center transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+            <span class="block font-semibold">Deutsch</span>
+            <span class="text-[10px] text-gray-400">DE</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Biological Strain Preset Selector -->
+      <div class="mt-4 pb-4 border-b border-gray-100 dark:border-white/[0.04]">
+        <label class="block text-xs font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2" data-i18n="modal_sec_strain">Biological Benchmark Strain:</label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="strain-preset-grid">
+          <!-- E. coli -->
+          <div onclick="selectStrain('ecoli')" id="card-strain-ecoli" class="strain-card p-3 rounded-xl border border-blue-600 dark:border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 cursor-pointer transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-gray-900 dark:text-gray-100">Escherichia coli BL21</span>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">Aerobic</span>
+            </div>
+            <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1" id="desc-strain-ecoli">Fast-growing microbial platform, high recombinant expression (&mu;max: 0.65 h⁻¹).</p>
+          </div>
+          <!-- Pichia pastoris -->
+          <div onclick="selectStrain('pichia')" id="card-strain-pichia" class="strain-card p-3 rounded-xl border border-gray-200 dark:border-[#383b42] bg-white dark:bg-[#1f2024] hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-gray-900 dark:text-gray-100">Pichia pastoris</span>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-400">Yeast</span>
+            </div>
+            <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1" id="desc-strain-pichia">High cell-density yeast, methanol/glycerol fed-batch (&mu;max: 0.22 h⁻¹).</p>
+          </div>
+          <!-- Saccharomyces cerevisiae -->
+          <div onclick="selectStrain('yeast')" id="card-strain-yeast" class="strain-card p-3 rounded-xl border border-gray-200 dark:border-[#383b42] bg-white dark:bg-[#1f2024] hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-gray-900 dark:text-gray-100">S. cerevisiae</span>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-400">Yeast</span>
+            </div>
+            <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1" id="desc-strain-yeast">Classic Crabtree-positive yeast, respiro-fermentative kinetics (&mu;max: 0.38 h⁻¹).</p>
+          </div>
+          <!-- CHO Mammalian -->
+          <div onclick="selectStrain('cho')" id="card-strain-cho" class="strain-card p-3 rounded-xl border border-gray-200 dark:border-[#383b42] bg-white dark:bg-[#1f2024] hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-gray-900 dark:text-gray-100">CHO Cells (Mammalian)</span>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-400">Suspension</span>
+            </div>
+            <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1" id="desc-strain-cho">Shear-sensitive mammalian suspension, therapeutic mAb production (&mu;max: 0.038 h⁻¹).</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Initial Cultivation Parameters Input Form -->
+      <div class="mt-4">
+        <label class="block text-xs font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2" data-i18n="modal_sec_params">Initial Cultivation Setpoints:</label>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="text-[11px] text-gray-500 dark:text-gray-400 block mb-1 font-mono" data-i18n="param_x0">Initial Biomass X₀ (g/L):</label>
+            <input type="number" id="input-init-x" value="0.50" step="0.1" min="0.05" max="20.0" class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 dark:border-[#383b42] bg-white dark:bg-[#1f2024] text-gray-900 dark:text-gray-100 font-mono text-xs focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="text-[11px] text-gray-500 dark:text-gray-400 block mb-1 font-mono" data-i18n="param_s0">Initial Glucose S₀ (g/L):</label>
+            <input type="number" id="input-init-s" value="30.0" step="1.0" min="1.0" max="150.0" class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 dark:border-[#383b42] bg-white dark:bg-[#1f2024] text-gray-900 dark:text-gray-100 font-mono text-xs focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="text-[11px] text-gray-500 dark:text-gray-400 block mb-1 font-mono" data-i18n="param_vol">Working Volume (L):</label>
+            <input type="number" id="input-init-vol" value="20.0" step="1.0" min="1.0" max="100.0" class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 dark:border-[#383b42] bg-white dark:bg-[#1f2024] text-gray-900 dark:text-gray-100 font-mono text-xs focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="text-[11px] text-gray-500 dark:text-gray-400 block mb-1 font-mono" data-i18n="param_temp">Temperature (°C):</label>
+            <input type="number" id="input-init-temp" value="37.0" step="0.5" min="20.0" max="42.0" class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 dark:border-[#383b42] bg-white dark:bg-[#1f2024] text-gray-900 dark:text-gray-100 font-mono text-xs focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="text-[11px] text-gray-500 dark:text-gray-400 block mb-1 font-mono" data-i18n="param_ph">Broth pH:</label>
+            <input type="number" id="input-init-ph" value="7.00" step="0.05" min="4.0" max="9.0" class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 dark:border-[#383b42] bg-white dark:bg-[#1f2024] text-gray-900 dark:text-gray-100 font-mono text-xs focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="text-[11px] text-gray-500 dark:text-gray-400 block mb-1 font-mono" data-i18n="param_mumax">&mu;max Kinetic (h⁻¹):</label>
+            <input type="number" id="input-init-mumax" value="0.65" step="0.01" min="0.01" max="1.5" class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 dark:border-[#383b42] bg-white dark:bg-[#1f2024] text-gray-900 dark:text-gray-100 font-mono text-xs focus:outline-none focus:border-blue-500">
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="mt-6 pt-4 border-t border-gray-200 dark:border-white/[0.08] flex items-center justify-end gap-3">
+        <button id="btn-cancel-setup" onclick="closeSetupModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition" data-i18n="btn_close">Close</button>
+        <button id="btn-start-simulation" onclick="applySetupAndLaunch()" class="px-5 py-2 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition active:scale-95 inline-flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          <span data-i18n="btn_launch_batch">Launch Batch Simulation</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT: I18N, THEME ENGINE, BIOPROCESS KINETICS & THREE.JS 3D RENDERER -->
   <script>
     /* =========================================================================
-       0. AUTOMATIC THEME ENGINE (Google System / Light / Dark)
+       0. MULTILANGUAGE (i18n) ENGINE & DICTIONARY
+       ========================================================================= */
+    let currentLang = 'en'; // 'en', 'es', 'de'
+
+    const i18n = {
+      en: {
+        app_title: "Bioprocess Visual Twin",
+        app_subtitle: "Physics-Informed Real-Time Digital Twin • Ing. Juan José Álvarez Morales",
+        reactor_rushton: "STR (Rushton)",
+        reactor_marine: "STR (Marine)",
+        reactor_airlift: "Airlift Loop",
+        reactor_pbr: "Photobioreactor",
+        reactor_static: "Static Vessel",
+        btn_setup: "Batch Setup",
+        btn_pulse: "Feed Pulse (+5g/L)",
+        time_lbl: "Time:",
+        cam_view: "View:",
+        cam_front: "Front",
+        cam_impeller: "Impeller",
+        cam_vortex: "Vortex",
+        sensor_shear: "Shear:",
+        sensor_turb: "Turbidity:",
+        hint_3d: "Drag to Rotate • Scroll to Zoom",
+        lbl_agitation: "Agitation:",
+        lbl_aeration: "Aeration:",
+        kpi_biomass_title: "Biomass X",
+        kpi_growth_rate: "Growth μ:",
+        kpi_substrate_title: "Substrate S",
+        kpi_consumed: "Consumed:",
+        kpi_oxygen_title: "Dissolved O₂",
+        kpi_kla: "kla transfer:",
+        kpi_product_title: "Target Product",
+        kpi_yield: "Yield Y_P/S:",
+        chart_title: "SCADA Multi-Channel Telemetry Stream",
+        chart_fps: "60 FPS Sync",
+        leg_biomass: "Biomass (g/L)",
+        leg_substrate: "Substrate (g/L)",
+        leg_do: "DO (% Sat)",
+        leg_product: "Product (g/L)",
+        sandbox_title: "Process Disturbance & Recovery Sandbox",
+        fault_normal: "NORMAL OPERATION",
+        lbl_autodo: "Auto DO (Cascade PID):",
+        inject_disturbance: "Inject Disturbance:",
+        btn_clear_fault: "Clear Fault",
+        btn_compressor_stop: "Compressor Stop",
+        btn_stall_impeller: "Stall Impeller",
+        btn_sensor_drift: "Sensor Drift (+25%)",
+        btn_thermal_shock: "Thermal Runaway (42°C)",
+        lp_kinetics_title: "Luedeking-Piret Kinetics:",
+        lp_alpha_lbl: "Growth-Assoc (α):",
+        lp_beta_lbl: "Non-Growth (β):",
+        safety_title: "Safety Interlocks",
+        risk_hypoxia: "Hypoxia Risk:",
+        risk_shear: "Shear Stress:",
+        status_actuator_lbl: "PID Actuator:",
+        hydro_title: "HYDRODYNAMICS & SCALE",
+        hydro_re: "Reynolds (Re):",
+        hydro_vtip: "Tip Speed (v_tip):",
+        hydro_pv: "Power P/V:",
+        hydro_regime: "Flow Regime:",
+        carbon_title: "CARBON BALANCE AUDITOR",
+        c_fed: "C-Carbon Fed:",
+        c_fixed: "C-Incorporated:",
+        c_co2: "CO₂ Respiration:",
+        c_balance: "Recovery Balance:",
+        controllers_title: "THERMAL & pH CONTROLLERS",
+        temp_lbl: "Broth Temp:",
+        ph_lbl: "Broth pH:",
+        modal_title: "Bioprocess Batch Configuration",
+        modal_subtitle: "Select organism benchmark model and configure initial batch operating parameters.",
+        modal_sec_lang: "Select Interface Language:",
+        modal_sec_strain: "Biological Benchmark Strain:",
+        modal_sec_params: "Initial Cultivation Setpoints:",
+        param_x0: "Initial Biomass X₀ (g/L):",
+        param_s0: "Initial Glucose S₀ (g/L):",
+        param_vol: "Working Volume (L):",
+        param_temp: "Target Temperature (°C):",
+        param_ph: "Target pH:",
+        param_mumax: "μmax Kinetic (h⁻¹):",
+        btn_close: "Close",
+        btn_launch_batch: "Launch Batch Simulation",
+        vessel_str_rushton: "20 L Bench-Scale Stirred Tank (Rushton)",
+        vessel_str_marine: "20 L Mammalian Stirred Tank (Marine)",
+        vessel_airlift: "20 L Airlift Loop Bioreactor (Draft Tube)",
+        vessel_pbr: "20 L Tubular Photobioreactor (Algae/Cyanobacteria)",
+        vessel_static: "20 L Static Culture Vessel (Surface Oxygenation)",
+        alarm_safe: "Safe (>20%)",
+        alarm_warning_o2: "Warning: Low O₂",
+        alarm_critical_o2: "Critical (<15%)",
+        alarm_optimal_shear: "Optimal (<3.0 m/s)",
+        alarm_high_shear: "High Shear (>3.0 m/s)",
+        alarm_zero_shear: "Zero Shear (Static Safe)",
+        actuator_standby: "Manual Standby",
+        actuator_holding: "Holding 30% Setpoint",
+        actuator_boosting: "Boosting RPM/VVM",
+        actuator_throttling: "Throttling Down",
+        regime_turbulent: "Fully Turbulent",
+        regime_static: "Static (Zero Shear)"
+      },
+      es: {
+        app_title: "Gemelo Visual de Bioprocesos",
+        app_subtitle: "Gemelo Digital en Tiempo Real Basado en Física • Ing. Juan José Álvarez Morales",
+        reactor_rushton: "STR (Rushton)",
+        reactor_marine: "STR (Marine)",
+        reactor_airlift: "Bucle Airlift",
+        reactor_pbr: "Fotobiorreactor",
+        reactor_static: "Recipiente Estático",
+        btn_setup: "Configurar Lote",
+        btn_pulse: "Pulso Glucosa (+5g/L)",
+        time_lbl: "Tiempo:",
+        cam_view: "Vista:",
+        cam_front: "Frontal",
+        cam_impeller: "Impulsor",
+        cam_vortex: "Vórtice",
+        sensor_shear: "Cizalla:",
+        sensor_turb: "Turbidez:",
+        hint_3d: "Arrastre para Rotar • Scroll para Zoom",
+        lbl_agitation: "Agitación:",
+        lbl_aeration: "Aireación:",
+        kpi_biomass_title: "Biomasa X",
+        kpi_growth_rate: "Crecimiento μ:",
+        kpi_substrate_title: "Sustrato S",
+        kpi_consumed: "Consumido:",
+        kpi_oxygen_title: "Oxígeno Disuelto O₂",
+        kpi_kla: "Transferencia kla:",
+        kpi_product_title: "Producto Diana",
+        kpi_yield: "Rendimiento Y_P/S:",
+        chart_title: "Telemetría Multicanal SCADA en Tiempo Real",
+        chart_fps: "Sincronía 60 FPS",
+        leg_biomass: "Biomasa (g/L)",
+        leg_substrate: "Sustrato (g/L)",
+        leg_do: "OD (% Sat)",
+        leg_product: "Producto (g/L)",
+        sandbox_title: "Sandbox de Perturbaciones y Recuperación de Proceso",
+        fault_normal: "OPERACIÓN NORMAL",
+        lbl_autodo: "OD Automático (PID en Cascada):",
+        inject_disturbance: "Inyectar Perturbación:",
+        btn_clear_fault: "Limpiar Fallo",
+        btn_compressor_stop: "Parada Compresor",
+        btn_stall_impeller: "Detener Agitador",
+        btn_sensor_drift: "Deriva Sensor (+25%)",
+        btn_thermal_shock: "Inactivación Térmica (42°C)",
+        lp_kinetics_title: "Cinética de Luedeking-Piret:",
+        lp_alpha_lbl: "Asoc-Crecimiento (α):",
+        lp_beta_lbl: "No-Asoc (β):",
+        safety_title: "Enclavamientos de Seguridad",
+        risk_hypoxia: "Riesgo de Hipoxia:",
+        risk_shear: "Estrés de Cizalla:",
+        status_actuator_lbl: "Actuador PID:",
+        hydro_title: "HIDRODINÁMICA Y ESCALADO",
+        hydro_re: "Reynolds (Re):",
+        hydro_vtip: "Velocidad de Punta (v_tip):",
+        hydro_pv: "Potencia P/V:",
+        hydro_regime: "Régimen de Flujo:",
+        carbon_title: "AUDITOR DE BALANCE DE CARBONO",
+        c_fed: "Carbono C-Alimentado:",
+        c_fixed: "C-Incorporado:",
+        c_co2: "Respiración CO₂:",
+        c_balance: "Balance de Recuperación:",
+        controllers_title: "CONTROLADORES TÉRMICOS Y DE pH",
+        temp_lbl: "Temp. Caldo:",
+        ph_lbl: "pH Caldo:",
+        modal_title: "Configuración de Lote de Bioproceso",
+        modal_subtitle: "Seleccione el modelo biológico de referencia y configure los parámetros iniciales del lote.",
+        modal_sec_lang: "Seleccionar Idioma de Interfaz:",
+        modal_sec_strain: "Cepa Biológica de Referencia:",
+        modal_sec_params: "Puntos de Consigna Iniciales de Cultivo:",
+        param_x0: "Biomasa Inicial X₀ (g/L):",
+        param_s0: "Glucosa Inicial S₀ (g/L):",
+        param_vol: "Volumen de Trabajo (L):",
+        param_temp: "Temperatura Objetivo (°C):",
+        param_ph: "pH Objetivo:",
+        param_mumax: "Cinética μmax (h⁻¹):",
+        btn_close: "Cerrar",
+        btn_launch_batch: "Iniciar Simulación de Lote",
+        vessel_str_rushton: "Tanque Agitado de 20 L a Escala de Banco (Rushton)",
+        vessel_str_marine: "Tanque Agitado para Células de Mamífero de 20 L (Hélice Marina)",
+        vessel_airlift: "Biorreactor de Bucle Airlift de 20 L (Tubo Guía)",
+        vessel_pbr: "Fotobiorreactor Tubular de 20 L (Microalgas)",
+        vessel_static: "Recipiente de Cultivo Estático de 20 L (Oxigenación Superficial)",
+        alarm_safe: "Seguro (>20%)",
+        alarm_warning_o2: "Aviso: Bajo O₂",
+        alarm_critical_o2: "Crítico (<15%)",
+        alarm_optimal_shear: "Óptimo (<3.0 m/s)",
+        alarm_high_shear: "Alta Cizalla (>3.0 m/s)",
+        alarm_zero_shear: "Cizalla Nula (Estático)",
+        actuator_standby: "Espera Manual",
+        actuator_holding: "Manteniendo consigna 30%",
+        actuator_boosting: "Aumentando RPM/VVM",
+        actuator_throttling: "Reduciendo RPM/VVM",
+        regime_turbulent: "Completamente Turbulento",
+        regime_static: "Estático (Cizalla Nula)"
+      },
+      de: {
+        app_title: "Visueller Bioprozess-Zwilling",
+        app_subtitle: "Physikbasierter Echtzeit-Digital-Zwilling • Ing. Juan José Álvarez Morales",
+        reactor_rushton: "STR (Rushton)",
+        reactor_marine: "STR (Marine)",
+        reactor_airlift: "Airlift-Schlaufe",
+        reactor_pbr: "Photobioreaktor",
+        reactor_static: "Statisches Gefäß",
+        btn_setup: "Batch-Setup",
+        btn_pulse: "Fütterungspuls (+5g/L)",
+        time_lbl: "Zeit:",
+        cam_view: "Ansicht:",
+        cam_front: "Front",
+        cam_impeller: "Rührer",
+        cam_vortex: "Wirbel",
+        sensor_shear: "Scherung:",
+        sensor_turb: "Trübung:",
+        hint_3d: "Ziehen zum Drehen • Scrollen für Zoom",
+        lbl_agitation: "Rühren:",
+        lbl_aeration: "Begasung:",
+        kpi_biomass_title: "Biomasse X",
+        kpi_growth_rate: "Wachstum μ:",
+        kpi_substrate_title: "Substrat S",
+        kpi_consumed: "Verbraucht:",
+        kpi_oxygen_title: "Gelöster O₂",
+        kpi_kla: "kla-Transfer:",
+        kpi_product_title: "Zielprodukt",
+        kpi_yield: "Ausbeute Y_P/S:",
+        chart_title: "SCADA Mehrkanal-Telemetriestrom",
+        chart_fps: "60 FPS Sync",
+        leg_biomass: "Biomasse (g/L)",
+        leg_substrate: "Substrat (g/L)",
+        leg_do: "DO (% Sättigung)",
+        leg_product: "Produkt (g/L)",
+        sandbox_title: "Prozessstörungs- & Erholungs-Sandbox",
+        fault_normal: "NORMALBETRIEB",
+        lbl_autodo: "Auto-DO (Kaskaden-PID):",
+        inject_disturbance: "Störung Injizieren:",
+        btn_clear_fault: "Fehler Löschen",
+        btn_compressor_stop: "Kompressorstopp",
+        btn_stall_impeller: "Rührer Blockieren",
+        btn_sensor_drift: "Sensordrift (+25%)",
+        btn_thermal_shock: "Thermischer Schock (42°C)",
+        lp_kinetics_title: "Luedeking-Piret-Kinetik:",
+        lp_alpha_lbl: "Wachstums-Assoc (α):",
+        lp_beta_lbl: "Nicht-Wachstum (β):",
+        safety_title: "Sicherheitsverriegelungen",
+        risk_hypoxia: "Hypoxierisiko:",
+        risk_shear: "Scherbelastung:",
+        status_actuator_lbl: "PID-Aktor:",
+        hydro_title: "HYDRODYNAMIK & MASSSTAB",
+        hydro_re: "Reynolds (Re):",
+        hydro_vtip: "Spitzengeschw. (v_tip):",
+        hydro_pv: "Leistung P/V:",
+        hydro_regime: "Strömungsregime:",
+        carbon_title: "KOHLENSTOFFBILANZ-AUDITOR",
+        c_fed: "C-Kohlenstoff Zufuhr:",
+        c_fixed: "C-Inkorporiert:",
+        c_co2: "CO₂-Atmung:",
+        c_balance: "Wiedergewinnung:",
+        controllers_title: "TEMPERATUR- & pH-REGLER",
+        temp_lbl: "Kultur-Temp.:",
+        ph_lbl: "Kultur-pH:",
+        modal_title: "Bioprozess-Batch-Konfiguration",
+        modal_subtitle: "Wählen Sie ein Referenzmodell und konfigurieren Sie die Startparameter.",
+        modal_sec_lang: "Schnittstellensprache Wählen:",
+        modal_sec_strain: "Biologischer Referenzstamm:",
+        modal_sec_params: "Initiale Kultivierungs-Sollwerte:",
+        param_x0: "Initiale Biomasse X₀ (g/L):",
+        param_s0: "Initiales Substrat S₀ (g/L):",
+        param_vol: "Arbeitsvolumen (L):",
+        param_temp: "Zieltemperatur (°C):",
+        param_ph: "Ziel-pH:",
+        param_mumax: "μmax Kinetik (h⁻¹):",
+        btn_close: "Schließen",
+        btn_launch_batch: "Batch-Simulation Starten",
+        vessel_str_rushton: "20-L Labor-Rührkesselreaktor (Rushton)",
+        vessel_str_marine: "20-L Säugetierzell-Rührkessel (Marine-Propeller)",
+        vessel_airlift: "20-L Airlift-Schlaufenbioreaktor (Leitrohr)",
+        vessel_pbr: "20-L Rohr-Photobioreaktor (Algen)",
+        vessel_static: "20-L Statisches Kulturgefäß (Oberflächenbegasung)",
+        alarm_safe: "Sicher (>20%)",
+        alarm_warning_o2: "Warnung: Niedriger O₂",
+        alarm_critical_o2: "Kritisch (<15%)",
+        alarm_optimal_shear: "Optimal (<3.0 m/s)",
+        alarm_high_shear: "Hohe Scherkraft (>3.0 m/s)",
+        alarm_zero_shear: "Null Scherung (Statisch)",
+        actuator_standby: "Manueller Standby",
+        actuator_holding: "30% Sollwert Halten",
+        actuator_boosting: "RPM/VVM Steigern",
+        actuator_throttling: "Drosseln",
+        regime_turbulent: "Voll Turbulent",
+        regime_static: "Statisch (Null Scherung)"
+      }
+    };
+
+    function t(key) {
+      return (i18n[currentLang] && i18n[currentLang][key]) || (i18n['en'] && i18n['en'][key]) || key;
+    }
+
+    function setLanguage(lang) {
+      if (!i18n[lang]) return;
+      currentLang = lang;
+      try {
+        localStorage.setItem('bioprocess-lang', lang);
+      } catch (e) {}
+      applyLanguage();
+    }
+
+    function applyLanguage() {
+      // Update all elements with data-i18n attribute
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.getAttribute('data-i18n');
+        if (k) el.innerText = t(k);
+      });
+
+      // Update titles
+      document.getElementById('app-title').innerText = t('app_title');
+      document.getElementById('app-subtitle').innerHTML = t('app_subtitle');
+      document.getElementById('modal-title').innerText = t('modal_title');
+      document.getElementById('modal-subtitle').innerText = t('modal_subtitle');
+
+      // Update header language segmented bar
+      ['en', 'es', 'de'].forEach(l => {
+        const btn = document.getElementById(`lang-${l}`);
+        if (btn) {
+          if (l === currentLang) {
+            btn.className = 'px-2 py-1 rounded-lg text-xs font-mono font-medium transition bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42]';
+          } else {
+            btn.className = 'px-2 py-1 text-xs font-mono font-medium transition text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-lg';
+          }
+        }
+        const mBtn = document.getElementById(`modal-lang-${l}`);
+        if (mBtn) {
+          if (l === currentLang) {
+            mBtn.className = 'px-3 py-2 rounded-xl text-xs font-medium border border-blue-600 dark:border-blue-500 text-center transition bg-blue-50/50 dark:bg-blue-950/30 text-blue-900 dark:text-blue-100 shadow-sm';
+          } else {
+            mBtn.className = 'px-3 py-2 rounded-xl text-xs font-medium border border-gray-200 dark:border-[#383b42] text-center transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
+          }
+        }
+      });
+
+      // Update vessel title in left box
+      updateVesselTitle();
+    }
+
+    function updateVesselTitle() {
+      const titles = {
+        'str_rushton': t('vessel_str_rushton'),
+        'str_marine': t('vessel_str_marine'),
+        'airlift': t('vessel_airlift'),
+        'pbr': t('vessel_pbr'),
+        'static': t('vessel_static')
+      };
+      const titleEl = document.getElementById('vessel-badge-title');
+      if (titleEl) titleEl.innerText = titles[State.reactorType] || titles['str_rushton'];
+    }
+
+    /* =========================================================================
+       1. AUTOMATIC THEME ENGINE (Google System / Light / Dark)
        ========================================================================= */
     let currentThemeMode = 'system'; // 'system', 'light', 'dark'
 
@@ -701,10 +1193,226 @@
     }
 
     /* =========================================================================
-       1. GLOBAL SIMULATION STATE
+       2. STRAIN BENCHMARK DATABASE & BATCH SETUP
+       ========================================================================= */
+    const Strains = {
+      ecoli: {
+        name: 'Escherichia coli BL21(DE3)',
+        mu_max: 0.65,
+        Ks: 0.20,
+        Ko: 0.0006,
+        kd: 0.015,
+        Yxs: 0.45,
+        ms: 0.025,
+        Yxo: 1.15,
+        mo: 0.020,
+        Yps: 0.80,
+        alpha: 0.22,
+        beta: 0.005,
+        defaultRpm: 600,
+        defaultVvm: 1.5,
+        defaultTemp: 37.0,
+        defaultPh: 7.0,
+        defaultS0: 30.0,
+        defaultX0: 0.50
+      },
+      pichia: {
+        name: 'Pichia pastoris (K. phaffii)',
+        mu_max: 0.22,
+        Ks: 1.20,
+        Ko: 0.0008,
+        kd: 0.008,
+        Yxs: 0.50,
+        ms: 0.015,
+        Yxo: 1.05,
+        mo: 0.012,
+        Yps: 0.90,
+        alpha: 0.12,
+        beta: 0.015,
+        defaultRpm: 500,
+        defaultVvm: 1.8,
+        defaultTemp: 29.5,
+        defaultPh: 6.0,
+        defaultS0: 40.0,
+        defaultX0: 1.20
+      },
+      yeast: {
+        name: 'Saccharomyces cerevisiae',
+        mu_max: 0.38,
+        Ks: 0.50,
+        Ko: 0.0008,
+        kd: 0.010,
+        Yxs: 0.48,
+        ms: 0.018,
+        Yxo: 1.10,
+        mo: 0.015,
+        Yps: 0.75,
+        alpha: 0.18,
+        beta: 0.008,
+        defaultRpm: 450,
+        defaultVvm: 1.2,
+        defaultTemp: 30.0,
+        defaultPh: 5.5,
+        defaultS0: 35.0,
+        defaultX0: 0.80
+      },
+      cho: {
+        name: 'CHO Cells (Mammalian)',
+        mu_max: 0.038,
+        Ks: 0.40,
+        Ko: 0.0005,
+        kd: 0.004,
+        Yxs: 0.35,
+        ms: 0.006,
+        Yxo: 0.90,
+        mo: 0.005,
+        Yps: 0.92,
+        alpha: 0.08,
+        beta: 0.025,
+        defaultRpm: 90,
+        defaultVvm: 0.2,
+        defaultTemp: 36.8,
+        defaultPh: 7.15,
+        defaultS0: 25.0,
+        defaultX0: 0.30
+      }
+    };
+
+    let selectedStrainKey = 'ecoli';
+
+    function selectStrain(key) {
+      if (!Strains[key]) return;
+      selectedStrainKey = key;
+      const st = Strains[key];
+
+      // Update card styles
+      ['ecoli', 'pichia', 'yeast', 'cho'].forEach(k => {
+        const card = document.getElementById(`card-strain-${k}`);
+        if (card) {
+          if (k === key) {
+            card.className = 'strain-card p-3 rounded-xl border border-blue-600 dark:border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 cursor-pointer transition';
+          } else {
+            card.className = 'strain-card p-3 rounded-xl border border-gray-200 dark:border-[#383b42] bg-white dark:bg-[#1f2024] hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer transition';
+          }
+        }
+      });
+
+      // Populate input fields in modal
+      document.getElementById('input-init-x').value = st.defaultX0.toFixed(2);
+      document.getElementById('input-init-s').value = st.defaultS0.toFixed(1);
+      document.getElementById('input-init-temp').value = st.defaultTemp.toFixed(1);
+      document.getElementById('input-init-ph').value = st.defaultPh.toFixed(2);
+      document.getElementById('input-init-mumax').value = st.mu_max.toFixed(3);
+    }
+
+    function openSetupModal() {
+      const modal = document.getElementById('modal-setup');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function closeSetupModal() {
+      const modal = document.getElementById('modal-setup');
+      if (modal) {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+      }
+    }
+
+    function applySetupAndLaunch() {
+      const st = Strains[selectedStrainKey] || Strains['ecoli'];
+      
+      // Read user inputs
+      const initX = parseFloat(document.getElementById('input-init-x').value) || st.defaultX0;
+      const initS = parseFloat(document.getElementById('input-init-s').value) || st.defaultS0;
+      const initVol = parseFloat(document.getElementById('input-init-vol').value) || 20.0;
+      const initTemp = parseFloat(document.getElementById('input-init-temp').value) || st.defaultTemp;
+      const initPh = parseFloat(document.getElementById('input-init-ph').value) || st.defaultPh;
+      const initMuMax = parseFloat(document.getElementById('input-init-mumax').value) || st.mu_max;
+
+      // Update Simulation State
+      State.volume_L = initVol;
+      State.X = initX;
+      State.S = initS;
+      State.P = 0.0;
+      State.CL = State.C_star;
+      State.temp_C = initTemp;
+      State.ph = initPh;
+      State.mu_max = initMuMax;
+      State.Ks = st.Ks;
+      State.Ko = st.Ko;
+      State.kd = st.kd;
+      State.Yxs = st.Yxs;
+      State.ms = st.ms;
+      State.Yxo = st.Yxo;
+      State.mo = st.mo;
+      State.Yps = st.Yps;
+      State.alpha = st.alpha;
+      State.beta = st.beta;
+      State.time_h = 0.0;
+
+      // Set initial RPM & VVM based on strain unless in static vessel
+      if (State.reactorType !== 'static') {
+        State.rpm = st.defaultRpm;
+        State.vvm = st.defaultVvm;
+        const inRpm = document.getElementById('input-rpm');
+        if (inRpm) inRpm.value = State.rpm;
+        const valRpm = document.getElementById('val-rpm');
+        if (valRpm) valRpm.innerText = `${Math.round(State.rpm)} RPM`;
+        const inVvm = document.getElementById('input-vvm');
+        if (inVvm) inVvm.value = State.vvm.toFixed(1);
+        const valVvm = document.getElementById('val-vvm');
+        if (valVvm) valVvm.innerText = `${State.vvm.toFixed(1)} vvm`;
+      }
+
+      // Update inputs on main screen
+      const inTemp = document.getElementById('input-temp');
+      if (inTemp) inTemp.value = State.temp_C;
+      const dispTemp = document.getElementById('disp-temp');
+      if (dispTemp) dispTemp.innerText = `${State.temp_C.toFixed(1)} °C`;
+      
+      const inPh = document.getElementById('input-ph');
+      if (inPh) inPh.value = State.ph;
+      const dispPh = document.getElementById('disp-ph');
+      if (dispPh) dispPh.innerText = `${State.ph.toFixed(2)} pH`;
+
+      const inAlpha = document.getElementById('input-alpha');
+      if (inAlpha) inAlpha.value = State.alpha;
+      const dispAlpha = document.getElementById('disp-alpha');
+      if (dispAlpha) dispAlpha.innerText = `${State.alpha.toFixed(2)} g_P/g_X`;
+
+      const inBeta = document.getElementById('input-beta');
+      if (inBeta) inBeta.value = State.beta;
+      const dispBeta = document.getElementById('disp-beta');
+      if (dispBeta) dispBeta.innerText = `${State.beta.toFixed(3)} g_P/g_X/h`;
+
+      // Clear Telemetry Chart
+      telemetryChart.data.labels = [];
+      telemetryChart.data.datasets.forEach(ds => ds.data = []);
+      telemetryChart.update();
+
+      // Start running
+      State.isRunning = true;
+      const btn = document.getElementById('btn-play-pause');
+      const icon = document.getElementById('play-icon');
+      const text = document.getElementById('play-text');
+      icon.innerHTML = '<svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+      text.innerText = 'PAUSE';
+
+      try {
+        localStorage.setItem('bioprocess-onboarded', 'true');
+      } catch (e) {}
+
+      closeSetupModal();
+    }
+
+    /* =========================================================================
+       3. GLOBAL SIMULATION STATE
        ========================================================================= */
     const State = {
-      reactorType: 'str_rushton', // 'str_rushton', 'str_marine', 'airlift', 'pbr'
+      reactorType: 'str_rushton', // 'str_rushton', 'str_marine', 'airlift', 'pbr', 'static'
       volume_L: 20.0,
       
       rpm: 450,
@@ -742,13 +1450,25 @@
     };
 
     /* =========================================================================
-       2. HYDRODYNAMICS & PROCESS CORRELATIONS
+       4. HYDRODYNAMICS & PROCESS CORRELATIONS
        ========================================================================= */
     function computeHydrodynamics() {
       const D_tank = 0.25; // [m]
       const D_impeller = D_tank * 0.35; // [m]
       const rho = 1000; // [kg/m^3]
       const mu_visc = 0.001; // [Pa*s]
+
+      // Static vessel has zero forced agitation and zero sparging
+      if (State.reactorType === 'static') {
+        return {
+          Re: 0,
+          v_tip: 0.0,
+          P_density_kW_m3: 0.0,
+          kla: 1.0, // Pure surface liquid-gas mass transfer
+          regime: t('regime_static')
+        };
+      }
+
       const effectiveRpm = (State.activeFault === 'impeller_stall') ? 0.0 : State.rpm;
       const effectiveVvm = (State.activeFault === 'compressor') ? 0.005 : State.vvm;
       const N_rps = effectiveRpm / 60.0;
@@ -775,9 +1495,9 @@
       if (State.activeFault === 'compressor') {
         kla = 1.8; // Mass transfer collapses to liquid surface diffusion
       }
-      kla = Math.max(1.5, Math.min(180.0, kla));
+      kla = Math.max(1.0, Math.min(180.0, kla));
 
-      return { Re, v_tip, P_density_kW_m3, kla };
+      return { Re, v_tip, P_density_kW_m3, kla, regime: t('regime_turbulent') };
     }
 
     function stepKinetics(dt_hours) {
@@ -788,7 +1508,7 @@
       }
 
       // Closed-Loop Auto-DO Controller (Cascade PID simulation)
-      if (State.autoDOEnabled) {
+      if (State.autoDOEnabled && State.reactorType !== 'static') {
         const currentDOSat = (State.CL / State.C_star) * 100.0;
         const doError = State.targetDOSat - currentDOSat;
         
@@ -800,7 +1520,7 @@
           }
           const act = document.getElementById('status-actuator');
           if (act) {
-            act.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse"></span><span>Boosting RPM/VVM</span>';
+            act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse"></span><span>${t('actuator_boosting')}</span>`;
             act.className = 'text-blue-700 dark:text-blue-400 font-semibold inline-flex items-center gap-1.5';
           }
         } else if (doError < -5.0) { // Excess oxygen -> throttle back
@@ -811,13 +1531,13 @@
           }
           const act = document.getElementById('status-actuator');
           if (act) {
-            act.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span><span>Throttling Down</span>';
+            act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span><span>${t('actuator_throttling')}</span>`;
             act.className = 'text-gray-500 dark:text-gray-400 font-semibold inline-flex items-center gap-1.5';
           }
         } else {
           const act = document.getElementById('status-actuator');
           if (act) {
-            act.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>Holding 30% Setpoint</span>';
+            act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('actuator_holding')}</span>`;
             act.className = 'text-emerald-700 dark:text-emerald-400 font-semibold inline-flex items-center gap-1.5';
           }
         }
@@ -866,10 +1586,10 @@
     }
 
     /* =========================================================================
-       3. THREE.JS PHOTOREALISTIC 3D BIOREACTOR ENGINE
+       5. THREE.JS 3D BIOREACTOR ENGINE
        ========================================================================= */
     let scene, camera, renderer, controls;
-    let vesselGroup, impellerShaftGroup, rushtonGroup, marineGroup, airliftGroup, pbrGroup;
+    let vesselGroup, impellerShaftGroup, rushtonGroup, marineGroup, airliftGroup, pbrGroup, staticGroup;
     let liquidMesh, liquidSurfaceMesh, glassVesselMesh, thermalJacketMesh;
     let bubbleParticles = [];
     const NUM_BUBBLES = 180;
@@ -940,8 +1660,7 @@
       vesselGroup = new THREE.Group();
       scene.add(vesselGroup);
 
-      // --- A. MATERIALS ---
-      // Clear Borosilicate Glass (Neutral, transmission without colored tint)
+      // Clear Borosilicate Glass
       const glassMat = new THREE.MeshPhysicalMaterial({
         color: 0xffffff,
         metalness: 0.02,
@@ -956,21 +1675,21 @@
         depthWrite: false
       });
 
-      // Stainless Steel 316L (Polished Laboratory Standard)
+      // Stainless Steel 316L
       const steelMat = new THREE.MeshStandardMaterial({
         color: 0x94a3b8,
         metalness: 0.90,
         roughness: 0.22
       });
 
-      // Dark Matte Anodized (Motor, mount & clamps)
+      // Dark Anodized Metal
       const darkMetalMat = new THREE.MeshStandardMaterial({
         color: 0x334155,
         metalness: 0.75,
         roughness: 0.40
       });
 
-      // Liquid Broth Material (Natural translucent nutrient medium, no neon glow)
+      // Liquid Broth Material
       const liquidMat = new THREE.MeshPhysicalMaterial({
         color: 0xdbeafe,
         metalness: 0.0,
@@ -982,7 +1701,7 @@
         depthWrite: false
       });
 
-      // Thermal Jacket Glass (Neutral laboratory jacket)
+      // Thermal Jacket Material
       const jacketMat = new THREE.MeshPhysicalMaterial({
         color: 0xa7f3d0,
         metalness: 0.05,
@@ -994,7 +1713,6 @@
         depthWrite: false
       });
 
-      // --- B. GLASS VESSEL CYLINDER & TORISPHERICAL BOTTOM ---
       const tankRadius = 0.88;
       const tankHeight = 2.3;
       
@@ -1008,7 +1726,7 @@
       dishMesh.position.y = -1.0;
       vesselGroup.add(dishMesh);
 
-      // --- C. THERMAL JACKET ---
+      // Thermal Jacket
       const jacketGeo = new THREE.CylinderGeometry(tankRadius + 0.08, tankRadius + 0.08, 1.3, 40, 1, true);
       thermalJacketMesh = new THREE.Mesh(jacketGeo, jacketMat);
       thermalJacketMesh.position.y = -0.35;
@@ -1025,7 +1743,7 @@
       noz2.position.set(-tankRadius - 0.15, -0.1, 0);
       vesselGroup.add(noz2);
 
-      // --- D. BROTH LIQUID INTERIOR ---
+      // Broth Liquid Interior
       const liqRadius = tankRadius * 0.97;
       const liqHeight = 1.7;
       const liqCylGeo = new THREE.CylinderGeometry(liqRadius, liqRadius, liqHeight, 48, 1, false);
@@ -1045,13 +1763,13 @@
       liquidSurfaceMesh.position.y = 0.70;
       vesselGroup.add(liquidSurfaceMesh);
 
-      // --- E. STAINLESS HEADPLATE & PORTS ---
+      // Headplate
       const headplateGeo = new THREE.CylinderGeometry(tankRadius + 0.12, tankRadius + 0.12, 0.08, 48);
       const headplate = new THREE.Mesh(headplateGeo, steelMat);
       headplate.position.y = tankHeight / 2 + 0.15;
       vesselGroup.add(headplate);
 
-      // 8 Headplate Clamping Bolts
+      // Bolts
       for (let i = 0; i < 8; i++) {
         const ang = (i * Math.PI * 2) / 8;
         const boltGeo = new THREE.CylinderGeometry(0.035, 0.035, 0.12, 12);
@@ -1060,7 +1778,7 @@
         vesselGroup.add(bolt);
       }
 
-      // Motor Mount & Drive Top Motor
+      // Motor Base & Body
       const motorBaseGeo = new THREE.CylinderGeometry(0.24, 0.28, 0.18, 24);
       const motorBase = new THREE.Mesh(motorBaseGeo, steelMat);
       motorBase.position.y = headplate.position.y + 0.13;
@@ -1071,7 +1789,7 @@
       motorBody.position.y = motorBase.position.y + 0.35;
       vesselGroup.add(motorBody);
 
-      // Condenser / Off-gas Exhaust Column
+      // Exhaust Column & Filter
       const condenserGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.7, 16);
       const condenser = new THREE.Mesh(condenserGeo, steelMat);
       condenser.position.set(-0.45, headplate.position.y + 0.38, -0.2);
@@ -1082,13 +1800,13 @@
       filterDisc.position.set(-0.45, condenser.position.y + 0.38, -0.2);
       vesselGroup.add(filterDisc);
 
-      // Feed addition port with nozzle
+      // Feed Nozzle
       const feedNozzleGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.3, 12);
       const feedNozzle = new THREE.Mesh(feedNozzleGeo, steelMat);
       feedNozzle.position.set(0.42, headplate.position.y + 0.15, 0.25);
       vesselGroup.add(feedNozzle);
 
-      // --- F. 4 STAINLESS BAFFLES ---
+      // 4 Baffles
       for (let i = 0; i < 4; i++) {
         const bAng = (i * Math.PI) / 2;
         const baffleGeo = new THREE.BoxGeometry(0.12, 1.8, 0.015);
@@ -1098,7 +1816,7 @@
         vesselGroup.add(baffle);
       }
 
-      // --- G. MICRO-SPARGER RING AT BOTTOM ---
+      // Sparger Ring & Pipe
       const spargerRingGeo = new THREE.TorusGeometry(0.35, 0.02, 12, 32);
       spargerRingGeo.rotateX(Math.PI / 2);
       const spargerRing = new THREE.Mesh(spargerRingGeo, steelMat);
@@ -1110,8 +1828,7 @@
       spargerPipe.position.set(0.35, 0.2, 0.0);
       vesselGroup.add(spargerPipe);
 
-      // --- H. IN-SITU ANALYTICAL SENSORS ---
-      // 1. DO Optical Probe
+      // Sensors
       const doShaftGeo = new THREE.CylinderGeometry(0.03, 0.03, 1.7, 12);
       const doShaft = new THREE.Mesh(doShaftGeo, steelMat);
       doShaft.position.set(0.45, 0.25, -0.35);
@@ -1121,7 +1838,6 @@
       doTip.position.set(0.45, -0.60, -0.35);
       vesselGroup.add(doTip);
 
-      // 2. pH Glass Electrode
       const phShaftGeo = new THREE.CylinderGeometry(0.028, 0.028, 1.6, 12);
       const phShaft = new THREE.Mesh(phShaftGeo, steelMat);
       phShaft.position.set(-0.45, 0.30, 0.35);
@@ -1131,7 +1847,7 @@
       phBulb.position.set(-0.45, -0.50, 0.35);
       vesselGroup.add(phBulb);
 
-      // --- I. DRIVE SHAFT & ROTATING IMPELLERS ---
+      // Impellers & Drive Shaft
       impellerShaftGroup = new THREE.Group();
       vesselGroup.add(impellerShaftGroup);
 
@@ -1140,7 +1856,7 @@
       shaft.position.y = 0.1;
       impellerShaftGroup.add(shaft);
 
-      // 1. RUSHTON 6-BLADE TURBINE GROUP
+      // Rushton
       rushtonGroup = new THREE.Group();
       impellerShaftGroup.add(rushtonGroup);
 
@@ -1160,7 +1876,7 @@
         }
       });
 
-      // 2. MARINE AXIAL PROPELLER GROUP
+      // Marine Propeller
       marineGroup = new THREE.Group();
       marineGroup.visible = false;
       impellerShaftGroup.add(marineGroup);
@@ -1182,7 +1898,7 @@
         }
       });
 
-      // 3. AIRLIFT LOOP DRAFT TUBE GROUP
+      // Airlift
       airliftGroup = new THREE.Group();
       airliftGroup.visible = false;
       vesselGroup.add(airliftGroup);
@@ -1200,7 +1916,7 @@
       draftTube.position.y = -0.15;
       airliftGroup.add(draftTube);
 
-      // 4. PHOTOBIOREACTOR (PBR) LED TUBES GROUP
+      // PBR
       pbrGroup = new THREE.Group();
       pbrGroup.visible = false;
       vesselGroup.add(pbrGroup);
@@ -1214,7 +1930,18 @@
         pbrGroup.add(ledTube);
       }
 
-      // --- J. 3D BUBBLE SWARM SYSTEM ---
+      // Static Vessel Group (Static incubation tray & breather filter)
+      staticGroup = new THREE.Group();
+      staticGroup.visible = false;
+      vesselGroup.add(staticGroup);
+
+      // Passive head breather filter
+      const staticFilterGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.08, 32);
+      const staticFilter = new THREE.Mesh(staticFilterGeo, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 }));
+      staticFilter.position.set(0, headplate.position.y + 0.10, 0);
+      staticGroup.add(staticFilter);
+
+      // Bubbles
       const bubbleGeo = new THREE.SphereGeometry(0.025, 8, 8);
       const bubbleMat = new THREE.MeshStandardMaterial({
         color: 0xffffff,
@@ -1256,8 +1983,10 @@
     function updateThreeVisuals(deltaSec) {
       if (!vesselGroup) return;
 
-      // Rotate Drive Shaft & Impellers based on real RPM (unless stalled)
-      const effectiveRpm = (State.activeFault === 'impeller_stall') ? 0.0 : State.rpm;
+      const isStatic = (State.reactorType === 'static');
+
+      // Rotate Drive Shaft & Impellers based on real RPM (unless stalled or static)
+      const effectiveRpm = (State.activeFault === 'impeller_stall' || isStatic) ? 0.0 : State.rpm;
       const rps = effectiveRpm / 60.0;
       const rotAngle = rps * (Math.PI * 2) * deltaSec;
       if (impellerShaftGroup && State.reactorType.startsWith('str')) {
@@ -1266,7 +1995,10 @@
 
       // Dynamic Vortex depth on liquid surface
       if (liquidSurfaceMesh) {
-        const vortexScaleY = (State.activeFault === 'impeller_stall') ? 0.2 : Math.min(2.5, 0.4 + (State.rpm / 900.0) * 1.8);
+        let vortexScaleY = 0.05;
+        if (!isStatic && State.activeFault !== 'impeller_stall') {
+          vortexScaleY = Math.min(2.5, 0.4 + (State.rpm / 900.0) * 1.8);
+        }
         liquidSurfaceMesh.scale.y = vortexScaleY;
       }
 
@@ -1274,7 +2006,6 @@
       if (liquidMesh && liquidMesh.material) {
         const biomassFrac = Math.min(1.0, (State.X - 0.8) / 10.0);
         
-        // Natural transition: fresh media (translucent broth) -> mature cell culture (warm tan/amber)
         const isDark = (getEffectiveTheme() === 'dark');
         const baseColor = new THREE.Color(isDark ? 0x223548 : 0xdbeafe);
         const matureColor = new THREE.Color(0xb45309);
@@ -1291,16 +2022,16 @@
       // Thermal Jacket Color Indicator based on Broth Temperature
       if (thermalJacketMesh && thermalJacketMesh.material) {
         if (State.temp_C > 30.5) {
-          thermalJacketMesh.material.color.setHex(0xd93025); // Heating alarm (muted red)
+          thermalJacketMesh.material.color.setHex(0xd93025);
         } else if (State.temp_C < 29.5) {
-          thermalJacketMesh.material.color.setHex(0x1a73e8); // Cooling active (Google blue)
+          thermalJacketMesh.material.color.setHex(0x1a73e8);
         } else {
-          thermalJacketMesh.material.color.setHex(0x1e8e3e); // Nominal 30°C (sage green)
+          thermalJacketMesh.material.color.setHex(0x1e8e3e);
         }
       }
 
       // Animate Bubble Swarm (Buoyancy + Swirl)
-      const isAerationCut = (State.activeFault === 'compressor' || State.vvm <= 0.05);
+      const isAerationCut = (isStatic || State.activeFault === 'compressor' || State.vvm <= 0.05);
       const vvmFactor = State.vvm * 1.2;
       const rpmFactor = effectiveRpm / 450.0;
       const surfaceY = 0.68;
@@ -1372,7 +2103,7 @@
     }
 
     /* =========================================================================
-       4. TELEMETRY STREAMING CHART (Chart.js)
+       6. TELEMETRY STREAMING CHART (Chart.js)
        ========================================================================= */
     const chartCtx = document.getElementById('telemetryChart').getContext('2d');
     const telemetryChart = new Chart(chartCtx, {
@@ -1466,7 +2197,7 @@
     });
 
     /* =========================================================================
-       5. MAIN SIMULATION & ANIMATION TICK LOOP
+       7. MAIN SIMULATION & ANIMATION TICK LOOP
        ========================================================================= */
     let lastTime = performance.now();
     let chartSampleTimer = 0.0;
@@ -1490,7 +2221,7 @@
         const actualDOSatPercent = ((State.CL / State.C_star) * 100.0);
         let displayedDO = actualDOSatPercent;
         if (State.activeFault === 'sensor_drift') {
-          displayedDO += 25.0; // Simulated decalibration offset
+          displayedDO += 25.0;
         }
         displayedDO = Math.max(0.0, Math.min(130.0, displayedDO));
         document.getElementById('kpi-oxygen').innerText = displayedDO.toFixed(1);
@@ -1500,24 +2231,27 @@
         const hypoxiaAlarm = document.getElementById('alarm-hypoxia');
         if (hypoxiaAlarm) {
           if (actualDOSatPercent < 15.0) {
-            hypoxiaAlarm.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400 animate-pulse"></span><span>Critical (&lt;15%)</span>';
+            hypoxiaAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400 animate-pulse"></span><span>${t('alarm_critical_o2')}</span>`;
             hypoxiaAlarm.className = 'text-red-700 dark:text-red-400 font-semibold inline-flex items-center gap-1.5';
           } else if (actualDOSatPercent < 25.0) {
-            hypoxiaAlarm.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400"></span><span>Warning: Low O₂</span>';
+            hypoxiaAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400"></span><span>${t('alarm_warning_o2')}</span>`;
             hypoxiaAlarm.className = 'text-amber-700 dark:text-amber-400 font-semibold inline-flex items-center gap-1.5';
           } else {
-            hypoxiaAlarm.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>Safe (&gt;20%)</span>';
+            hypoxiaAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('alarm_safe')}</span>`;
             hypoxiaAlarm.className = 'text-emerald-700 dark:text-emerald-400 font-medium inline-flex items-center gap-1.5';
           }
         }
 
         const shearAlarm = document.getElementById('alarm-shear');
         if (shearAlarm && simStep) {
-          if (simStep.hydro.v_tip > 3.0) {
-            shearAlarm.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400"></span><span>High Shear (&gt;3 m/s)</span>';
+          if (State.reactorType === 'static') {
+            shearAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('alarm_zero_shear')}</span>`;
+            shearAlarm.className = 'text-emerald-700 dark:text-emerald-400 font-medium inline-flex items-center gap-1.5';
+          } else if (simStep.hydro.v_tip > 3.0) {
+            shearAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400"></span><span>${t('alarm_high_shear')}</span>`;
             shearAlarm.className = 'text-red-700 dark:text-red-400 font-semibold inline-flex items-center gap-1.5';
           } else {
-            shearAlarm.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>Optimal (&lt;3.0 m/s)</span>';
+            shearAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('alarm_optimal_shear')}</span>`;
             shearAlarm.className = 'text-emerald-700 dark:text-emerald-400 font-medium inline-flex items-center gap-1.5';
           }
         }
@@ -1529,6 +2263,9 @@
           document.getElementById('disp-tip-speed').innerText = `${simStep.hydro.v_tip.toFixed(2)} m/s`;
           document.getElementById('disp-power-density').innerText = `${simStep.hydro.P_density_kW_m3.toFixed(2)} kW/m³`;
           
+          const regimeEl = document.getElementById('disp-regime');
+          if (regimeEl) regimeEl.innerText = simStep.hydro.regime;
+
           document.getElementById('overlay-od').innerText = (State.X * 1.05).toFixed(2);
           document.getElementById('overlay-shear').innerText = `${(simStep.hydro.v_tip * 6.0).toFixed(1)} s⁻¹`;
           document.getElementById('overlay-turbidity').innerText = State.X > 6.0 ? 'Dense (Turbid)' : (State.X > 2.5 ? 'Moderate' : 'Low (Clear)');
@@ -1567,11 +2304,11 @@
     }
 
     /* =========================================================================
-       6. UI INTERACTION HANDLERS & REACTOR SWITCHER
+       8. UI INTERACTION HANDLERS & REACTOR SWITCHER
        ========================================================================= */
     function setReactorType(type) {
       State.reactorType = type;
-      ['str-rushton', 'str-marine', 'airlift', 'pbr'].forEach(id => {
+      ['str-rushton', 'str-marine', 'airlift', 'pbr', 'static'].forEach(id => {
         const btn = document.getElementById(`type-${id}`);
         if (btn) {
           btn.className = 'px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-transparent inline-flex items-center gap-1.5';
@@ -1583,19 +2320,28 @@
         activeBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-medium transition-all bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42] inline-flex items-center gap-1.5';
       }
 
-      const titles = {
-        'str_rushton': '20 L Bench-Scale Stirred Tank (Rushton)',
-        'str_marine': '20 L Mammalian Stirred Tank (Marine)',
-        'airlift': '20 L Airlift Loop Bioreactor (Draft Tube)',
-        'pbr': '20 L Tubular Photobioreactor (Algae/Cyanobacteria)'
-      };
-      document.getElementById('vessel-badge-title').innerText = titles[type];
+      updateVesselTitle();
+
+      // Static reactor locks agitation and aeration to 0
+      if (type === 'static') {
+        State.rpm = 0;
+        State.vvm = 0;
+        const inRpm = document.getElementById('input-rpm');
+        if (inRpm) inRpm.value = 0;
+        const valRpm = document.getElementById('val-rpm');
+        if (valRpm) valRpm.innerText = '0 RPM';
+        const inVvm = document.getElementById('input-vvm');
+        if (inVvm) inVvm.value = '0.0';
+        const valVvm = document.getElementById('val-vvm');
+        if (valVvm) valVvm.innerText = '0.00 vvm';
+      }
 
       // Toggle 3D Meshes
       if (rushtonGroup) rushtonGroup.visible = (type === 'str_rushton');
       if (marineGroup) marineGroup.visible = (type === 'str_marine');
       if (airliftGroup) airliftGroup.visible = (type === 'airlift');
       if (pbrGroup) pbrGroup.visible = (type === 'pbr');
+      if (staticGroup) staticGroup.visible = (type === 'static');
       if (impellerShaftGroup) impellerShaftGroup.visible = type.startsWith('str');
     }
 
@@ -1628,8 +2374,10 @@
     }
 
     function updateControls() {
-      State.rpm = parseFloat(document.getElementById('input-rpm').value);
-      State.vvm = parseFloat(document.getElementById('input-vvm').value);
+      if (State.reactorType !== 'static') {
+        State.rpm = parseFloat(document.getElementById('input-rpm').value);
+        State.vvm = parseFloat(document.getElementById('input-vvm').value);
+      }
       State.temp_C = parseFloat(document.getElementById('input-temp').value);
       State.ph = parseFloat(document.getElementById('input-ph').value);
 
@@ -1666,7 +2414,7 @@
       if (!badge) return;
 
       if (type === 'none') {
-        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>NORMAL OPERATION</span>';
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('fault_normal')}</span>`;
         badge.className = 'text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#383b42] font-medium inline-flex items-center gap-1.5';
       } else if (type === 'compressor') {
         badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400 animate-ping"></span><span>AIR COMPRESSOR COLLAPSE (0 VVM)</span>';
@@ -1701,7 +2449,7 @@
         btn.className = 'px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-white dark:bg-[#2b2d32] text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-[#383b42] inline-flex items-center gap-1.5 transition';
         const act = document.getElementById('status-actuator');
         if (act) {
-          act.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span><span>Manual Standby</span>';
+          act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span><span>${t('actuator_standby')}</span>`;
           act.className = 'text-gray-500 dark:text-gray-400 font-medium inline-flex items-center gap-1.5';
         }
       }
@@ -1752,8 +2500,17 @@
       document.body.removeChild(link);
     }
 
-    // Initialize 3D WebGL scene, Theme & launch main loop
+    // Initialize on DOM load
     window.addEventListener('DOMContentLoaded', () => {
+      // 1. Language init
+      try {
+        const savedLang = localStorage.getItem('bioprocess-lang');
+        if (savedLang && ['en', 'es', 'de'].includes(savedLang)) {
+          currentLang = savedLang;
+        }
+      } catch (e) {}
+
+      // 2. Theme init
       try {
         const savedTheme = localStorage.getItem('bioprocess-theme');
         if (savedTheme && ['system', 'light', 'dark'].includes(savedTheme)) {
@@ -1763,6 +2520,16 @@
 
       initThreeScene();
       applyTheme();
+      applyLanguage();
+
+      // Show onboarding modal on first load if not dismissed
+      try {
+        const onboarded = localStorage.getItem('bioprocess-onboarded');
+        if (!onboarded) {
+          openSetupModal();
+        }
+      } catch (e) {}
+
       requestAnimationFrame(mainLoop);
     });
   </script>
