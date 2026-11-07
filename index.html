@@ -244,7 +244,7 @@
             <h1 id="app-title" class="text-xs sm:text-sm font-semibold tracking-tight text-gray-900 dark:text-gray-100 truncate max-w-[130px] sm:max-w-none">
               Bioprocess Visual Twin
             </h1>
-            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 font-mono font-medium">v2.3.0</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 font-mono font-medium">v2.3.1</span>
             <span class="hidden md:inline-block text-[10px] px-1.5 py-0.2 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-300 font-mono border border-gray-200 dark:border-[#35373c]">3D-WEBGL</span>
           </div>
           <p id="app-subtitle" class="hidden sm:block text-[11px] text-gray-500 dark:text-gray-400">Physics-Informed Real-Time Digital Twin &bull; <a href="https://www.linkedin.com/in/juanj-alva" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">Ing. Juan José Álvarez Morales</a></p>
@@ -790,139 +790,72 @@
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- SUBSECTION 3: ADVANCED PROCESS ENGINEERING METRICS & SLIDERS (v2.0) -->
-      <div id="mob-sec-kinetics" class="google-card rounded-2xl p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <!-- Hydrodynamics & Scale-up -->
-        <div class="bg-gray-50 dark:bg-[#1c1d21] p-3 sm:p-3.5 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
-          <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2 flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 000 20 14.5 14.5 0 000-20"></path><path d="M2 12h20"></path></svg>
-            <span data-i18n="hydro_title">HYDRODYNAMICS &amp; SCALE</span>
-          </h4>
-          <div class="space-y-1.5 text-xs font-mono">
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_re">Reynolds (Re):</span> <span id="disp-reynolds" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">42,500</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_vtip">Tip Speed (v_tip):</span> <span id="disp-tip-speed" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">2.12 m/s</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_pv">Power P/V:</span> <span id="disp-power-density" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">1.82 kW/m³</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_regime">Flow Regime:</span> <span id="disp-regime" class="text-emerald-700 dark:text-emerald-400 font-medium">Fully Turbulent</span></div>
-          </div>
-        </div>
-
-        <!-- Stoichiometry & Carbon Balance -->
-        <div class="bg-gray-50 dark:bg-[#1c1d21] p-3 sm:p-3.5 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
-          <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2 flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 7l9-4 9 4M6 21h12M4 7l2 7h4L8 7M16 7l2 7h4l-2-7"></path></svg>
-            <span data-i18n="carbon_title">CARBON BALANCE AUDITOR</span>
-          </h4>
-          <div class="space-y-1.5 text-xs font-mono">
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_fed">C-Carbon Fed:</span> <span id="disp-c-in" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">14.0 g C/L</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_fixed">C-Incorporated:</span> <span id="disp-c-fixed" class="text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">5.8 g C/L</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_co2">CO₂ Respiration:</span> <span id="disp-c-co2" class="text-amber-700 dark:text-amber-400 font-semibold tabular-nums">8.2 g C/L</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_balance">Recovery Balance:</span> <span class="text-blue-700 dark:text-blue-400 font-medium tabular-nums">99.8%</span></div>
-          </div>
-        </div>
-
-        <!-- Media Composition & Contamination Auditor (v2.0) -->
-        <div class="bg-gray-50 dark:bg-[#1c1d21] p-3 sm:p-3.5 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
-          <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2 flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-            <span data-i18n="media_title">MEDIA COMPOSITION &amp; C/N</span>
-          </h4>
-          <div class="space-y-1.5 text-xs font-mono">
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="nitrogen_lbl">Dissolved Nitrogen:</span> <span id="disp-nitrogen" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">5.00 g/L</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="cn_ratio_lbl">C/N Mass Ratio:</span> <span id="disp-cn-ratio" class="text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">2.80 (Optimal)</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="purity_lbl">Culture Purity:</span> <span id="disp-purity" class="text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">100.0%</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="osmo_lbl">Osmolarity:</span> <span id="disp-osmo" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">290 mOsm</span></div>
-          </div>
-        </div>
-
-        <!-- Environmental Setpoints (T & pH) -->
-        <div class="bg-gray-50 dark:bg-[#1c1d21] p-3 sm:p-3.5 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
-          <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2 flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"></path></svg>
-            <span data-i18n="controllers_title">THERMAL &amp; pH CONTROLLERS</span>
-          </h4>
-          <div class="space-y-2">
-            <div>
-              <div class="flex justify-between text-xs font-mono mb-1">
-                <span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="temp_lbl">Broth Temp:</span>
-                <span id="disp-temp" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">30.0 °C</span>
-              </div>
-              <input type="range" id="input-temp" min="20" max="42" value="30" step="0.5" oninput="updateControls()" class="w-full">
-            </div>
-            <div>
-              <div class="flex justify-between text-xs font-mono mb-1">
-                <span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="ph_lbl">Broth pH:</span>
-                <span id="disp-ph" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">6.85 pH</span>
-              </div>
-              <input type="range" id="input-ph" min="5.5" max="8.0" value="6.8" step="0.1" oninput="updateControls()" class="w-full">
-            </div>
-          </div>
+    <!-- SUBSECTION 3: ADVANCED PROCESS ENGINEERING METRICS & SLIDERS (Full-Width 12 Columns on Desktop) -->
+    <section id="mob-sec-kinetics" class="lg:col-span-12 google-card rounded-2xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      <!-- Hydrodynamics & Scale-up -->
+      <div class="bg-gray-50 dark:bg-[#1c1d21] p-3.5 sm:p-4 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
+        <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2.5 flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 000 20 14.5 14.5 0 000-20"></path><path d="M2 12h20"></path></svg>
+          <span data-i18n="hydro_title">HYDRODYNAMICS &amp; SCALE</span>
+        </h4>
+        <div class="space-y-2 text-xs font-mono">
+          <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_re">Reynolds (Re):</span> <span id="disp-reynolds" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">42,500</span></div>
+          <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_vtip">Tip Speed (v_tip):</span> <span id="disp-tip-speed" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">2.12 m/s</span></div>
+          <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_pv">Power P/V:</span> <span id="disp-power-density" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">1.82 kW/m³</span></div>
+          <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_regime">Flow Regime:</span> <span id="disp-regime" class="text-emerald-700 dark:text-emerald-400 font-medium">Fully Turbulent</span></div>
         </div>
       </div>
-    </section>
-        <!-- Hydrodynamics & Scale-up -->
-        <div class="bg-gray-50 dark:bg-[#1c1d21] p-3.5 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
-          <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2 flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 000 20 14.5 14.5 0 000-20"></path><path d="M2 12h20"></path></svg>
-            <span data-i18n="hydro_title">HYDRODYNAMICS &amp; SCALE</span>
-          </h4>
-          <div class="space-y-1.5 text-xs font-mono">
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_re">Reynolds (Re):</span> <span id="disp-reynolds" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">42,500</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_vtip">Tip Speed (v_tip):</span> <span id="disp-tip-speed" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">2.12 m/s</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_pv">Power P/V:</span> <span id="disp-power-density" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">1.82 kW/m³</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="hydro_regime">Flow Regime:</span> <span id="disp-regime" class="text-emerald-700 dark:text-emerald-400 font-medium">Fully Turbulent</span></div>
-          </div>
-        </div>
 
-        <!-- Stoichiometry & Carbon Balance -->
-        <div class="bg-gray-50 dark:bg-[#1c1d21] p-3.5 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
-          <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2 flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 7l9-4 9 4M6 21h12M4 7l2 7h4L8 7M16 7l2 7h4l-2-7"></path></svg>
-            <span data-i18n="carbon_title">CARBON BALANCE AUDITOR</span>
-          </h4>
-          <div class="space-y-1.5 text-xs font-mono">
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_fed">C-Carbon Fed:</span> <span id="disp-c-in" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">14.0 g C/L</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_fixed">C-Incorporated:</span> <span id="disp-c-fixed" class="text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">5.8 g C/L</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_co2">CO₂ Respiration:</span> <span id="disp-c-co2" class="text-amber-700 dark:text-amber-400 font-semibold tabular-nums">8.2 g C/L</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_balance">Recovery Balance:</span> <span class="text-blue-700 dark:text-blue-400 font-medium tabular-nums">99.8%</span></div>
-          </div>
+      <!-- Stoichiometry & Carbon Balance -->
+      <div class="bg-gray-50 dark:bg-[#1c1d21] p-3.5 sm:p-4 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
+        <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2.5 flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 7l9-4 9 4M6 21h12M4 7l2 7h4L8 7M16 7l2 7h4l-2-7"></path></svg>
+          <span data-i18n="carbon_title">CARBON BALANCE AUDITOR</span>
+        </h4>
+        <div class="space-y-2 text-xs font-mono">
+          <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_fed">C-Carbon Fed:</span> <span id="disp-c-in" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">14.0 g C/L</span></div>
+          <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_fixed">C-Incorporated:</span> <span id="disp-c-fixed" class="text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">5.8 g C/L</span></div>
+          <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_co2">CO₂ Respiration:</span> <span id="disp-c-co2" class="text-amber-700 dark:text-amber-400 font-semibold tabular-nums">8.2 g C/L</span></div>
+          <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_balance">Recovery Balance:</span> <span class="text-blue-700 dark:text-blue-400 font-medium tabular-nums">99.8%</span></div>
         </div>
+      </div>
 
-        <!-- Media Composition & Contamination Auditor (v2.0) -->
-        <div class="bg-gray-50 dark:bg-[#1c1d21] p-3.5 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
-          <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2 flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-            <span data-i18n="media_title">MEDIA COMPOSITION &amp; C/N</span>
-          </h4>
-          <div class="space-y-1.5 text-xs font-mono">
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="nitrogen_lbl">Dissolved Nitrogen:</span> <span id="disp-nitrogen" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">5.00 g/L</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="cn_ratio_lbl">C/N Mass Ratio:</span> <span id="disp-cn-ratio" class="text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">2.80 (Optimal)</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="purity_lbl">Culture Purity:</span> <span id="disp-purity" class="text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">100.0%</span></div>
-            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="osmo_lbl">Osmolarity:</span> <span id="disp-osmo" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">290 mOsm</span></div>
-          </div>
+      <!-- Media Composition & Contamination Auditor (v2.0) -->
+      <div class="bg-gray-50 dark:bg-[#1c1d21] p-3.5 sm:p-4 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
+        <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2.5 flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+          <span data-i18n="media_title">MEDIA COMPOSITION &amp; C/N</span>
+        </h4>
+        <div class="space-y-2 text-xs font-mono">
+          <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="nitrogen_lbl">Dissolved Nitrogen:</span> <span id="disp-nitrogen" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">5.00 g/L</span></div>
+          <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="cn_ratio_lbl">C/N Mass Ratio:</span> <span id="disp-cn-ratio" class="text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">2.80 (Optimal)</span></div>
+          <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="purity_lbl">Culture Purity:</span> <span id="disp-purity" class="text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">100.0%</span></div>
+          <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="osmo_lbl">Osmolarity:</span> <span id="disp-osmo" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">290 mOsm</span></div>
         </div>
+      </div>
 
-        <!-- Environmental Setpoints (T & pH) -->
-        <div class="bg-gray-50 dark:bg-[#1c1d21] p-3.5 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
-          <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2 flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"></path></svg>
-            <span data-i18n="controllers_title">THERMAL &amp; pH CONTROLLERS</span>
-          </h4>
-          <div class="space-y-2">
-            <div>
-              <div class="flex justify-between text-xs font-mono mb-1">
-                <span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="temp_lbl">Broth Temp:</span>
-                <span id="disp-temp" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">30.0 °C</span>
-              </div>
-              <input type="range" id="input-temp" min="20" max="42" value="30" step="0.5" oninput="updateControls()" class="w-full">
+      <!-- Environmental Setpoints (T & pH) -->
+      <div class="bg-gray-50 dark:bg-[#1c1d21] p-3.5 sm:p-4 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
+        <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2.5 flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"></path></svg>
+          <span data-i18n="controllers_title">THERMAL &amp; pH CONTROLLERS</span>
+        </h4>
+        <div class="space-y-2.5">
+          <div>
+            <div class="flex justify-between text-xs font-mono mb-1">
+              <span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="temp_lbl">Broth Temp:</span>
+              <span id="disp-temp" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">30.0 °C</span>
             </div>
-            <div>
-              <div class="flex justify-between text-xs font-mono mb-1">
-                <span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="ph_lbl">Broth pH:</span>
-                <span id="disp-ph" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">6.85 pH</span>
-              </div>
-              <input type="range" id="input-ph" min="5.5" max="8.0" value="6.8" step="0.1" oninput="updateControls()" class="w-full">
+            <input type="range" id="input-temp" min="20" max="42" value="30" step="0.5" oninput="updateControls()" class="w-full">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-mono mb-1">
+              <span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="ph_lbl">Broth pH:</span>
+              <span id="disp-ph" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">6.85 pH</span>
             </div>
+            <input type="range" id="input-ph" min="5.5" max="8.0" value="6.8" step="0.1" oninput="updateControls()" class="w-full">
           </div>
         </div>
       </div>
@@ -943,7 +876,7 @@
           <h2 class="text-base sm:text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100" data-i18n="dash_title">
             Bioprocess Batch Analytics &amp; Results Dashboard
           </h2>
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 font-mono font-medium">v2.3.0</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 font-mono font-medium">v2.3.1</span>
         </div>
         <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="dash_subtitle">
           High-resolution time-course telemetry, yield calculations, stoichiometric verification, and respirometry.
@@ -4910,7 +4843,7 @@
       const payload = {
         metadata: {
           software: "bioprocess-visual-twin",
-          version: "2.3.0",
+          version: "2.3.1",
           author: "Ing. Juan José Álvarez Morales",
           strainKey: State.currentStrainKey || 'ecoli',
           strainName: Strains[State.currentStrainKey] ? Strains[State.currentStrainKey].name : 'Escherichia coli BL21(DE3)',

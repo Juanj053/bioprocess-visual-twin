@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.3.1] - 2026-11-06
+
+### Fixed
+- **Desktop Layout Grid & Card Compression Fix**:
+  - Resolved an issue where Hydrodynamics, Carbon Balance, Media Composition, and Environmental Controller cards were compressed down to 96px - 178px on desktop viewports.
+  - Re-architected `#mob-sec-kinetics` into a dedicated full-width 12-column grid row (`lg:col-span-12`) spanning beneath the 3D viewport and SCADA telemetry columns.
+  - Eliminated duplicate HTML markup and stray closing tag that caused cards to overflow into 1-column slices.
+  - Expanded individual desktop card widths to 320px - 410px, restoring single-line horizontal alignment for all technical telemetry metrics.
+
+---
+
 ## [2.3.0] - 2026-11-06
 
 ### Added

@@ -9,7 +9,7 @@
   <a href="https://juanj053.github.io/bioprocess-visual-twin/"><img src="https://img.shields.io/badge/Live%20Demo-Launch%20Simulator-06B6D4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live Demo"></a>
   <a href="https://juanj053.github.io/bioprocess-visual-twin/dashboard.html"><img src="https://img.shields.io/badge/Analytics-Results%20Dashboard-4F46E5?style=for-the-badge&logo=databricks&logoColor=white" alt="Dashboard"></a>
   <a href="https://github.com/Juanj053/bioprocess-visual-twin/actions"><img src="https://img.shields.io/badge/CI-passing-brightgreen?style=for-the-badge&logo=githubactions&logoColor=white" alt="CI"></a>
-  <a href="https://github.com/Juanj053/bioprocess-visual-twin/releases"><img src="https://img.shields.io/badge/Release-v2.3.0-blue?style=for-the-badge" alt="Release"></a>
+  <a href="https://github.com/Juanj053/bioprocess-visual-twin/releases"><img src="https://img.shields.io/badge/Release-v2.3.1-blue?style=for-the-badge" alt="Release"></a>
   <a href="https://www.linkedin.com/in/juanj-alva"><img src="https://img.shields.io/badge/LinkedIn-Juan%20Jos%C3%A9%20%C3%81lvarez-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License"></a>
   <img src="https://img.shields.io/badge/3D%20Engine-Three.js%20WebGL-10B981?style=for-the-badge&logo=threedotjs&logoColor=white" alt="Engine">
@@ -120,7 +120,7 @@ bioprocess-visual-twin/
 ├── .github/workflows/
 │   └── deploy-pages.yml         # Automated GitHub Actions test and GitHub Pages deployment
 ├── src/bioprocess_twin/
-│   ├── __init__.py              # Package entrypoint (v2.3.0)
+│   ├── __init__.py              # Package entrypoint (v2.3.1)
 │   ├── kinetics.py              # Hydrodynamics (Re, P/V, kla) and Monod ODE system
 │   ├── simulator.py             # Numerical stiff Radau / RK45 timecourse solver
 │   ├── analytics.py             # Batch KPIs, Carbon closure, stoichiometric audit, and growth phases
@@ -159,7 +159,7 @@ If you utilize this simulator in your academic coursework, research publications
   month        = nov,
   year         = 2026,
   publisher    = {GitHub},
-  version      = {2.3.0},
+  version      = {2.3.1},
   url          = {https://github.com/Juanj053/bioprocess-visual-twin}
 }
 ```
