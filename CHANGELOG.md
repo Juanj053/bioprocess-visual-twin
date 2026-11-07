@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.0] - 2026-11-06
+
+### Added
+- **Full Batch Analytics & Results Dashboard (Interactive & Standalone Views)**:
+  - Added dedicated Results Dashboard accessible in-app via the top navigation switcher `[ 3D Twin ]` / `[ Results Dashboard ]` and through telemetry shortcut `[ Analytics Dashboard ↗ ]`.
+  - Created standalone dedicated results page [`dashboard.html`](dashboard.html) with auto-loading from `localStorage` and synthetic 36-hour fed-batch benchmark fallback.
+  - Full-resolution continuous history recording (`State.batchHistory`) tracking all elapsed simulation snapshots from $t=0$ to $t_{\text{end}}$.
+- **Executive Bioprocess KPI Suite (6 Multi-Metric Cards)**:
+  - *Biomass & Growth Kinetics*: Net biomass produced ($\Delta X$), total harvestable dry cell weight ($M_X$), observed peak specific growth rate ($\mu_{\max}^{\text{obs}}$), and apparent generation doubling time ($t_d$).
+  - *Substrate & Yields*: Substrate consumed ($\Delta S$), substrate conversion efficiency ($\eta_S$), biomass yield on substrate ($Y_{X/S}$), and biomass yield on nitrogen ($Y_{X/N}$).
+  - *Product Formation*: Recombinant product harvest ($\Delta P$ and total $M_P$), volumetric productivity ($Q_P$), and product yield on substrate ($Y_{P/S}$).
+  - *Carbon Balance Audit*: Total carbon input ($C_{\text{in}}$), biomass-fixed carbon ($C_X$), product carbon ($C_P$), mineralized $CO_2$, and carbon balance closure recovery percentage.
+  - *Oxygen Transfer & Respiration*: Mean volumetric mass transfer coefficient ($\overline{k_L a}$), minimum dissolved oxygen ($DO_{\min}$), cumulative oxygen uptake integral ($\int OUR \cdot dt$), and hypoxia deficit duration ($t_{\text{hypoxia}}$ where $DO < 15\%$).
+  - *Culture Sterility & Quality*: Final culture purity percentage, minimum purity reached, biological axenic/contamination status, and medium osmolarity.
+- **4 Synchronized High-Resolution Analytical Charts (Chart.js)**:
+  - *Growth & Nutrients*: Dual-axis trajectory of $X(t)$, $S(t)$, $N(t)$, and $P(t)$.
+  - *Respiration & Transfer*: Dissolved oxygen $DO(t)$, oxygen uptake rate $OUR(t)$, and $k_L a(t)$.
+  - *Specific Kinetic Rates*: $\mu(t)$, $q_S(t)$, and $q_P(t)$.
+  - *Quality & Environment*: Culture purity %, broth temperature, pH, and osmolarity.
+- **Bioprocess Stoichiometric & Kinetic Verification Table**:
+  - Trilingual audit table with 11 formal parameters, symbols, calculated batch values, units, benchmark ranges, and real-time validation badges (`PASS` / `ALERT`).
+- **Full Time-Series Telemetry Audit Log**:
+  - Searchable, paginated data table displaying all historical timepoints with real-time text query filtering.
+- **Dataset Export & GMP Release Dossier**:
+  - Full-resolution uncompressed CSV export (`exportFullBatchCSV()`).
+  - Scientific JSON batch manifest export (`exportBatchJSON()`).
+  - Print-optimized CSS (`@media print`) generating official laboratory summary dossiers.
+- **Companion Python Analytics Module**:
+  - Added `src/bioprocess_twin/analytics.py` with `compute_batch_kpis()` and comprehensive unit tests in `tests/test_analytics.py`.
+
+---
+
 ## [2.0.0] - 2026-11-06
 
 ### Added

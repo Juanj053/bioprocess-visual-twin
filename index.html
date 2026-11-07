@@ -196,7 +196,7 @@
           <h1 id="app-title" class="text-sm font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             Bioprocess Visual Twin
           </h1>
-          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 font-mono font-medium">v2.0.0</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 font-mono font-medium">v2.1.0</span>
           <span class="hidden sm:inline-block text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-300 font-mono border border-gray-200 dark:border-[#35373c]">3D-WEBGL</span>
         </div>
         <p id="app-subtitle" class="text-[11px] text-gray-500 dark:text-gray-400">Physics-Informed Real-Time Digital Twin &bull; <a href="https://www.linkedin.com/in/juanj-alva" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">Ing. Juan José Álvarez Morales</a></p>
@@ -224,6 +224,19 @@
       <button id="type-static" onclick="setReactorType('static')" class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-transparent inline-flex items-center gap-1.5" title="Static Cultivation Vessel (No Agitation, Passive Aeration)">
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="10" width="18" height="10" rx="2"></rect><path d="M7 10V6a2 2 0 012-2h6a2 2 0 012 2v4"></path></svg>
         <span data-i18n="reactor_static">Static Vessel</span>
+      </button>
+    </div>
+
+    <!-- PRIMARY VIEW NAVIGATION (3D Simulator vs Results Dashboard) -->
+    <div class="segmented-control gap-1" title="Switch View Mode">
+      <button id="view-tab-sim" onclick="switchView('sim')" class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42] inline-flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        <span data-i18n="tab_sim">3D Twin</span>
+      </button>
+      <button id="view-tab-dash" onclick="switchView('dash')" class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-transparent inline-flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+        <span data-i18n="tab_dashboard">Results Dashboard</span>
+        <span id="badge-history-count" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40">0 pts</span>
       </button>
     </div>
 
@@ -293,7 +306,7 @@
   </header>
 
   <!-- MAIN SCADA WORKSPACE GRID -->
-  <main class="flex-1 p-3 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 max-w-[1780px] w-full mx-auto">
+  <main id="view-simulation" class="flex-1 p-3 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 max-w-[1780px] w-full mx-auto">
 
     <!-- LEFT COLUMN: 3D PHOTOREALISTIC WEBGL VIEWPORT (5 Cols) -->
     <section class="lg:col-span-5 flex flex-col gap-4">
@@ -461,6 +474,10 @@
           <div class="flex items-center gap-2">
             <span class="text-xs font-mono font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider" data-i18n="chart_title">SCADA Multi-Channel Telemetry Stream</span>
             <span class="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-300 font-mono border border-gray-200 dark:border-[#383b42]" data-i18n="chart_fps">60 FPS Sync</span>
+            <button onclick="switchView('dash')" class="px-2 py-0.5 text-[11px] font-mono font-medium rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition inline-flex items-center gap-1 shadow-sm" title="Open Full Batch Results & Analytics Dashboard">
+              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+              <span data-i18n="btn_view_dashboard">Analytics Dashboard ↗</span>
+            </button>
           </div>
           <!-- Clean Google-style Legend Chips -->
           <div class="flex items-center gap-3 text-xs font-mono">
@@ -668,6 +685,337 @@
         </div>
       </div>
     </section>
+
+  </main>
+
+  <!-- BATCH ANALYTICS & RESULTS DASHBOARD VIEW (v2.1) -->
+  <main id="view-dashboard" class="hidden flex-1 p-3 lg:p-6 flex flex-col gap-6 max-w-[1780px] w-full mx-auto">
+    
+    <!-- DASHBOARD EXECUTIVE HEADER -->
+    <div class="google-card rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
+      <div class="space-y-1">
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/40 flex items-center justify-center">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+          </div>
+          <h2 class="text-base sm:text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100" data-i18n="dash_title">
+            Bioprocess Batch Analytics &amp; Results Dashboard
+          </h2>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 font-mono font-medium">v2.1.0</span>
+        </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="dash_subtitle">
+          High-resolution time-course telemetry, yield calculations, stoichiometric verification, and respirometry.
+        </p>
+
+        <!-- Executive Badges Bar -->
+        <div class="flex flex-wrap items-center gap-2 pt-2 text-xs font-mono">
+          <span class="bg-gray-100 dark:bg-[#282a2e] px-2.5 py-1 rounded-lg border border-gray-200 dark:border-[#383b42] text-gray-700 dark:text-gray-300">
+            <span class="text-gray-400 mr-1" data-i18n="dash_strain_lbl">Organism:</span>
+            <strong id="dash-badge-strain" class="text-gray-900 dark:text-gray-100 font-semibold">Escherichia coli BL21(DE3)</strong>
+          </span>
+          <span class="bg-gray-100 dark:bg-[#282a2e] px-2.5 py-1 rounded-lg border border-gray-200 dark:border-[#383b42] text-gray-700 dark:text-gray-300">
+            <span class="text-gray-400 mr-1" data-i18n="dash_vessel_lbl">Vessel:</span>
+            <span id="dash-badge-vessel" class="text-gray-900 dark:text-gray-100 font-medium">20 L STR (Rushton)</span>
+          </span>
+          <span class="bg-gray-100 dark:bg-[#282a2e] px-2.5 py-1 rounded-lg border border-gray-200 dark:border-[#383b42] text-gray-700 dark:text-gray-300">
+            <span class="text-gray-400 mr-1" data-i18n="dash_duration_lbl">Simulated:</span>
+            <span id="dash-badge-time" class="text-gray-900 dark:text-gray-100 font-bold tabular-nums">0.00 h (Day 0.0)</span>
+          </span>
+          <span id="dash-badge-purity" class="px-2.5 py-1 rounded-lg border font-medium inline-flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/40">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
+            <span>Axenic (100.0%)</span>
+          </span>
+          <span class="bg-gray-100 dark:bg-[#282a2e] px-2.5 py-1 rounded-lg border border-gray-200 dark:border-[#383b42] text-gray-600 dark:text-gray-400">
+            <span id="dash-badge-pts" class="tabular-nums font-semibold text-gray-800 dark:text-gray-200">0</span> snapshots
+          </span>
+        </div>
+      </div>
+
+      <!-- Action Toolbar -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button onclick="switchView('sim')" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs shadow-sm transition inline-flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span data-i18n="btn_back_sim">Return to 3D Twin</span>
+        </button>
+        <a href="dashboard.html" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#35373c] text-xs font-mono transition inline-flex items-center gap-1.5 shadow-sm" title="Open Standalone Dashboard Page">
+          <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+          <span data-i18n="btn_standalone">Standalone View ↗</span>
+        </a>
+        <button onclick="exportFullBatchCSV()" class="px-3 py-1.5 rounded-xl bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#35373c] text-xs font-mono transition inline-flex items-center gap-1.5 shadow-sm" title="Export Full Uncompressed CSV Telemetry">
+          <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          <span>CSV</span>
+        </button>
+        <button onclick="exportBatchJSON()" class="px-3 py-1.5 rounded-xl bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#35373c] text-xs font-mono transition inline-flex items-center gap-1.5 shadow-sm" title="Export Scientific JSON Manifest">
+          <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>JSON</span>
+        </button>
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-xl bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#35373c] text-xs font-mono transition inline-flex items-center gap-1.5 shadow-sm" title="Print or Save PDF Report">
+          <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          <span data-i18n="btn_print_pdf">PDF</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 6 EXECUTIVE KPI METRIC CARDS -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      
+      <!-- KPI 1: Biomass -->
+      <div class="google-card rounded-2xl p-3 sm:p-4 flex flex-col justify-between">
+        <div>
+          <div class="text-[10px] font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1" data-i18n="dash_kpi_deltax">BIOMASS FORMED (ΔX)</div>
+          <div id="kpi-dash-deltax" class="text-xl sm:text-2xl font-mono font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">+0.00 g/L</div>
+          <div id="kpi-dash-finalx" class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Final: 0.80 g/L (12.0 g)</div>
+        </div>
+        <div class="pt-3 mt-3 border-t border-gray-200 dark:border-white/[0.06] text-[11px] font-mono space-y-0.5">
+          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>μ_max:</span>
+            <span id="kpi-dash-mumax" class="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">0.00 h⁻¹</span>
+          </div>
+          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>Doubling t_d:</span>
+            <span id="kpi-dash-td" class="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">0.00 h</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI 2: Substrate & Yield -->
+      <div class="google-card rounded-2xl p-3 sm:p-4 flex flex-col justify-between">
+        <div>
+          <div class="text-[10px] font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1" data-i18n="dash_kpi_yxs">BIOMASS YIELD (Y_X/S)</div>
+          <div id="kpi-dash-yxs" class="text-xl sm:text-2xl font-mono font-bold text-amber-600 dark:text-amber-400 tabular-nums">0.000 g/g</div>
+          <div id="kpi-dash-sconsumed" class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Consumed: 0.00 g/L</div>
+        </div>
+        <div class="pt-3 mt-3 border-t border-gray-200 dark:border-white/[0.06] text-[11px] font-mono space-y-0.5">
+          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>Conversion:</span>
+            <span id="kpi-dash-sconv" class="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">0.0%</span>
+          </div>
+          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>Y_X/N:</span>
+            <span id="kpi-dash-yxn" class="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">0.00 g/g</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI 3: Productivity -->
+      <div class="google-card rounded-2xl p-3 sm:p-4 flex flex-col justify-between">
+        <div>
+          <div class="text-[10px] font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1" data-i18n="dash_kpi_qp">PRODUCTIVITY (Q_P)</div>
+          <div id="kpi-dash-qp" class="text-xl sm:text-2xl font-mono font-bold text-purple-600 dark:text-purple-400 tabular-nums">0.000 g/L/h</div>
+          <div id="kpi-dash-finalp" class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Product: 0.00 g/L</div>
+        </div>
+        <div class="pt-3 mt-3 border-t border-gray-200 dark:border-white/[0.06] text-[11px] font-mono space-y-0.5">
+          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>Y_P/S:</span>
+            <span id="kpi-dash-yps" class="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">0.000 g/g</span>
+          </div>
+          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>Harvest:</span>
+            <span id="kpi-dash-totalp" class="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">0.0 g</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI 4: Carbon Balance -->
+      <div class="google-card rounded-2xl p-3 sm:p-4 flex flex-col justify-between">
+        <div>
+          <div class="text-[10px] font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1" data-i18n="dash_kpi_carbon">CARBON CLOSURE</div>
+          <div id="kpi-dash-carbon" class="text-xl sm:text-2xl font-mono font-bold text-blue-600 dark:text-blue-400 tabular-nums">100.0%</div>
+          <div id="kpi-dash-cin" class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">C-In: 0.0 g C/L</div>
+        </div>
+        <div class="pt-3 mt-3 border-t border-gray-200 dark:border-white/[0.06] text-[11px] font-mono space-y-0.5">
+          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>Fixed:</span>
+            <span id="kpi-dash-cfixed" class="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">0.0 g C/L</span>
+          </div>
+          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>CO₂:</span>
+            <span id="kpi-dash-cco2" class="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">0.0 g C/L</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI 5: Oxygen Transfer -->
+      <div class="google-card rounded-2xl p-3 sm:p-4 flex flex-col justify-between">
+        <div>
+          <div class="text-[10px] font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1" data-i18n="dash_kpi_kla">MEAN TRANSFER (kLa)</div>
+          <div id="kpi-dash-kla" class="text-xl sm:text-2xl font-mono font-bold text-sky-600 dark:text-sky-400 tabular-nums">0.0 h⁻¹</div>
+          <div id="kpi-dash-mindo" class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Min DO: 100.0%</div>
+        </div>
+        <div class="pt-3 mt-3 border-t border-gray-200 dark:border-white/[0.06] text-[11px] font-mono space-y-0.5">
+          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>Total OUR:</span>
+            <span id="kpi-dash-totalour" class="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">0.0 mmol/L</span>
+          </div>
+          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>Hypoxia:</span>
+            <span id="kpi-dash-hypoxia" class="font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">0.0 h</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI 6: Culture Sterility -->
+      <div class="google-card rounded-2xl p-3 sm:p-4 flex flex-col justify-between">
+        <div>
+          <div class="text-[10px] font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1" data-i18n="dash_kpi_health">CULTURE PURITY</div>
+          <div id="kpi-dash-purity" class="text-xl sm:text-2xl font-mono font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">100.0%</div>
+          <div id="kpi-dash-status" class="text-[11px] text-emerald-600 dark:text-emerald-400 mt-0.5">Status: Axenic Culture</div>
+        </div>
+        <div class="pt-3 mt-3 border-t border-gray-200 dark:border-white/[0.06] text-[11px] font-mono space-y-0.5">
+          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>Min Purity:</span>
+            <span id="kpi-dash-minpurity" class="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">100.0%</span>
+          </div>
+          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>Osmolarity:</span>
+            <span id="kpi-dash-osmo" class="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">290 mOsm</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 4 ANALYTICAL SYNCHRONIZED CHARTS (2x2 Grid) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      
+      <!-- Chart 1: Biomass, Substrates & Product -->
+      <div class="google-card rounded-2xl p-4 flex flex-col min-h-[340px]">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-mono font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider" data-i18n="dash_chart_growth">Biomass, Substrate &amp; Product Dynamics</span>
+          <div class="flex items-center gap-2 text-[11px] font-mono">
+            <span class="flex items-center gap-1 text-emerald-700 dark:text-emerald-400"><span class="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400"></span> X</span>
+            <span class="flex items-center gap-1 text-amber-700 dark:text-amber-400"><span class="w-2 h-2 rounded-full bg-amber-600 dark:bg-amber-400"></span> S</span>
+            <span class="flex items-center gap-1 text-blue-700 dark:text-blue-400"><span class="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span> N</span>
+            <span class="flex items-center gap-1 text-purple-700 dark:text-purple-400"><span class="w-2 h-2 rounded-full bg-purple-600 dark:bg-purple-400"></span> P</span>
+          </div>
+        </div>
+        <div class="flex-1 relative w-full h-[270px]">
+          <canvas id="dashChartGrowth"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: Oxygen Transfer & Respirometry -->
+      <div class="google-card rounded-2xl p-4 flex flex-col min-h-[340px]">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-mono font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider" data-i18n="dash_chart_respiration">Dissolved Oxygen, OUR &amp; Mass Transfer Profile</span>
+          <div class="flex items-center gap-2 text-[11px] font-mono">
+            <span class="flex items-center gap-1 text-sky-700 dark:text-sky-400"><span class="w-2 h-2 rounded-full bg-sky-600 dark:bg-sky-400"></span> DO (%)</span>
+            <span class="flex items-center gap-1 text-orange-700 dark:text-orange-400"><span class="w-2 h-2 rounded-full bg-orange-600 dark:bg-orange-400"></span> OUR</span>
+            <span class="flex items-center gap-1 text-gray-600 dark:text-gray-400"><span class="w-2 h-2 rounded-full bg-gray-500"></span> kLa</span>
+          </div>
+        </div>
+        <div class="flex-1 relative w-full h-[270px]">
+          <canvas id="dashChartOxygen"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 3: Specific Kinetic Rates -->
+      <div class="google-card rounded-2xl p-4 flex flex-col min-h-[340px]">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-mono font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider" data-i18n="dash_chart_rates">Specific Kinetic Rates (μ, q_S, q_P)</span>
+          <div class="flex items-center gap-2 text-[11px] font-mono">
+            <span class="flex items-center gap-1 text-emerald-700 dark:text-emerald-400"><span class="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400"></span> μ (h⁻¹)</span>
+            <span class="flex items-center gap-1 text-amber-700 dark:text-amber-400"><span class="w-2 h-2 rounded-full bg-amber-600 dark:bg-amber-400"></span> q_S</span>
+            <span class="flex items-center gap-1 text-purple-700 dark:text-purple-400"><span class="w-2 h-2 rounded-full bg-purple-600 dark:bg-purple-400"></span> q_P</span>
+          </div>
+        </div>
+        <div class="flex-1 relative w-full h-[270px]">
+          <canvas id="dashChartRates"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 4: Culture Purity & Environment -->
+      <div class="google-card rounded-2xl p-4 flex flex-col min-h-[340px]">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-mono font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider" data-i18n="dash_chart_env">Culture Purity, Osmolarity &amp; Environment</span>
+          <div class="flex items-center gap-2 text-[11px] font-mono">
+            <span class="flex items-center gap-1 text-teal-700 dark:text-teal-400"><span class="w-2 h-2 rounded-full bg-teal-600 dark:bg-teal-400"></span> Purity (%)</span>
+            <span class="flex items-center gap-1 text-rose-700 dark:text-rose-400"><span class="w-2 h-2 rounded-full bg-rose-600 dark:bg-rose-400"></span> Temp (°C)</span>
+            <span class="flex items-center gap-1 text-blue-700 dark:text-blue-400"><span class="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span> pH</span>
+            <span class="flex items-center gap-1 text-indigo-700 dark:text-indigo-400"><span class="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400"></span> mOsm</span>
+          </div>
+        </div>
+        <div class="flex-1 relative w-full h-[270px]">
+          <canvas id="dashChartEnv"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- STOICHIOMETRIC & KINETIC AUDIT TABLE -->
+    <div class="google-card rounded-2xl p-4 overflow-hidden">
+      <div class="flex items-center justify-between pb-3 mb-3 border-b border-gray-200 dark:border-white/[0.08]">
+        <h3 class="text-xs font-mono font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider flex items-center gap-2">
+          <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span data-i18n="dash_table_stoich">Bioprocess Stoichiometric &amp; Kinetic Verification</span>
+        </h3>
+        <span class="text-[11px] text-gray-500 dark:text-gray-400 font-mono">GMP Reference Guidelines &bull; Pirt &amp; Monod Formalism</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs font-mono">
+          <thead>
+            <tr class="border-b border-gray-200 dark:border-[#383b42] text-gray-500 dark:text-gray-400">
+              <th class="py-2 px-3" data-i18n="th_param">Parameter</th>
+              <th class="py-2 px-3" data-i18n="th_symbol">Symbol</th>
+              <th class="py-2 px-3" data-i18n="th_value">Batch Value</th>
+              <th class="py-2 px-3" data-i18n="th_unit">Unit</th>
+              <th class="py-2 px-3" data-i18n="th_benchmark">Benchmark Range</th>
+              <th class="py-2 px-3" data-i18n="th_status">Status</th>
+            </tr>
+          </thead>
+          <tbody id="stoich-table-tbody" class="divide-y divide-gray-100 dark:divide-white/[0.04] text-gray-800 dark:text-gray-200">
+            <!-- Dynamically populated by renderDashboard() -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FULL BATCH TELEMETRY LOG TABLE -->
+    <div class="google-card rounded-2xl p-4 overflow-hidden">
+      <div class="flex flex-wrap items-center justify-between pb-3 mb-3 border-b border-gray-200 dark:border-white/[0.08] gap-3">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          <h3 class="text-xs font-mono font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider" data-i18n="dash_table_telemetry">
+            Full Batch Telemetry Log
+          </h3>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="text" id="telemetry-filter-input" placeholder="Search time or value..." oninput="filterTelemetryTable()" class="px-2.5 py-1 text-xs font-mono bg-white dark:bg-[#1a1b1f] border border-gray-200 dark:border-[#35373c] rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500">
+          <select id="telemetry-limit-select" onchange="renderTelemetryTable()" class="px-2 py-1 text-xs font-mono bg-white dark:bg-[#1a1b1f] border border-gray-200 dark:border-[#35373c] rounded-lg text-gray-700 dark:text-gray-300">
+            <option value="25">25 rows</option>
+            <option value="50" selected>50 rows</option>
+            <option value="100">100 rows</option>
+            <option value="all">All rows</option>
+          </select>
+          <button onclick="exportFullBatchCSV()" class="px-2.5 py-1 text-xs font-mono rounded-lg bg-gray-100 dark:bg-[#282a2e] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#32353a] transition">
+            Export CSV
+          </button>
+        </div>
+      </div>
+      <div class="overflow-x-auto max-h-[380px] overflow-y-auto">
+        <table class="w-full text-left text-xs font-mono">
+          <thead class="sticky top-0 bg-gray-50 dark:bg-[#1c1d21] border-b border-gray-200 dark:border-[#383b42] text-gray-500 dark:text-gray-400 z-10">
+            <tr>
+              <th class="py-2 px-3" data-i18n="th_time">Time (h)</th>
+              <th class="py-2 px-3" data-i18n="th_biomass">Biomass (g/L)</th>
+              <th class="py-2 px-3" data-i18n="th_substrate">Substrate (g/L)</th>
+              <th class="py-2 px-3" data-i18n="th_nitrogen">Nitrogen (g/L)</th>
+              <th class="py-2 px-3" data-i18n="th_do">DO (%)</th>
+              <th class="py-2 px-3" data-i18n="th_product">Product (g/L)</th>
+              <th class="py-2 px-3" data-i18n="th_mu">μ (h⁻¹)</th>
+              <th class="py-2 px-3" data-i18n="th_kla">kLa (h⁻¹)</th>
+              <th class="py-2 px-3" data-i18n="th_our">OUR (mmol/L/h)</th>
+              <th class="py-2 px-3" data-i18n="th_temp">Temp (°C)</th>
+              <th class="py-2 px-3" data-i18n="th_ph">pH</th>
+              <th class="py-2 px-3" data-i18n="th_purity">Purity (%)</th>
+            </tr>
+          </thead>
+          <tbody id="telemetry-log-tbody" class="divide-y divide-gray-100 dark:divide-white/[0.04] text-gray-800 dark:text-gray-200">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </div>
 
   </main>
 
@@ -945,7 +1293,51 @@
         fault_biofouling: "BIOFOULING: SPARGER & FILTER CLOGGING",
         cn_status_opt: "Balanced (Optimal)",
         cn_status_n_lim: "N-Limited (Lipogenic)",
-        cn_status_c_lim: "C-Limited (Starvation)"
+        cn_status_c_lim: "C-Limited (Starvation)",
+        tab_sim: "3D Twin",
+        tab_dashboard: "Results Dashboard",
+        dash_title: "Bioprocess Batch Analytics & Results Dashboard",
+        dash_subtitle: "High-resolution time-course telemetry, yield calculations, stoichiometric verification, and respirometry.",
+        btn_back_sim: "Return to 3D Twin",
+        btn_view_dashboard: "Analytics Dashboard ↗",
+        btn_standalone: "Standalone View ↗",
+        btn_export_full_csv: "Export Full Run CSV",
+        btn_export_json: "Export JSON Manifest",
+        btn_print_pdf: "Print / PDF Report",
+        dash_strain_lbl: "Organism:",
+        dash_vessel_lbl: "Vessel Architecture:",
+        dash_duration_lbl: "Simulated Time:",
+        dash_purity_lbl: "Culture Sterility:",
+        dash_kpi_deltax: "Biomass Formed (ΔX):",
+        dash_kpi_yxs: "Biomass Yield (Y_X/S):",
+        dash_kpi_qp: "Productivity (Q_P):",
+        dash_kpi_carbon: "Carbon Closure:",
+        dash_kpi_kla: "Mean Transfer (kLa):",
+        dash_kpi_health: "Culture Purity:",
+        dash_chart_growth: "Biomass, Substrate & Product Dynamics",
+        dash_chart_respiration: "Dissolved Oxygen, OUR & Mass Transfer Profile",
+        dash_chart_rates: "Specific Kinetic Rates (μ, q_S, q_P)",
+        dash_chart_env: "Culture Purity, Osmolarity & Environment",
+        dash_table_stoich: "Bioprocess Stoichiometric & Kinetic Verification",
+        dash_table_telemetry: "Full Batch Telemetry Log",
+        th_param: "Parameter",
+        th_symbol: "Symbol",
+        th_value: "Batch Value",
+        th_unit: "Unit",
+        th_benchmark: "Benchmark Range",
+        th_status: "Status",
+        th_time: "Time (h)",
+        th_biomass: "Biomass (g/L)",
+        th_substrate: "Substrate (g/L)",
+        th_nitrogen: "Nitrogen (g/L)",
+        th_do: "DO (%)",
+        th_product: "Product (g/L)",
+        th_mu: "μ (h⁻¹)",
+        th_kla: "kLa (h⁻¹)",
+        th_our: "OUR (mmol/L/h)",
+        th_temp: "Temp (°C)",
+        th_ph: "pH",
+        th_purity: "Purity (%)"
       },
       es: {
         app_title: "Gemelo Visual de Bioprocesos",
@@ -1057,7 +1449,51 @@
         fault_biofouling: "BIOENSUCIAMIENTO: OBTURACIÓN DIFUSOR Y FILTRO",
         cn_status_opt: "Equilibrado (Óptimo)",
         cn_status_n_lim: "Limitado en N (Lipogénico)",
-        cn_status_c_lim: "Limitado en C (Hambre)"
+        cn_status_c_lim: "Limitado en C (Hambre)",
+        tab_sim: "Gemelo 3D",
+        tab_dashboard: "Panel de Resultados",
+        dash_title: "Panel de Resultados y Analítica de Lote de Bioproceso",
+        dash_subtitle: "Telemetría temporal de alta resolución, cálculo de rendimientos, verificación estequiométrica y respirometría.",
+        btn_back_sim: "Volver al Gemelo 3D",
+        btn_view_dashboard: "Panel de Analítica ↗",
+        btn_standalone: "Página Independiente ↗",
+        btn_export_full_csv: "Exportar CSV Completo",
+        btn_export_json: "Exportar Manifiesto JSON",
+        btn_print_pdf: "Imprimir / Guardar PDF",
+        dash_strain_lbl: "Organismo:",
+        dash_vessel_lbl: "Arquitectura de Recipiente:",
+        dash_duration_lbl: "Tiempo Simulado:",
+        dash_purity_lbl: "Esterilidad de Cultivo:",
+        dash_kpi_deltax: "Biomasa Formada (ΔX):",
+        dash_kpi_yxs: "Rendimiento Biomasa (Y_X/S):",
+        dash_kpi_qp: "Productividad (Q_P):",
+        dash_kpi_carbon: "Cierre de Carbono:",
+        dash_kpi_kla: "Transferencia Media (kLa):",
+        dash_kpi_health: "Pureza de Cultivo:",
+        dash_chart_growth: "Dinámica de Biomasa, Sustratos y Producto",
+        dash_chart_respiration: "Oxígeno Disuelto, OUR y Perfil de Transferencia",
+        dash_chart_rates: "Tasas Cinéticas Específicas (μ, q_S, q_P)",
+        dash_chart_env: "Pureza de Cultivo, Osmolaridad y Entorno",
+        dash_table_stoich: "Verificación Estequiométrica y Cinética de Bioproceso",
+        dash_table_telemetry: "Registro Completo de Telemetría de Lote",
+        th_param: "Parámetro",
+        th_symbol: "Símbolo",
+        th_value: "Valor de Lote",
+        th_unit: "Unidad",
+        th_benchmark: "Rango de Referencia",
+        th_status: "Estado",
+        th_time: "Tiempo (h)",
+        th_biomass: "Biomasa (g/L)",
+        th_substrate: "Sustrato (g/L)",
+        th_nitrogen: "Nitrógeno (g/L)",
+        th_do: "OD (%)",
+        th_product: "Producto (g/L)",
+        th_mu: "μ (h⁻¹)",
+        th_kla: "kLa (h⁻¹)",
+        th_our: "OUR (mmol/L/h)",
+        th_temp: "Temp (°C)",
+        th_ph: "pH",
+        th_purity: "Pureza (%)"
       },
       de: {
         app_title: "Visueller Bioprozess-Zwilling",
@@ -1169,7 +1605,51 @@
         fault_biofouling: "BIOFOULING: BEGASER-VERSTOPFUNG",
         cn_status_opt: "Ausgewogen (Optimal)",
         cn_status_n_lim: "N-Limitiert (Lipogen)",
-        cn_status_c_lim: "C-Limitiert (Mangel)"
+        cn_status_c_lim: "C-Limitiert (Mangel)",
+        tab_sim: "3D-Zwilling",
+        tab_dashboard: "Ergebnis-Dashboard",
+        dash_title: "Bioprozess-Chargenanalyse & Ergebnis-Dashboard",
+        dash_subtitle: "Hochauflösende Zeitverlaufstelemetrie, Ausbeuteberechnungen, stöchiometrische Prüfung und Respirometrie.",
+        btn_back_sim: "Zurück zum 3D-Simulator",
+        btn_view_dashboard: "Analyse-Dashboard ↗",
+        btn_standalone: "Eigenständige Ansicht ↗",
+        btn_export_full_csv: "Vollständige CSV exportieren",
+        btn_export_json: "JSON-Manifest exportieren",
+        btn_print_pdf: "Drucken / PDF-Bericht",
+        dash_strain_lbl: "Organismus:",
+        dash_vessel_lbl: "Gefäßarchitektur:",
+        dash_duration_lbl: "Simulierte Zeit:",
+        dash_purity_lbl: "Kultursterilität:",
+        dash_kpi_deltax: "Biomassebildung (ΔX):",
+        dash_kpi_yxs: "Biomasseausbeute (Y_X/S):",
+        dash_kpi_qp: "Produktivität (Q_P):",
+        dash_kpi_carbon: "Kohlenstoffbilanz:",
+        dash_kpi_kla: "Mittlerer Transfer (kLa):",
+        dash_kpi_health: "Kulturreinheit:",
+        dash_chart_growth: "Biomasse-, Substrat- und Produktdynamik",
+        dash_chart_respiration: "Gelöster Sauerstoff, OUR & Stoffübergangsprofil",
+        dash_chart_rates: "Spezifische kinetische Raten (μ, q_S, q_P)",
+        dash_chart_env: "Kulturreinheit, Osmolarität & Umwelt",
+        dash_table_stoich: "Bioprozess-Stöchiometrie- & Kinetikprüfung",
+        dash_table_telemetry: "Vollständiges Chargen-Telemetrieprotokoll",
+        th_param: "Parameter",
+        th_symbol: "Symbol",
+        th_value: "Chargenwert",
+        th_unit: "Einheit",
+        th_benchmark: "Referenzbereich",
+        th_status: "Status",
+        th_time: "Zeit (h)",
+        th_biomass: "Biomasse (g/L)",
+        th_substrate: "Substrat (g/L)",
+        th_nitrogen: "Stickstoff (g/L)",
+        th_do: "DO (%)",
+        th_product: "Produkt (g/L)",
+        th_mu: "μ (h⁻¹)",
+        th_kla: "kLa (h⁻¹)",
+        th_our: "OUR (mmol/L/h)",
+        th_temp: "Temp (°C)",
+        th_ph: "pH",
+        th_purity: "Reinheit (%)"
       }
     };
 
@@ -1224,6 +1704,11 @@
 
       // Update vessel title in left box
       updateVesselTitle();
+
+      // If results dashboard is active, re-render it
+      if (State.activeView === 'dash') {
+        renderDashboard();
+      }
     }
 
     function updateVesselTitle() {
@@ -1317,6 +1802,33 @@
         telemetryChart.data.datasets[3].borderColor = isDark ? '#c58af9' : '#7627bb';
 
         telemetryChart.update();
+
+        // Update Dashboard Chart.js instances if active
+        if (chartDashGrowth && chartDashGrowth.options) {
+          [chartDashGrowth, chartDashOxygen, chartDashRates, chartDashEnv].forEach(ch => {
+            if (ch && ch.options && ch.options.scales) {
+              if (ch.options.scales.x) {
+                ch.options.scales.x.title.color = textColor;
+                ch.options.scales.x.ticks.color = textColor;
+                ch.options.scales.x.grid.color = gridColor;
+              }
+              if (ch.options.scales.y) {
+                ch.options.scales.y.title.color = textColor;
+                ch.options.scales.y.ticks.color = textColor;
+                ch.options.scales.y.grid.color = gridColor;
+              }
+              if (ch.options.scales.y1) {
+                ch.options.scales.y1.title.color = textColor;
+                ch.options.scales.y1.ticks.color = textColor;
+              }
+              if (ch.options.scales.y2) {
+                ch.options.scales.y2.title.color = textColor;
+                ch.options.scales.y2.ticks.color = textColor;
+              }
+              ch.update();
+            }
+          });
+        }
       }
     }
 
@@ -1734,10 +2246,18 @@
       const dispBeta = document.getElementById('disp-beta');
       if (dispBeta) dispBeta.innerText = `${State.beta.toFixed(3)} g_P/g_X/h`;
 
-      // Clear Telemetry Chart
+      // Clear Telemetry Chart & Reset Batch History
       telemetryChart.data.labels = [];
       telemetryChart.data.datasets.forEach(ds => ds.data = []);
       telemetryChart.update();
+      State.batchHistory = [];
+      State.s_fed_total = 0.0;
+      State.n_fed_total = 0.0;
+      State.currentStrainKey = selectedStrainKey;
+      State.initial_X = State.X;
+      State.initial_S = State.S;
+      State.initial_N = State.N;
+      recordHistoryPoint(null);
 
       // Reset fault badge
       setFault('none');
@@ -1807,7 +2327,17 @@
       speedMultiplier: 5,
       feedPulseActive: false,
       feedNitrogenPulseActive: false,
-      feedPulseTimer: 0.0
+      feedPulseTimer: 0.0,
+
+      // v2.1 Batch History & Analytics
+      batchHistory: [],
+      s_fed_total: 0.0,
+      n_fed_total: 0.0,
+      currentStrainKey: 'ecoli',
+      initial_X: 0.80,
+      initial_S: 35.0,
+      initial_N: 5.0,
+      activeView: 'sim'
     };
 
     /* =========================================================================
@@ -2744,6 +3274,9 @@
             telemetryChart.data.datasets.forEach(ds => ds.data.shift());
           }
           telemetryChart.update();
+
+          // Record high-resolution batch history (v2.1)
+          recordHistoryPoint(simStep, displayedDO);
         }
       }
 
@@ -2937,6 +3470,7 @@
 
     function injectFeedPulse() {
       State.feedPulseActive = true;
+      State.s_fed_total = (State.s_fed_total || 0.0) + 5.0;
       const notif = document.getElementById('feed-notification');
       if (!notif) return;
       notif.innerText = '+ Glucose Feed Pulse (+5g/L) Injected';
@@ -2950,6 +3484,7 @@
 
     function injectNitrogenPulse() {
       State.feedNitrogenPulseActive = true;
+      State.n_fed_total = (State.n_fed_total || 0.0) + 2.0;
       const notif = document.getElementById('feed-notification');
       if (!notif) return;
       notif.innerText = '+ Nitrogen Nutrient Pulse (+2g/L) Injected';
@@ -2972,6 +3507,10 @@
       State.N = 5.0;
       State.CL = State.C_star;
       State.P = 0.0;
+      State.s_fed_total = 0.0;
+      State.n_fed_total = 0.0;
+      State.batchHistory = [];
+      recordHistoryPoint(null);
       telemetryChart.data.labels = [];
       telemetryChart.data.datasets.forEach(ds => ds.data = []);
       telemetryChart.update();
@@ -2995,6 +3534,634 @@
       const link = document.createElement("a");
       link.setAttribute("href", url);
       link.setAttribute("download", `bioprocess_v2_run_${State.reactorType}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    /* =========================================================================
+       9. BATCH ANALYTICS & RESULTS DASHBOARD ENGINE (v2.1)
+       ========================================================================= */
+    let chartDashGrowth = null;
+    let chartDashOxygen = null;
+    let chartDashRates = null;
+    let chartDashEnv = null;
+    let telemetryFilterQuery = '';
+
+    function recordHistoryPoint(simStep, displayedDO) {
+      const doPct = displayedDO !== undefined ? displayedDO : ((State.CL / State.C_star) * 100);
+      const muVal = simStep ? simStep.mu : 0.0;
+      const klaVal = simStep ? simStep.kla : 0.0;
+      const ourVal = simStep ? Math.max(0, klaVal * (State.C_star - State.CL) * 1000 / 32) : 0.0;
+      const qsVal = simStep ? (muVal / (State.Yxs || 0.48) + (State.ms || 0.02)) : 0.0;
+      const qpVal = simStep ? (State.alpha * muVal + State.beta) : 0.0;
+
+      const point = {
+        time_h: parseFloat(State.time_h.toFixed(2)),
+        X: parseFloat(State.X.toFixed(3)),
+        S: parseFloat(State.S.toFixed(2)),
+        N: parseFloat(State.N.toFixed(2)),
+        DO_pct: parseFloat(doPct.toFixed(1)),
+        P: parseFloat(State.P.toFixed(3)),
+        mu: parseFloat(muVal.toFixed(3)),
+        kla: parseFloat(klaVal.toFixed(1)),
+        our: parseFloat(ourVal.toFixed(2)),
+        qs: parseFloat(qsVal.toFixed(3)),
+        qp: parseFloat(qpVal.toFixed(3)),
+        temp: parseFloat(State.temp_C.toFixed(1)),
+        ph: parseFloat(State.ph.toFixed(2)),
+        culture_purity: parseFloat(State.culture_purity.toFixed(1)),
+        osmolarity: Math.round(State.osmolarity_mOsm),
+        cn_ratio: parseFloat(State.cn_ratio.toFixed(2)),
+        p_density: simStep ? parseFloat(simStep.hydro.P_density_kW_m3.toFixed(3)) : 0.0
+      };
+
+      State.batchHistory.push(point);
+
+      const badge = document.getElementById('badge-history-count');
+      if (badge) badge.innerText = `${State.batchHistory.length} pts`;
+      const badgePts = document.getElementById('dash-badge-pts');
+      if (badgePts) badgePts.innerText = State.batchHistory.length;
+
+      // Periodically persist to localStorage and refresh dashboard if active
+      if (State.batchHistory.length % 4 === 0) {
+        saveBatchRunToStorage();
+        if (State.activeView === 'dash') {
+          renderDashboard();
+        }
+      }
+    }
+
+    function saveBatchRunToStorage() {
+      try {
+        const payload = {
+          metadata: {
+            strain: State.currentStrainKey || 'ecoli',
+            strainName: Strains[State.currentStrainKey] ? Strains[State.currentStrainKey].name : 'Escherichia coli BL21(DE3)',
+            reactorType: State.reactorType,
+            volume_L: State.volume_L || 20.0,
+            total_time_h: State.time_h,
+            initial_X: State.initial_X || 0.8,
+            initial_S: State.initial_S || 35.0,
+            initial_N: State.initial_N || 5.0,
+            s_fed_total: State.s_fed_total || 0.0,
+            n_fed_total: State.n_fed_total || 0.0,
+            timestamp: new Date().toISOString()
+          },
+          history: State.batchHistory
+        };
+        localStorage.setItem('bioprocess_batch_run', JSON.stringify(payload));
+      } catch (e) {}
+    }
+
+    function openStandaloneDashboard() {
+      saveBatchRunToStorage();
+      window.open('dashboard.html', '_blank');
+    }
+
+    function switchView(view) {
+      State.activeView = view;
+      const simView = document.getElementById('view-simulation');
+      const dashView = document.getElementById('view-dashboard');
+      const tabSim = document.getElementById('view-tab-sim');
+      const tabDash = document.getElementById('view-tab-dash');
+
+      if (view === 'dash') {
+        if (simView) simView.classList.add('hidden');
+        if (dashView) dashView.classList.remove('hidden');
+        if (tabSim) {
+          tabSim.className = 'px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-transparent inline-flex items-center gap-1.5';
+        }
+        if (tabDash) {
+          tabDash.className = 'px-2.5 py-1 rounded-lg text-xs font-medium transition-all bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42] inline-flex items-center gap-1.5';
+        }
+        renderDashboard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        if (dashView) dashView.classList.add('hidden');
+        if (simView) simView.classList.remove('hidden');
+        if (tabDash) {
+          tabDash.className = 'px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-transparent inline-flex items-center gap-1.5';
+        }
+        if (tabSim) {
+          tabSim.className = 'px-2.5 py-1 rounded-lg text-xs font-medium transition-all bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42] inline-flex items-center gap-1.5';
+        }
+        if (renderer && camera) {
+          onWindowResize();
+        }
+      }
+    }
+
+    function getDashboardChartOptions(yTitle, y1Title) {
+      const isDark = getEffectiveTheme() === 'dark';
+      const textColor = isDark ? '#9aa0a6' : '#5f6368';
+      const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+
+      const scales = {
+        x: {
+          title: { display: true, text: 'Time (h)', color: textColor, font: { family: 'JetBrains Mono', size: 10 } },
+          ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 9 }, maxTicksLimit: 12 },
+          grid: { color: gridColor }
+        },
+        y: {
+          title: { display: !!yTitle, text: yTitle || '', color: textColor, font: { family: 'JetBrains Mono', size: 10 } },
+          ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 9 } },
+          grid: { color: gridColor }
+        }
+      };
+
+      if (y1Title) {
+        scales.y1 = {
+          position: 'right',
+          title: { display: true, text: y1Title, color: textColor, font: { family: 'JetBrains Mono', size: 10 } },
+          ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 9 } },
+          grid: { drawOnChartArea: false }
+        };
+      }
+
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 300 },
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: isDark ? 'rgba(27, 28, 32, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+            titleColor: isDark ? '#f1f3f4' : '#202124',
+            bodyColor: isDark ? '#dadce0' : '#3c4043',
+            borderColor: isDark ? '#383b42' : '#dadce0',
+            borderWidth: 1,
+            titleFont: { family: 'JetBrains Mono', size: 11 },
+            bodyFont: { family: 'JetBrains Mono', size: 10 }
+          }
+        },
+        scales: scales
+      };
+    }
+
+    function renderDashboard() {
+      const history = (State.batchHistory && State.batchHistory.length > 0)
+        ? State.batchHistory
+        : [{
+            time_h: 0.0,
+            X: State.X,
+            S: State.S,
+            N: State.N,
+            DO_pct: (State.CL / State.C_star) * 100,
+            P: State.P,
+            mu: 0.0,
+            kla: 0.0,
+            our: 0.0,
+            qs: 0.0,
+            qp: 0.0,
+            temp: State.temp_C,
+            ph: State.ph,
+            culture_purity: State.culture_purity,
+            osmolarity: State.osmolarity_mOsm,
+            cn_ratio: State.cn_ratio
+          }];
+
+      const first = history[0];
+      const last = history[history.length - 1];
+      const tEnd = last.time_h;
+      const vol = State.volume_L || 20.0;
+
+      // 1. Calculations
+      const deltaX = Math.max(0.0, last.X - first.X);
+      const totalDCW = last.X * vol;
+      const muMaxObs = Math.max(...history.map(h => h.mu || 0), 0.0);
+      const doublingTime = muMaxObs > 0.005 ? (Math.LN2 / muMaxObs) : 0.0;
+
+      const sFed = State.s_fed_total || 0.0;
+      const deltaS = Math.max(0.0, (first.S + sFed) - last.S);
+      const sConversion = (deltaS / Math.max(0.01, first.S + sFed)) * 100.0;
+      const yxs = deltaS > 0.005 ? (deltaX / deltaS) : 0.0;
+
+      const nFed = State.n_fed_total || 0.0;
+      const deltaN = Math.max(0.0, (first.N + nFed) - last.N);
+      const yxn = deltaN > 0.005 ? (deltaX / deltaN) : 0.0;
+
+      const deltaP = Math.max(0.0, last.P - first.P);
+      const totalP = last.P * vol;
+      const qp = tEnd > 0.01 ? (deltaP / tEnd) : 0.0;
+      const yps = deltaS > 0.005 ? (deltaP / deltaS) : 0.0;
+
+      const cIn = deltaS * 0.40;
+      const cFixed = (deltaX * 0.48) + (deltaP * 0.45);
+      const cCO2 = Math.max(0.0, cIn - cFixed);
+      const cRecovery = cIn > 0.01 ? (((cFixed + cCO2) / cIn) * 100.0) : 100.0;
+
+      const minDO = Math.min(...history.map(h => h.DO_pct));
+      const avgKla = history.reduce((sum, h) => sum + (h.kla || 0), 0) / history.length;
+      const totalOUR = history.reduce((sum, h) => sum + ((h.our || 0) * 0.25), 0);
+      const hypoxiaHours = history.filter(h => h.DO_pct < 15.0).length * 0.25;
+
+      const finalPurity = last.culture_purity !== undefined ? last.culture_purity : 100.0;
+      const minPurity = Math.min(...history.map(h => h.culture_purity !== undefined ? h.culture_purity : 100.0));
+
+      // 2. Update Header Badges
+      const st = Strains[State.currentStrainKey] || Strains['ecoli'];
+      const badgeStrain = document.getElementById('dash-badge-strain');
+      if (badgeStrain) badgeStrain.innerText = st.name;
+
+      const badgeVessel = document.getElementById('dash-badge-vessel');
+      if (badgeVessel) {
+        const titles = {
+          'str_rushton': t('vessel_str_rushton'),
+          'str_marine': t('vessel_str_marine'),
+          'airlift': t('vessel_airlift'),
+          'pbr': t('vessel_pbr'),
+          'static': t('vessel_static')
+        };
+        badgeVessel.innerText = titles[State.reactorType] || titles['str_rushton'];
+      }
+
+      const badgeTime = document.getElementById('dash-badge-time');
+      if (badgeTime) badgeTime.innerText = `${tEnd.toFixed(2)} h (Day ${(tEnd / 24.0).toFixed(1)})`;
+
+      const badgePurity = document.getElementById('dash-badge-purity');
+      if (badgePurity) {
+        if (finalPurity >= 95.0) {
+          badgePurity.className = 'px-2.5 py-1 rounded-lg border font-medium inline-flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/40';
+          badgePurity.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>Axenic (${finalPurity.toFixed(1)}%)</span>`;
+        } else if (finalPurity >= 70.0) {
+          badgePurity.className = 'px-2.5 py-1 rounded-lg border font-medium inline-flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/40';
+          badgePurity.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400"></span><span>Contaminated (${finalPurity.toFixed(1)}%)</span>`;
+        } else {
+          badgePurity.className = 'px-2.5 py-1 rounded-lg border font-medium inline-flex items-center gap-1.5 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/40';
+          badgePurity.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400"></span><span>Critical (${finalPurity.toFixed(1)}%)</span>`;
+        }
+      }
+
+      const badgePts = document.getElementById('dash-badge-pts');
+      if (badgePts) badgePts.innerText = history.length;
+
+      // 3. Update 6 KPI Cards
+      const elDeltaX = document.getElementById('kpi-dash-deltax');
+      if (elDeltaX) elDeltaX.innerText = `+${deltaX.toFixed(2)} g/L`;
+      const elFinalX = document.getElementById('kpi-dash-finalx');
+      if (elFinalX) elFinalX.innerText = `Final: ${last.X.toFixed(2)} g/L (${totalDCW.toFixed(1)} g)`;
+      const elMuMax = document.getElementById('kpi-dash-mumax');
+      if (elMuMax) elMuMax.innerText = `${muMaxObs.toFixed(2)} h⁻¹`;
+      const elTd = document.getElementById('kpi-dash-td');
+      if (elTd) elTd.innerText = `${doublingTime.toFixed(2)} h`;
+
+      const elYxs = document.getElementById('kpi-dash-yxs');
+      if (elYxs) elYxs.innerText = `${yxs.toFixed(3)} g/g`;
+      const elSConsumed = document.getElementById('kpi-dash-sconsumed');
+      if (elSConsumed) elSConsumed.innerText = `Consumed: ${deltaS.toFixed(1)} g/L`;
+      const elSConv = document.getElementById('kpi-dash-sconv');
+      if (elSConv) elSConv.innerText = `${sConversion.toFixed(1)}%`;
+      const elYxn = document.getElementById('kpi-dash-yxn');
+      if (elYxn) elYxn.innerText = `${yxn.toFixed(2)} g/g`;
+
+      const elQp = document.getElementById('kpi-dash-qp');
+      if (elQp) elQp.innerText = `${qp.toFixed(3)} g/L/h`;
+      const elFinalP = document.getElementById('kpi-dash-finalp');
+      if (elFinalP) elFinalP.innerText = `Product: ${last.P.toFixed(2)} g/L`;
+      const elYps = document.getElementById('kpi-dash-yps');
+      if (elYps) elYps.innerText = `${yps.toFixed(3)} g/g`;
+      const elTotalP = document.getElementById('kpi-dash-totalp');
+      if (elTotalP) elTotalP.innerText = `${totalP.toFixed(1)} g`;
+
+      const elCarbon = document.getElementById('kpi-dash-carbon');
+      if (elCarbon) elCarbon.innerText = `${cRecovery.toFixed(1)}%`;
+      const elCIn = document.getElementById('kpi-dash-cin');
+      if (elCIn) elCIn.innerText = `C-In: ${cIn.toFixed(1)} g C/L`;
+      const elCFixed = document.getElementById('kpi-dash-cfixed');
+      if (elCFixed) elCFixed.innerText = `${cFixed.toFixed(1)} g C/L`;
+      const elCCO2 = document.getElementById('kpi-dash-cco2');
+      if (elCCO2) elCCO2.innerText = `${cCO2.toFixed(1)} g C/L`;
+
+      const elKla = document.getElementById('kpi-dash-kla');
+      if (elKla) elKla.innerText = `${avgKla.toFixed(1)} h⁻¹`;
+      const elMinDO = document.getElementById('kpi-dash-mindo');
+      if (elMinDO) elMinDO.innerText = `Min DO: ${minDO.toFixed(1)}%`;
+      const elTotalOUR = document.getElementById('kpi-dash-totalour');
+      if (elTotalOUR) elTotalOUR.innerText = `${totalOUR.toFixed(1)} mmol/L`;
+      const elHypoxia = document.getElementById('kpi-dash-hypoxia');
+      if (elHypoxia) {
+        elHypoxia.innerText = `${hypoxiaHours.toFixed(2)} h`;
+        elHypoxia.className = hypoxiaHours > 0 ? 'font-semibold text-red-600 dark:text-red-400 tabular-nums' : 'font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums';
+      }
+
+      const elPurity = document.getElementById('kpi-dash-purity');
+      if (elPurity) elPurity.innerText = `${finalPurity.toFixed(1)}%`;
+      const elStatus = document.getElementById('kpi-dash-status');
+      if (elStatus) {
+        if (finalPurity >= 95.0) {
+          elStatus.innerText = 'Status: Axenic Culture';
+          elStatus.className = 'text-[11px] text-emerald-600 dark:text-emerald-400 mt-0.5';
+        } else {
+          elStatus.innerText = 'Status: Microbial Contamination';
+          elStatus.className = 'text-[11px] text-red-600 dark:text-red-400 font-semibold mt-0.5';
+        }
+      }
+      const elMinPurity = document.getElementById('kpi-dash-minpurity');
+      if (elMinPurity) elMinPurity.innerText = `${minPurity.toFixed(1)}%`;
+      const elOsmo = document.getElementById('kpi-dash-osmo');
+      if (elOsmo) elOsmo.innerText = `${last.osmolarity || 290} mOsm`;
+
+      // 4. Update the 4 Chart.js Charts
+      const labels = history.map(h => h.time_h.toFixed(1));
+      const isDark = getEffectiveTheme() === 'dark';
+
+      // Chart 1: Growth, Nutrients & Product
+      const ctxGrowth = document.getElementById('dashChartGrowth');
+      if (ctxGrowth) {
+        const dataX = history.map(h => h.X);
+        const dataS = history.map(h => h.S);
+        const dataN = history.map(h => h.N);
+        const dataP = history.map(h => h.P);
+
+        if (chartDashGrowth) {
+          chartDashGrowth.data.labels = labels;
+          chartDashGrowth.data.datasets[0].data = dataX;
+          chartDashGrowth.data.datasets[1].data = dataS;
+          chartDashGrowth.data.datasets[2].data = dataN;
+          chartDashGrowth.data.datasets[3].data = dataP;
+          chartDashGrowth.update();
+        } else {
+          chartDashGrowth = new Chart(ctxGrowth.getContext('2d'), {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [
+                { label: 'Biomass X (g/L)', data: dataX, borderColor: isDark ? '#81c995' : '#1e7e44', borderWidth: 2, pointRadius: 0, tension: 0.2 },
+                { label: 'Substrate S (g/L)', data: dataS, borderColor: isDark ? '#fdd663' : '#b06000', borderWidth: 2, pointRadius: 0, tension: 0.2, yAxisID: 'y1' },
+                { label: 'Nitrogen N (g/L)', data: dataN, borderColor: isDark ? '#8ab4f8' : '#1a73e8', borderWidth: 1.5, pointRadius: 0, tension: 0.2 },
+                { label: 'Product P (g/L)', data: dataP, borderColor: isDark ? '#c58af9' : '#7627bb', borderWidth: 2, pointRadius: 0, tension: 0.2 }
+              ]
+            },
+            options: getDashboardChartOptions('Biomass & Product (g/L)', 'Substrate S (g/L)')
+          });
+        }
+      }
+
+      // Chart 2: Dissolved Oxygen & Mass Transfer
+      const ctxOxygen = document.getElementById('dashChartOxygen');
+      if (ctxOxygen) {
+        const dataDO = history.map(h => h.DO_pct);
+        const dataOUR = history.map(h => h.our);
+        const datakLa = history.map(h => h.kla);
+
+        if (chartDashOxygen) {
+          chartDashOxygen.data.labels = labels;
+          chartDashOxygen.data.datasets[0].data = dataDO;
+          chartDashOxygen.data.datasets[1].data = dataOUR;
+          chartDashOxygen.data.datasets[2].data = datakLa;
+          chartDashOxygen.update();
+        } else {
+          chartDashOxygen = new Chart(ctxOxygen.getContext('2d'), {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [
+                { label: 'DO (% Sat)', data: dataDO, borderColor: isDark ? '#8ab4f8' : '#1a73e8', borderWidth: 2, pointRadius: 0, tension: 0.2 },
+                { label: 'OUR (mmol/L/h)', data: dataOUR, borderColor: isDark ? '#f28b82' : '#d93025', borderWidth: 1.5, pointRadius: 0, tension: 0.2, yAxisID: 'y1' },
+                { label: 'kLa (h⁻¹)', data: datakLa, borderColor: isDark ? '#9aa0a6' : '#5f6368', borderWidth: 1.5, borderDash: [4, 4], pointRadius: 0, tension: 0.2, yAxisID: 'y1' }
+              ]
+            },
+            options: getDashboardChartOptions('DO (% Sat)', 'OUR & kLa (h⁻¹)')
+          });
+        }
+      }
+
+      // Chart 3: Specific Kinetic Rates
+      const ctxRates = document.getElementById('dashChartRates');
+      if (ctxRates) {
+        const dataMu = history.map(h => h.mu);
+        const dataQS = history.map(h => h.qs);
+        const dataQP = history.map(h => h.qp);
+
+        if (chartDashRates) {
+          chartDashRates.data.labels = labels;
+          chartDashRates.data.datasets[0].data = dataMu;
+          chartDashRates.data.datasets[1].data = dataQS;
+          chartDashRates.data.datasets[2].data = dataQP;
+          chartDashRates.update();
+        } else {
+          chartDashRates = new Chart(ctxRates.getContext('2d'), {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [
+                { label: 'μ (h⁻¹)', data: dataMu, borderColor: isDark ? '#81c995' : '#1e7e44', borderWidth: 2, pointRadius: 0, tension: 0.2 },
+                { label: 'q_S (g/g/h)', data: dataQS, borderColor: isDark ? '#fdd663' : '#b06000', borderWidth: 1.5, pointRadius: 0, tension: 0.2 },
+                { label: 'q_P (g/g/h)', data: dataQP, borderColor: isDark ? '#c58af9' : '#7627bb', borderWidth: 1.5, pointRadius: 0, tension: 0.2 }
+              ]
+            },
+            options: getDashboardChartOptions('Specific Rate (h⁻¹ / g/g/h)')
+          });
+        }
+      }
+
+      // Chart 4: Culture Purity & Environment
+      const ctxEnv = document.getElementById('dashChartEnv');
+      if (ctxEnv) {
+        const dataPurity = history.map(h => h.culture_purity);
+        const dataTemp = history.map(h => h.temp);
+        const dataPh = history.map(h => h.ph);
+        const dataOsmo = history.map(h => h.osmolarity);
+
+        if (chartDashEnv) {
+          chartDashEnv.data.labels = labels;
+          chartDashEnv.data.datasets[0].data = dataPurity;
+          chartDashEnv.data.datasets[1].data = dataTemp;
+          chartDashEnv.data.datasets[2].data = dataPh;
+          chartDashEnv.data.datasets[3].data = dataOsmo;
+          chartDashEnv.update();
+        } else {
+          chartDashEnv = new Chart(ctxEnv.getContext('2d'), {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [
+                { label: 'Purity (%)', data: dataPurity, borderColor: isDark ? '#4db6ac' : '#00897b', borderWidth: 2, pointRadius: 0, tension: 0.2 },
+                { label: 'Temp (°C)', data: dataTemp, borderColor: isDark ? '#f28b82' : '#d93025', borderWidth: 1.5, pointRadius: 0, tension: 0.2, yAxisID: 'y1' },
+                { label: 'pH', data: dataPh, borderColor: isDark ? '#8ab4f8' : '#1a73e8', borderWidth: 1.5, pointRadius: 0, tension: 0.2, yAxisID: 'y1' },
+                { label: 'Osmolarity (mOsm)', data: dataOsmo, borderColor: isDark ? '#c58af9' : '#7627bb', borderWidth: 1, borderDash: [3, 3], pointRadius: 0, tension: 0.2, yAxisID: 'y1' }
+              ]
+            },
+            options: getDashboardChartOptions('Culture Purity (%)', 'Temp (°C), pH, mOsm')
+          });
+        }
+      }
+
+      // 5. Populate Stoichiometric Audit Table
+      populateStoichTable({
+        yxs, yxn, yps, muMaxObs, doublingTime, qp, cRecovery, avgKla, minDO, hypoxiaHours, finalPurity
+      });
+
+      // 6. Populate Telemetry Data Table
+      renderTelemetryTable();
+    }
+
+    function populateStoichTable(k) {
+      const tbody = document.getElementById('stoich-table-tbody');
+      if (!tbody) return;
+
+      const rows = [
+        {
+          name: { en: 'Biomass Yield on Substrate', es: 'Rendimiento de Biomasa en Sustrato', de: 'Biomasseausbeute auf Substrat' },
+          sym: 'Y_X/S', val: `${k.yxs.toFixed(3)}`, unit: 'g_X / g_S', ref: '0.40 - 0.55', ok: k.yxs >= 0.35 && k.yxs <= 0.60
+        },
+        {
+          name: { en: 'Biomass Yield on Nitrogen', es: 'Rendimiento de Biomasa en Nitrógeno', de: 'Biomasseausbeute auf Stickstoff' },
+          sym: 'Y_X/N', val: `${k.yxn.toFixed(2)}`, unit: 'g_X / g_N', ref: '4.5 - 6.5', ok: k.yxn >= 4.0
+        },
+        {
+          name: { en: 'Product Yield on Substrate', es: 'Rendimiento de Producto en Sustrato', de: 'Produktausbeute auf Substrat' },
+          sym: 'Y_P/S', val: `${k.yps.toFixed(3)}`, unit: 'g_P / g_S', ref: '0.05 - 0.40', ok: true
+        },
+        {
+          name: { en: 'Max Specific Growth Rate', es: 'Tasa Máxima de Crecimiento Específico', de: 'Max. spezifische Wachstumsrate' },
+          sym: 'μ_max', val: `${k.muMaxObs.toFixed(3)}`, unit: 'h⁻¹', ref: '0.05 - 0.85', ok: k.muMaxObs > 0.02
+        },
+        {
+          name: { en: 'Apparent Doubling Time', es: 'Tiempo Aparente de Duplicación', de: 'Scheinbare Verdopplungszeit' },
+          sym: 't_d', val: `${k.doublingTime.toFixed(2)}`, unit: 'h', ref: '0.8 - 18.0', ok: k.doublingTime > 0
+        },
+        {
+          name: { en: 'Volumetric Productivity', es: 'Productividad Volumétrica', de: 'Volumetrische Produktivität' },
+          sym: 'Q_P', val: `${k.qp.toFixed(3)}`, unit: 'g_P / L / h', ref: '0.05 - 0.50', ok: true
+        },
+        {
+          name: { en: 'Carbon Balance Closure', es: 'Cierre del Balance de Carbono', de: 'Kohlenstoffbilanz-Schluss' },
+          sym: '% C_Rec', val: `${k.cRecovery.toFixed(1)}%`, unit: '%', ref: '95.0% - 105.0%', ok: k.cRecovery >= 92.0 && k.cRecovery <= 108.0
+        },
+        {
+          name: { en: 'Mean Mass Transfer Coeff', es: 'Coeficiente Medio de Transferencia', de: 'Mittlerer Stoffübergangskoeffizient' },
+          sym: 'kLa', val: `${k.avgKla.toFixed(1)}`, unit: 'h⁻¹', ref: '10.0 - 250.0', ok: k.avgKla > 0
+        },
+        {
+          name: { en: 'Minimum Dissolved Oxygen', es: 'Oxígeno Disuelto Mínimo', de: 'Minimaler gelöster Sauerstoff' },
+          sym: 'DO_min', val: `${k.minDO.toFixed(1)}%`, unit: '%', ref: '> 20.0%', ok: k.minDO >= 20.0
+        },
+        {
+          name: { en: 'Hypoxia Duration (DO < 15%)', es: 'Duración de Hipoxia (OD < 15%)', de: 'Hypoxiedauer (DO < 15%)' },
+          sym: 't_hypox', val: `${k.hypoxiaHours.toFixed(2)}`, unit: 'h', ref: '0.00 h (Target)', ok: k.hypoxiaHours === 0
+        },
+        {
+          name: { en: 'Culture Sterility & Quality', es: 'Esterilidad y Calidad del Cultivo', de: 'Kultursterilität & Qualität' },
+          sym: 'Purity', val: `${k.finalPurity.toFixed(1)}%`, unit: '%', ref: '100.0% (Axenic)', ok: k.finalPurity >= 95.0
+        }
+      ];
+
+      tbody.innerHTML = rows.map(r => {
+        const label = (typeof r.name === 'object') ? (r.name[currentLang] || r.name['en']) : r.name;
+        const badge = r.ok
+          ? '<span class="px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 text-[10px] font-semibold">PASS</span>'
+          : '<span class="px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40 text-[10px] font-semibold">ALERT</span>';
+        return `
+          <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition">
+            <td class="py-2.5 px-3 font-medium">${label}</td>
+            <td class="py-2.5 px-3 text-gray-500 dark:text-gray-400 font-bold">${r.sym}</td>
+            <td class="py-2.5 px-3 tabular-nums font-semibold text-gray-900 dark:text-gray-100">${r.val}</td>
+            <td class="py-2.5 px-3 text-gray-500 dark:text-gray-400">${r.unit}</td>
+            <td class="py-2.5 px-3 text-gray-500 dark:text-gray-400">${r.ref}</td>
+            <td class="py-2.5 px-3">${badge}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterTelemetryTable() {
+      const input = document.getElementById('telemetry-filter-input');
+      telemetryFilterQuery = input ? input.value.trim().toLowerCase() : '';
+      renderTelemetryTable();
+    }
+
+    function renderTelemetryTable() {
+      const tbody = document.getElementById('telemetry-log-tbody');
+      if (!tbody) return;
+
+      const history = (State.batchHistory && State.batchHistory.length > 0) ? State.batchHistory : [];
+      const limitSelect = document.getElementById('telemetry-limit-select');
+      const limit = limitSelect ? limitSelect.value : '50';
+
+      let filtered = history;
+      if (telemetryFilterQuery) {
+        filtered = history.filter(h =>
+          h.time_h.toString().includes(telemetryFilterQuery) ||
+          h.X.toString().includes(telemetryFilterQuery) ||
+          h.S.toString().includes(telemetryFilterQuery) ||
+          h.DO_pct.toString().includes(telemetryFilterQuery)
+        );
+      }
+
+      const rowsToRender = (limit === 'all') ? filtered : filtered.slice(-parseInt(limit, 10));
+
+      if (rowsToRender.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12" class="py-6 text-center text-gray-400 dark:text-gray-500">No telemetry records logged yet. Run simulation to collect data points.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = rowsToRender.map(h => `
+        <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition">
+          <td class="py-1.5 px-3 tabular-nums font-bold text-gray-900 dark:text-gray-100">${h.time_h.toFixed(2)}</td>
+          <td class="py-1.5 px-3 tabular-nums text-emerald-600 dark:text-emerald-400 font-semibold">${h.X.toFixed(2)}</td>
+          <td class="py-1.5 px-3 tabular-nums text-amber-600 dark:text-amber-400 font-semibold">${h.S.toFixed(1)}</td>
+          <td class="py-1.5 px-3 tabular-nums text-blue-600 dark:text-blue-400">${h.N.toFixed(2)}</td>
+          <td class="py-1.5 px-3 tabular-nums ${h.DO_pct < 20 ? 'text-red-600 dark:text-red-400 font-bold' : 'text-sky-600 dark:text-sky-400'}">${h.DO_pct.toFixed(1)}%</td>
+          <td class="py-1.5 px-3 tabular-nums text-purple-600 dark:text-purple-400 font-semibold">${h.P.toFixed(2)}</td>
+          <td class="py-1.5 px-3 tabular-nums text-gray-600 dark:text-gray-400">${h.mu.toFixed(2)}</td>
+          <td class="py-1.5 px-3 tabular-nums text-gray-600 dark:text-gray-400">${h.kla.toFixed(1)}</td>
+          <td class="py-1.5 px-3 tabular-nums text-gray-600 dark:text-gray-400">${h.our.toFixed(1)}</td>
+          <td class="py-1.5 px-3 tabular-nums text-gray-600 dark:text-gray-400">${h.temp.toFixed(1)}</td>
+          <td class="py-1.5 px-3 tabular-nums text-gray-600 dark:text-gray-400">${h.ph.toFixed(2)}</td>
+          <td class="py-1.5 px-3 tabular-nums ${h.culture_purity < 80 ? 'text-red-600 dark:text-red-400 font-bold' : 'text-emerald-600 dark:text-emerald-400'}">${h.culture_purity.toFixed(1)}%</td>
+        </tr>
+      `).join('');
+    }
+
+    function exportFullBatchCSV() {
+      const history = (State.batchHistory && State.batchHistory.length > 0) ? State.batchHistory : [];
+      let csv = "Time_h,Biomass_g_L,Substrate_g_L,Nitrogen_g_L,DO_pct,Product_g_L,Mu_h1,kLa_h1,OUR_mmol_L_h,qS_g_g_h,qP_g_g_h,Temp_C,pH,CulturePurity_pct,Osmolarity_mOsm,CN_Ratio\n";
+
+      for (const h of history) {
+        csv += `${h.time_h},${h.X},${h.S},${h.N},${h.DO_pct},${h.P},${h.mu},${h.kla},${h.our},${h.qs},${h.qp},${h.temp},${h.ph},${h.culture_purity},${h.osmolarity},${h.cn_ratio}\n`;
+      }
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `bioprocess_v2_1_full_batch_${State.reactorType}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function exportBatchJSON() {
+      const history = (State.batchHistory && State.batchHistory.length > 0) ? State.batchHistory : [];
+      const payload = {
+        metadata: {
+          software: "bioprocess-visual-twin",
+          version: "2.1.0",
+          author: "Ing. Juan José Álvarez Morales",
+          strainKey: State.currentStrainKey || 'ecoli',
+          strainName: Strains[State.currentStrainKey] ? Strains[State.currentStrainKey].name : 'Escherichia coli BL21(DE3)',
+          reactorType: State.reactorType,
+          workingVolume_L: State.volume_L || 20.0,
+          totalDuration_h: State.time_h,
+          totalSnapshots: history.length,
+          initial_X: State.initial_X || 0.8,
+          initial_S: State.initial_S || 35.0,
+          initial_N: State.initial_N || 5.0,
+          s_fed_total: State.s_fed_total || 0.0,
+          n_fed_total: State.n_fed_total || 0.0,
+          exportedAt: new Date().toISOString()
+        },
+        telemetry: history
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `bioprocess_v2_1_manifest_${State.reactorType}.json`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

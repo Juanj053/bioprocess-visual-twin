@@ -7,16 +7,17 @@
 
 <p align="center">
   <a href="https://juanj053.github.io/bioprocess-visual-twin/"><img src="https://img.shields.io/badge/Live%20Demo-Launch%20Simulator-06B6D4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live Demo"></a>
+  <a href="https://juanj053.github.io/bioprocess-visual-twin/dashboard.html"><img src="https://img.shields.io/badge/Analytics-Results%20Dashboard-4F46E5?style=for-the-badge&logo=databricks&logoColor=white" alt="Dashboard"></a>
   <a href="https://github.com/Juanj053/bioprocess-visual-twin/actions"><img src="https://img.shields.io/badge/CI-passing-brightgreen?style=for-the-badge&logo=githubactions&logoColor=white" alt="CI"></a>
+  <a href="https://github.com/Juanj053/bioprocess-visual-twin/releases"><img src="https://img.shields.io/badge/Release-v2.1.0-blue?style=for-the-badge" alt="Release"></a>
   <a href="https://www.linkedin.com/in/juanj-alva"><img src="https://img.shields.io/badge/LinkedIn-Juan%20Jos%C3%A9%20%C3%81lvarez-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License"></a>
   <img src="https://img.shields.io/badge/3D%20Engine-Three.js%20WebGL-10B981?style=for-the-badge&logo=threedotjs&logoColor=white" alt="Engine">
-  <img src="https://img.shields.io/badge/Controls-360%C2%B0%20OrbitControls-06B6D4?style=for-the-badge" alt="Orbit">
 </p>
 
 ---
 
-### 🌐 [Click Here to Launch the Live Interactive 3D Simulator (No Install Required)](https://juanj053.github.io/bioprocess-visual-twin/)
+### 🌐 [Launch Live Interactive 3D Simulator](https://juanj053.github.io/bioprocess-visual-twin/) • 📊 [Open Dedicated Results & Analytics Dashboard](https://juanj053.github.io/bioprocess-visual-twin/dashboard.html)
 
 ---
 
@@ -34,18 +35,19 @@ In biochemical engineering and precision industrial biotechnology, computer simu
 - **Fed-batch substrate pulse injection**: Instant visual and kinetic response upon glucose feeding.
 
 ```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                      BIOPROCESS VISUAL TWIN 3D ARCHITECTURE (THREE.JS)                 │
-└───────────────────────────────────────────┬────────────────────────────────────────────┘
-                                            │
-        ┌───────────────────────────────────┼───────────────────────────────────┐
-        ▼                                   ▼                                   ▼
-[ 3D WEBGL PBR RENDERER ]           [ COUPLED ODE ENGINE ]              [ REAL-TIME SCADA ]
-• 360° OrbitControls Camera         • Dual Monod Growth: μ(S, CL)       • Biomass & Glucose Curves
-• Borosilicate Glass Transmission   • Pirt Substrate Balance: dS/dt     • Dissolved O2 & Product
-• Rushton & Marine 3D Impellers     • Oxygen Transfer: kla(C* - CL)     • Hydrodynamics: Re, P/V, kla
-• 3D Helical Bubble Swarm           • Luedeking-Piret: dP/dt            • Carbon Balance Auditor (99.8%)
-• Optical Turbidity (OD600)         • Temperature & pH Arrhenius        • Instant CSV Data Export
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                          BIOPROCESS VISUAL TWIN 3D ARCHITECTURE (THREE.JS + ANALYTICS)                 │
+└───────────────────────────────────────────────────┬────────────────────────────────────────────────────┘
+                                                    │
+        ┌───────────────────────────────────────────┼───────────────────────────────────────────┐
+        ▼                                           ▼                                           ▼
+[ 3D WEBGL PBR RENDERER ]                   [ COUPLED ODE ENGINE ]                      [ RESULTS & SCADA DASHBOARD ]
+• 360° OrbitControls Camera                 • Dual Monod Growth: μ(S, CL)               • 6 Executive Batch KPIs
+• Borosilicate Glass Transmission           • Dual Carbon/Nitrogen Balances             • 4 Synchronized Chart.js Plots
+• Rushton, Marine & Static Models           • Oxygen Transfer: kla(C* - CL)             • Stoichiometric Audit (11 metrics)
+• 3D Helical Bubble Swarm                   • Luedeking-Piret: dP/dt                    • Uncompressed Telemetry Inspector
+• Real-time Broth Turbidity (OD600)         • Environmental Contamination Kinetics      • Trilingual (EN / ES / DE) Support
+• Active Thermal Jacket Glow                • Temperature & pH Arrhenius                • CSV & JSON Export / Print Layout
 ```
 
 ---
@@ -116,14 +118,17 @@ bioprocess-visual-twin/
 ├── .github/workflows/
 │   └── deploy-pages.yml         # Automated GitHub Actions test and GitHub Pages deployment
 ├── src/bioprocess_twin/
-│   ├── __init__.py              # Package entrypoint
+│   ├── __init__.py              # Package entrypoint (v2.1.0)
 │   ├── kinetics.py              # Hydrodynamics (Re, P/V, kla) and Monod ODE system
 │   ├── simulator.py             # Numerical stiff Radau / RK45 timecourse solver
+│   ├── analytics.py             # Batch KPIs, Carbon closure, and stoichiometric verification
 │   └── cli.py                   # Command-line interface (simulate, ui)
 ├── tests/
 │   ├── test_kinetics.py         # Unit tests for hydrodynamics and derivatives
-│   └── test_simulator.py        # Numerical integration trajectory tests
-├── index.html                   # High-performance 60 FPS HTML5 Canvas + Tailwind SCADA web app
+│   ├── test_simulator.py        # Numerical integration trajectory tests
+│   └── test_analytics.py        # Stoichiometric & KPI verification tests
+├── index.html                   # 3D Twin + Integrated Results Dashboard (EN/ES/DE)
+├── dashboard.html               # Dedicated Standalone Batch Analytics Dashboard
 ├── pyproject.toml               # PEP 517/621 packaging (Hatchling)
 ├── CITATION.cff                 # Academic citation metadata
 ├── LICENSE                      # MIT License
@@ -149,10 +154,10 @@ If you utilize this simulator in your academic coursework, research publications
 @software{alvarez_morales_2026_bioprocess_visual_twin,
   author       = {Álvarez Morales, Juan José},
   title        = {bioprocess-visual-twin: Physics-based Interactive Bioreactor Digital Twin and Real-time SCADA Telemetry Simulator},
-  month        = oct,
+  month        = nov,
   year         = 2026,
   publisher    = {GitHub},
-  version      = {1.0.0},
+  version      = {2.1.0},
   url          = {https://github.com/Juanj053/bioprocess-visual-twin}
 }
 ```
