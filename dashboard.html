@@ -105,7 +105,7 @@
           <h1 class="text-xs sm:text-sm font-semibold tracking-tight text-gray-900 dark:text-gray-100" data-i18n="dash_page_title">
             Batch Analytics Dashboard
           </h1>
-          <span class="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 font-mono font-medium">v2.2.0</span>
+          <span class="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 font-mono font-medium">v2.3.0</span>
         </div>
         <p class="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400">Bioprocess Telemetry &bull; <a href="https://www.linkedin.com/in/juanj-alva" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">Ing. Juan José Álvarez Morales</a></p>
       </div>
@@ -158,7 +158,7 @@
           <h2 class="text-base sm:text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100" data-i18n="dash_title">
             Bioprocess Batch Analytics &amp; Results Dashboard
           </h2>
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 font-mono font-medium">v2.2.0</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 font-mono font-medium">v2.3.0</span>
         </div>
         <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="dash_subtitle">
           High-resolution time-course telemetry, yield calculations, stoichiometric verification, and respirometry.
@@ -328,7 +328,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
       
       <!-- Chart 1: Biomass, Substrates & Product -->
-      <div class="google-card rounded-2xl p-4 flex flex-col min-h-[340px]">
+      <div class="google-card rounded-2xl p-4 flex flex-col min-h-[360px]">
         <div class="flex items-center justify-between mb-2">
           <span class="text-xs font-mono font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider" data-i18n="dash_chart_growth">Biomass, Substrate &amp; Product Dynamics</span>
           <div class="flex items-center gap-2 text-[11px] font-mono">
@@ -338,7 +338,25 @@
             <span class="flex items-center gap-1 text-purple-700 dark:text-purple-400"><span class="w-2 h-2 rounded-full bg-purple-600 dark:bg-purple-400"></span> P</span>
           </div>
         </div>
-        <div class="flex-1 relative w-full h-[270px]">
+
+        <!-- Automatic Growth Phase Segmentation Bar -->
+        <div class="mb-2.5 p-2 rounded-xl bg-gray-50 dark:bg-[#1c1d21] border border-gray-200 dark:border-white/[0.06]">
+          <div class="flex flex-wrap items-center justify-between text-[10px] font-mono mb-1.5 text-gray-500 dark:text-gray-400 gap-1">
+            <span class="font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 flex items-center gap-1">
+              <svg class="w-3 h-3 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+              <span data-i18n="dash_growth_phases_title">Growth Phase Segments:</span>
+            </span>
+            <div id="dash-growth-phase-legend" class="flex flex-wrap items-center gap-1.5">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+          <!-- Segmented Phase Bar -->
+          <div id="dash-growth-phase-bar" class="w-full h-2 rounded-full overflow-hidden flex bg-gray-200 dark:bg-[#282a2e] shadow-inner">
+            <!-- Dynamically populated with width % -->
+          </div>
+        </div>
+
+        <div class="flex-1 relative w-full h-[250px]">
           <canvas id="dashChartGrowth"></canvas>
         </div>
       </div>
@@ -516,7 +534,13 @@
         th_temp: "Temp (°C)",
         th_ph: "pH",
         th_purity: "Purity (%)",
-        table_scroll_hint: "← Swipe table to inspect full columns →"
+        table_scroll_hint: "← Swipe table to inspect full columns →",
+        phase_lag: "Lag Phase",
+        phase_exponential: "Exponential (Log)",
+        phase_deceleration: "Deceleration Phase",
+        phase_stationary: "Stationary Phase",
+        phase_death: "Lysis / Death Phase",
+        dash_growth_phases_title: "Growth Phase Segments:"
       },
       es: {
         dash_page_title: "Panel de Analítica de Lote",
@@ -556,7 +580,13 @@
         th_temp: "Temp (°C)",
         th_ph: "pH",
         th_purity: "Pureza (%)",
-        table_scroll_hint: "← Desliza la tabla para ver todas las columnas →"
+        table_scroll_hint: "← Desliza la tabla para ver todas las columnas →",
+        phase_lag: "Fase de Latencia (Lag)",
+        phase_exponential: "Fase Exponencial (Log)",
+        phase_deceleration: "Fase de Desaceleración",
+        phase_stationary: "Fase Estacionaria",
+        phase_death: "Fase de Muerte / Lisis",
+        dash_growth_phases_title: "Fases de Crecimiento:"
       },
       de: {
         dash_page_title: "Chargenanalyse-Dashboard",
@@ -596,7 +626,13 @@
         th_temp: "Temp (°C)",
         th_ph: "pH",
         th_purity: "Reinheit (%)",
-        table_scroll_hint: "← Wischen, um alle Spalten zu sehen →"
+        table_scroll_hint: "← Wischen, um alle Spalten zu sehen →",
+        phase_lag: "Lag-Phase (Anlaufphase)",
+        phase_exponential: "Exponentielle Phase (Log)",
+        phase_deceleration: "Verzögerungsphase",
+        phase_stationary: "Stationäre Phase",
+        phase_death: "Absterbe- / Lysisphase",
+        dash_growth_phases_title: "Wachstumsphasen:"
       }
     };
 
@@ -792,6 +828,237 @@
       };
     }
 
+    /* =========================================================================
+       GROWTH PHASE AUTOMATIC DETECTION & DIFFERENTIATION ENGINE
+       ========================================================================= */
+    const GrowthPhaseMeta = {
+      lag: {
+        key: 'lag',
+        color: '#94a3b8',
+        bgLight: 'rgba(148, 163, 184, 0.12)',
+        bgDark: 'rgba(148, 163, 184, 0.08)',
+        dotClass: 'bg-slate-400',
+        badgeBg: 'bg-slate-100 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800/40',
+        short: 'LAG'
+      },
+      exponential: {
+        key: 'exponential',
+        color: '#10b981',
+        bgLight: 'rgba(16, 185, 129, 0.10)',
+        bgDark: 'rgba(16, 185, 129, 0.10)',
+        dotClass: 'bg-emerald-500 animate-pulse',
+        badgeBg: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/40',
+        short: 'LOG / EXP'
+      },
+      deceleration: {
+        key: 'deceleration',
+        color: '#f59e0b',
+        bgLight: 'rgba(245, 158, 11, 0.10)',
+        bgDark: 'rgba(245, 158, 11, 0.10)',
+        dotClass: 'bg-amber-500',
+        badgeBg: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/40',
+        short: 'DECEL'
+      },
+      stationary: {
+        key: 'stationary',
+        color: '#8b5cf6',
+        bgLight: 'rgba(139, 92, 246, 0.10)',
+        bgDark: 'rgba(139, 92, 246, 0.10)',
+        dotClass: 'bg-purple-500',
+        badgeBg: 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/40',
+        short: 'STAT'
+      },
+      death: {
+        key: 'death',
+        color: '#ef4444',
+        bgLight: 'rgba(239, 68, 68, 0.12)',
+        bgDark: 'rgba(239, 68, 68, 0.14)',
+        dotClass: 'bg-rose-500',
+        badgeBg: 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/40',
+        short: 'LYSIS / DEATH'
+      }
+    };
+
+    function analyzeBatchGrowthPhases(history, strainMuMax = 0.65) {
+      if (!history || history.length === 0) return { pointPhases: [], segments: [], currentPhase: 'lag' };
+      const pointPhases = [];
+      let inExp = false;
+      let inStat = false;
+
+      const xArr = history.map(h => h.X);
+      const xMax = Math.max(...xArr);
+      const x0 = history[0].X;
+      const deltaXTot = Math.max(0.1, xMax - x0);
+      const muArr = history.map(h => h.mu || 0);
+      const obsMuMax = Math.max(0.05, ...muArr);
+
+      let currentState = 'lag';
+
+      for (let i = 0; i < history.length; i++) {
+        const h = history[i];
+        const xi = h.X;
+        const si = h.S;
+        const mui = h.mu || 0;
+        const purity = h.culture_purity !== undefined ? h.culture_purity : (h.purity_pct !== undefined ? h.purity_pct : 100.0);
+        const ti = h.time_h;
+
+        if (currentState === 'lag') {
+          if ((purity < 80.0 && xi < xMax - 0.15) || (xi < xMax - 0.25 && mui < -0.015)) {
+            currentState = 'death';
+          } else if (si <= 0.8) {
+            currentState = 'stationary';
+          } else if ((xi >= x0 + 0.06 * deltaXTot && mui >= 0.20 * obsMuMax) || (ti >= 2.5 && mui >= 0.20 * obsMuMax)) {
+            currentState = 'exponential';
+          }
+        } else if (currentState === 'exponential') {
+          if ((purity < 80.0 && xi < xMax - 0.15) || (xi < xMax - 0.25 && mui < -0.015)) {
+            currentState = 'death';
+          } else if (si <= 0.8 || (xi >= xMax * 0.97 && mui < 0.04)) {
+            currentState = 'stationary';
+          } else if (si <= 4.0 || (xi >= x0 + 0.75 * deltaXTot && mui < 0.30 * obsMuMax)) {
+            currentState = 'deceleration';
+          }
+        } else if (currentState === 'deceleration') {
+          if ((purity < 80.0 && xi < xMax - 0.15) || (xi < xMax - 0.25 && mui < -0.015)) {
+            currentState = 'death';
+          } else if (si <= 0.8 || (xi >= xMax * 0.96 && mui < 0.05)) {
+            currentState = 'stationary';
+          } else if (si > 8.0 && mui >= 0.40 * obsMuMax && (i > 0 && history[i - 1].S <= 4.0)) {
+            currentState = 'exponential';
+          }
+        } else if (currentState === 'stationary') {
+          if ((purity < 80.0 && xi < xMax - 0.15) || (xi < xMax - 0.30 && mui < -0.015)) {
+            currentState = 'death';
+          } else if (si > 5.0 && mui >= 0.20 * obsMuMax) {
+            currentState = 'exponential';
+          }
+        }
+        pointPhases.push(currentState);
+      }
+
+      const segments = [];
+      if (history.length > 0) {
+        let curr = pointPhases[0];
+        let startIdx = 0;
+        for (let i = 1; i < history.length; i++) {
+          if (pointPhases[i] !== curr) {
+            segments.push({
+              phase: curr,
+              startIndex: startIdx,
+              endIndex: i - 1,
+              startTime: history[startIdx].time_h,
+              endTime: history[i - 1].time_h,
+              duration: Math.max(0.1, history[i - 1].time_h - history[startIdx].time_h),
+              deltaX: history[i - 1].X - history[startIdx].X,
+              startX: history[startIdx].X,
+              endX: history[i - 1].X,
+              maxMu: Math.max(...muArr.slice(startIdx, i))
+            });
+            curr = pointPhases[i];
+            startIdx = i;
+          }
+        }
+        segments.push({
+          phase: curr,
+          startIndex: startIdx,
+          endIndex: history.length - 1,
+          startTime: history[startIdx].time_h,
+          endTime: history[history.length - 1].time_h,
+          duration: Math.max(0.1, history[history.length - 1].time_h - history[startIdx].time_h),
+          deltaX: history[history.length - 1].X - history[startIdx].X,
+          startX: history[startIdx].X,
+          endX: history[history.length - 1].X,
+          maxMu: Math.max(...muArr.slice(startIdx))
+        });
+      }
+
+      return {
+        pointPhases,
+        segments,
+        currentPhase: pointPhases[pointPhases.length - 1] || 'lag'
+      };
+    }
+
+    function renderGrowthPhaseBreakdown(phaseAnalysis, targetPrefix = 'dash-') {
+      const bar = document.getElementById(`${targetPrefix}growth-phase-bar`);
+      const legend = document.getElementById(`${targetPrefix}growth-phase-legend`);
+      if (!bar || !legend || !phaseAnalysis || !phaseAnalysis.segments) return;
+
+      const totalDuration = phaseAnalysis.segments.reduce((acc, s) => acc + s.duration, 0) || 1;
+      
+      bar.innerHTML = phaseAnalysis.segments.map(seg => {
+        const meta = GrowthPhaseMeta[seg.phase] || GrowthPhaseMeta.lag;
+        const pct = Math.max(3, (seg.duration / totalDuration) * 100);
+        return `<div style="width: ${pct}%; background-color: ${meta.color};" class="h-full transition-all" title="${t('phase_' + seg.phase)}: ${seg.startTime.toFixed(1)}h - ${seg.endTime.toFixed(1)}h (${seg.duration.toFixed(1)}h)"></div>`;
+      }).join('');
+
+      legend.innerHTML = phaseAnalysis.segments.map(seg => {
+        const meta = GrowthPhaseMeta[seg.phase] || GrowthPhaseMeta.lag;
+        return `
+          <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono border ${meta.badgeBg}">
+            <span class="w-1.5 h-1.5 rounded-full" style="background-color: ${meta.color}"></span>
+            <span>${t('phase_' + seg.phase)}:</span>
+            <b>${seg.startTime.toFixed(1)}-${seg.endTime.toFixed(1)}h</b>
+            <span class="text-gray-400">(&Delta;X: ${seg.deltaX >= 0 ? '+' : ''}${seg.deltaX.toFixed(2)})</span>
+          </span>
+        `;
+      }).join('');
+    }
+
+    const growthPhaseBackgroundPlugin = {
+      id: 'growthPhaseBackground',
+      beforeDraw(chart) {
+        const { ctx, chartArea, scales } = chart;
+        if (!chartArea || !scales.x) return;
+        const phases = chart.data.phases;
+        if (!phases || phases.length < 2) return;
+
+        const isDark = (typeof getEffectiveTheme === 'function' ? getEffectiveTheme() : 'dark') === 'dark';
+        ctx.save();
+        
+        let currPhase = phases[0];
+        let startIdx = 0;
+        
+        for (let i = 1; i <= phases.length; i++) {
+          if (i === phases.length || phases[i] !== currPhase) {
+            const xLeft = scales.x.getPixelForValue(startIdx);
+            const xRight = (i === phases.length) ? chartArea.right : scales.x.getPixelForValue(i - 1);
+            
+            const meta = GrowthPhaseMeta[currPhase] || GrowthPhaseMeta.lag;
+            ctx.fillStyle = isDark ? meta.bgDark : meta.bgLight;
+            const w = Math.max(0, xRight - xLeft);
+            ctx.fillRect(xLeft, chartArea.top, w, chartArea.bottom - chartArea.top);
+
+            if (chart.canvas && chart.canvas.id === 'dashChartGrowth') {
+              if (w > 28) {
+                ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.40)' : 'rgba(0, 0, 0, 0.40)';
+                ctx.font = '600 9px "JetBrains Mono", monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(meta.short, xLeft + w / 2, chartArea.top + 13);
+              }
+            }
+
+            if (i < phases.length) {
+              ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
+              ctx.lineWidth = 1;
+              ctx.setLineDash([3, 3]);
+              ctx.beginPath();
+              ctx.moveTo(xRight, chartArea.top);
+              ctx.lineTo(xRight, chartArea.bottom);
+              ctx.stroke();
+              ctx.setLineDash([]);
+            }
+
+            if (i < phases.length) {
+              currPhase = phases[i];
+              startIdx = i;
+            }
+          }
+        }
+        ctx.restore();
+      }
+    };
+
     function getDashboardChartOptions(yTitle, y1Title) {
       const isDark = getEffectiveTheme() === 'dark';
       const textColor = isDark ? '#9aa0a6' : '#5f6368';
@@ -833,7 +1100,20 @@
             borderColor: isDark ? '#383b42' : '#dadce0',
             borderWidth: 1,
             titleFont: { family: 'JetBrains Mono', size: 11 },
-            bodyFont: { family: 'JetBrains Mono', size: 10 }
+            bodyFont: { family: 'JetBrains Mono', size: 10 },
+            callbacks: {
+              afterTitle: function(context) {
+                if (context && context[0]) {
+                  const idx = context[0].dataIndex;
+                  const phases = context[0].chart.data.phases;
+                  if (phases && phases[idx]) {
+                    const pKey = phases[idx];
+                    return `[ ${t('phase_' + pKey) || pKey.toUpperCase()} ]`;
+                  }
+                }
+                return '';
+              }
+            }
           }
         },
         scales: scales
@@ -959,7 +1239,11 @@
       const labels = history.map(h => h.time_h.toFixed(1));
       const isDark = getEffectiveTheme() === 'dark';
 
-      // Chart 1: Growth
+      // Analyze Growth Phases (v2.3)
+      const phaseAnalysis = analyzeBatchGrowthPhases(history, (meta.mu_max) || 0.65);
+      renderGrowthPhaseBreakdown(phaseAnalysis, 'dash-');
+
+      // Chart 1: Growth, Nutrients & Product with Automatic Phase Differentiation
       const ctxGrowth = document.getElementById('dashChartGrowth');
       if (ctxGrowth) {
         const dataX = history.map(h => h.X);
@@ -969,6 +1253,7 @@
 
         if (chartDashGrowth) {
           chartDashGrowth.data.labels = labels;
+          chartDashGrowth.data.phases = phaseAnalysis.pointPhases;
           chartDashGrowth.data.datasets[0].data = dataX;
           chartDashGrowth.data.datasets[1].data = dataS;
           chartDashGrowth.data.datasets[2].data = dataN;
@@ -979,6 +1264,7 @@
             type: 'line',
             data: {
               labels: labels,
+              phases: phaseAnalysis.pointPhases,
               datasets: [
                 { label: 'Biomass X (g/L)', data: dataX, borderColor: isDark ? '#81c995' : '#1e7e44', borderWidth: 2, pointRadius: 0, tension: 0.2 },
                 { label: 'Substrate S (g/L)', data: dataS, borderColor: isDark ? '#fdd663' : '#b06000', borderWidth: 2, pointRadius: 0, tension: 0.2, yAxisID: 'y1' },
@@ -986,6 +1272,7 @@
                 { label: 'Product P (g/L)', data: dataP, borderColor: isDark ? '#c58af9' : '#7627bb', borderWidth: 2, pointRadius: 0, tension: 0.2 }
               ]
             },
+            plugins: [growthPhaseBackgroundPlugin],
             options: getDashboardChartOptions('Biomass & Product (g/L)', 'Substrate S (g/L)')
           });
         }

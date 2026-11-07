@@ -6,6 +6,139 @@ from typing import Dict, Any, List, Optional
 import numpy as np
 
 
+def detect_growth_phases(
+    time_h: np.ndarray | List[float],
+    biomass_g_L: np.ndarray | List[float],
+    substrate_g_L: np.ndarray | List[float],
+    mu_h1: Optional[np.ndarray | List[float]] = None,
+    purity_pct: Optional[np.ndarray | List[float]] = None,
+) -> Dict[str, Any]:
+    """Automatically differentiates and segments microbial growth phases over time.
+
+    Identifies standard biological phases:
+      - 'lag': Lag / Adaptation Phase
+      - 'exponential': Exponential / Logarithmic Growth Phase
+      - 'deceleration': Deceleration / Nutrient Limiting Transition Phase
+      - 'stationary': Stationary / Nutrient Exhaustion Plateau Phase
+      - 'death': Lysis / Cell Death Phase
+
+    Args:
+        time_h: Elapsed time array in hours.
+        biomass_g_L: Biomass concentration X (g/L).
+        substrate_g_L: Substrate concentration S (g/L).
+        mu_h1: Optional specific growth rate array (h⁻¹).
+        purity_pct: Optional culture sterility / purity array (%).
+
+    Returns:
+        Dictionary with:
+          - 'point_phases': list of phase keys per input timepoint
+          - 'segments': list of contiguous phase intervals with durations & biomass delta
+          - 'current_phase': active phase at the latest timepoint
+    """
+    t = np.asarray(time_h, dtype=float)
+    x = np.asarray(biomass_g_L, dtype=float)
+    s = np.asarray(substrate_g_L, dtype=float)
+    n_pts = len(t)
+    if n_pts < 2:
+        return {
+            "point_phases": ["lag"] * n_pts,
+            "segments": [],
+            "current_phase": "lag",
+        }
+
+    # Compute instantaneous specific growth rate mu if not provided
+    if mu_h1 is not None:
+        mu = np.asarray(mu_h1, dtype=float)
+    else:
+        dt = np.gradient(t)
+        dt[dt <= 0] = 1e-6
+        dx = np.gradient(x)
+        x_safe = np.clip(x, 1e-4, None)
+        mu = dx / (dt * x_safe)
+
+    x_max = float(np.max(x))
+    x_min = float(x[0])
+    delta_x_tot = max(1e-4, x_max - x_min)
+    mu_max = max(1e-4, float(np.max(mu)))
+
+    point_phases: List[str] = []
+    current_state = "lag"
+
+    for i in range(n_pts):
+        xi = x[i]
+        si = s[i]
+        mui = mu[i]
+        purity = purity_pct[i] if purity_pct is not None else 100.0
+
+        if current_state == "lag":
+            if (purity < 80.0 and xi < x_max - 0.15) or (xi < x_max - 0.25 and mui < -0.015):
+                current_state = "death"
+            elif si <= 0.8:
+                current_state = "stationary"
+            elif (xi >= x_min + 0.06 * delta_x_tot and mui >= 0.20 * mu_max) or (t[i] >= 3.0 and mui >= 0.20 * mu_max):
+                current_state = "exponential"
+        elif current_state == "exponential":
+            if (purity < 80.0 and xi < x_max - 0.15) or (xi < x_max - 0.25 and mui < -0.015):
+                current_state = "death"
+            elif si <= 0.8 or (xi >= x_max * 0.97 and mui < 0.04):
+                current_state = "stationary"
+            elif si <= 4.0 or (xi >= x_min + 0.75 * delta_x_tot and mui < 0.30 * mu_max):
+                current_state = "deceleration"
+        elif current_state == "deceleration":
+            if (purity < 80.0 and xi < x_max - 0.15) or (xi < x_max - 0.25 and mui < -0.015):
+                current_state = "death"
+            elif si <= 0.8 or (xi >= x_max * 0.96 and mui < 0.05):
+                current_state = "stationary"
+            elif si > 8.0 and mui >= 0.40 * mu_max and (i > 0 and s[i - 1] <= 4.0):
+                current_state = "exponential"  # pulse reactivation
+        elif current_state == "stationary":
+            if (purity < 80.0 and xi < x_max - 0.15) or (xi < x_max - 0.30 and mui < -0.015):
+                current_state = "death"
+            elif si > 5.0 and mui >= 0.20 * mu_max:
+                current_state = "exponential"  # pulse reactivation
+
+        point_phases.append(current_state)
+
+    # Compress into contiguous segments
+    segments: List[Dict[str, Any]] = []
+    if n_pts > 0:
+        curr_p = point_phases[0]
+        start_idx = 0
+        for i in range(1, n_pts):
+            if point_phases[i] != curr_p:
+                dur = float(t[i - 1] - t[start_idx])
+                dx_seg = float(x[i - 1] - x[start_idx])
+                segments.append({
+                    "phase": curr_p,
+                    "start_time_h": round(float(t[start_idx]), 2),
+                    "end_time_h": round(float(t[i - 1]), 2),
+                    "duration_h": round(max(0.0, dur), 2),
+                    "delta_biomass_g_L": round(dx_seg, 3),
+                    "start_biomass_g_L": round(float(x[start_idx]), 3),
+                    "end_biomass_g_L": round(float(x[i - 1]), 3),
+                })
+                curr_p = point_phases[i]
+                start_idx = i
+
+        dur = float(t[-1] - t[start_idx])
+        dx_seg = float(x[-1] - x[start_idx])
+        segments.append({
+            "phase": curr_p,
+            "start_time_h": round(float(t[start_idx]), 2),
+            "end_time_h": round(float(t[-1]), 2),
+            "duration_h": round(max(0.0, dur), 2),
+            "delta_biomass_g_L": round(dx_seg, 3),
+            "start_biomass_g_L": round(float(x[start_idx]), 3),
+            "end_biomass_g_L": round(float(x[-1]), 3),
+        })
+
+    return {
+        "point_phases": point_phases,
+        "segments": segments,
+        "current_phase": point_phases[-1] if point_phases else "lag",
+    }
+
+
 def compute_batch_kpis(
     time_h: np.ndarray | List[float],
     biomass_g_L: np.ndarray | List[float],
@@ -101,6 +234,9 @@ def compute_batch_kpis(
     min_do_pct = float(np.min(d_o))
     hypoxia_time_h = float(np.sum(dt[d_o[:-1] < 15.0])) if len(dt) > 0 else 0.0
 
+    # Growth phase segmentation
+    growth_phases = detect_growth_phases(t, x, s, mu_h1=None)
+
     return {
         "batch_duration_h": round(t_batch, 2),
         "initial_biomass_g_L": round(x0, 3),
@@ -128,4 +264,5 @@ def compute_batch_kpis(
         "carbon_balance_recovery_pct": round(c_recovery_pct, 1),
         "min_dissolved_oxygen_pct": round(min_do_pct, 1),
         "hypoxia_duration_h": round(hypoxia_time_h, 2),
+        "growth_phases": growth_phases,
     }

@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.3.0] - 2026-11-06
+
+### Added
+- **Automatic Microbial Growth Phase Differentiation & Visual Shading**:
+  - Implemented mathematical classification algorithm detecting canonical growth phases:
+    1. **Lag Phase (`lag`)**: Inoculum physiological adaptation window with low initial biomass rate ($\Delta X \le 8\%$ of total) or $\mu < 0.25 \cdot \mu_{\max}$.
+    2. **Exponential / Log Phase (`exponential`)**: Maximum vegetative biomass accumulation rate ($\mu \ge 0.40 \cdot \mu_{\max}$, unlimiting substrate $S > 4.0\text{ g/L}$).
+    3. **Deceleration Phase (`deceleration`)**: Declining specific growth rate under nutrient depletion transition ($S \le 4.0\text{ g/L}$ or $\mu < 0.40 \cdot \mu_{\max}$).
+    4. **Stationary Phase (`stationary`)**: Biomass plateau ($S \le 0.8\text{ g/L}$ or $X \ge 0.97 \cdot X_{\max}$ with $\mu < 0.04\text{ h}^{-1}$).
+    5. **Death / Lysis Phase (`death`)**: Culture contamination (purity $< 80\%$) or active cell lysis ($dX/dt < -0.015\text{ h}^{-1}$).
+- **Real-Time SCADA Telemetry Growth Phase Indicator**:
+  - Added live growth phase status badge (`#scada-growth-phase-badge`) in SCADA header with color-coded dot and localized name dynamically updated each simulation tick.
+  - Implemented custom Chart.js `growthPhaseBackgroundPlugin` subtly rendering vertical pastel phase bands across real-time telemetry curves and batch analytics charts in both Light and Dark themes.
+  - Interactive tooltip header annotation showing current phase (`[ LAG PHASE ]`, `[ EXPONENTIAL (LOG) ]`, etc.) on hover.
+- **Batch Results Dashboard Phase Timeline & Legend**:
+  - Added interactive Growth Phase timeline bar (`#dash-growth-phase-bar`) visualizing exact phase duration percentages across the entire run.
+  - Added detailed milestone pills (`#dash-growth-phase-legend`) indicating start/end hours, phase duration ($h$), and net biomass generated ($\Delta X$) for each phase.
+  - Rendered top milestone phase tags (`LAG`, `LOG / EXP`, `DECEL`, `STAT`) directly on the biomass canvas.
+- **Python Analytics Engine (`analytics.py`)**:
+  - Added `detect_growth_phases(history, mu_max)` returning `point_phases`, `segments`, and `current_phase`.
+  - Integrated `growth_phases` directly into `compute_batch_kpis()` return dictionary.
+  - Added comprehensive test suite `test_detect_growth_phases` in `tests/test_analytics.py`.
+- **100% Trilingual Parity (EN, ES, DE)**:
+  - Full localization for all growth phase labels and dashboard timeline elements across English, Spanish, and German.
+
+---
+
 ## [2.2.0] - 2026-11-06
 
 ### Added
