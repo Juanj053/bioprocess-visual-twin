@@ -196,7 +196,7 @@
           <h1 id="app-title" class="text-sm font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             Bioprocess Visual Twin
           </h1>
-          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-[#35373c] font-mono">v1.4.0</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 font-mono font-medium">v2.0.0</span>
           <span class="hidden sm:inline-block text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-300 font-mono border border-gray-200 dark:border-[#35373c]">3D-WEBGL</span>
         </div>
         <p id="app-subtitle" class="text-[11px] text-gray-500 dark:text-gray-400">Physics-Informed Real-Time Digital Twin &bull; <a href="https://www.linkedin.com/in/juanj-alva" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">Ing. Juan José Álvarez Morales</a></p>
@@ -273,9 +273,15 @@
       </div>
 
       <!-- GLUCOSE FEED PULSE -->
-      <button onclick="injectFeedPulse()" class="px-3 py-1.5 bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-[#35373c] font-medium rounded-xl text-xs transition active:scale-95 inline-flex items-center gap-1.5 shadow-sm">
+      <button onclick="injectFeedPulse()" class="px-3 py-1.5 bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-[#35373c] font-medium rounded-xl text-xs transition active:scale-95 inline-flex items-center gap-1.5 shadow-sm" title="Inject glucose substrate (+5 g/L)">
         <svg class="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2h6"></path><path d="M9 3v18M18 15v6m-3-3h6"></path></svg>
         <span data-i18n="btn_pulse">Feed Pulse (+5g/L)</span>
+      </button>
+
+      <!-- NITROGEN FEED PULSE (v2.0) -->
+      <button onclick="injectNitrogenPulse()" class="px-3 py-1.5 bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-[#35373c] font-medium rounded-xl text-xs transition active:scale-95 inline-flex items-center gap-1.5 shadow-sm" title="Inject nitrogen nutrient pulse (+2 g/L)">
+        <svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg>
+        <span data-i18n="btn_pulse_n">Nitrogen (+2g/L)</span>
       </button>
 
       <!-- CSV EXPORT -->
@@ -493,12 +499,14 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Fault Buttons -->
           <div class="space-y-1.5">
-            <span class="text-[11px] font-mono text-gray-500 dark:text-gray-400 uppercase font-medium" data-i18n="inject_disturbance">Inject Disturbance:</span>
-            <div class="grid grid-cols-2 gap-1.5 pt-1">
-              <button onclick="setFault('none')" class="fault-btn px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-white dark:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-[#383b42] hover:bg-gray-50 dark:hover:bg-[#32353b] transition inline-flex items-center justify-center gap-1.5 shadow-sm">
-                <svg class="w-3 h-3 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-mono text-gray-500 dark:text-gray-400 uppercase font-medium" data-i18n="inject_disturbance">Inject Disturbance:</span>
+              <button onclick="setFault('none')" class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1" title="Clear All Faults">
+                <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 <span data-i18n="btn_clear_fault">Clear Fault</span>
               </button>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5 pt-1">
               <button onclick="setFault('compressor')" class="fault-btn px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-white dark:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-[#383b42] hover:bg-gray-50 dark:hover:bg-[#32353b] transition inline-flex items-center justify-center gap-1.5 shadow-sm">
                 <svg class="w-3 h-3 text-red-600 dark:text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 11-12.73 0M12 2v10"></path></svg>
                 <span data-i18n="btn_compressor_stop">Compressor Stop</span>
@@ -511,9 +519,26 @@
                 <svg class="w-3 h-3 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
                 <span data-i18n="btn_sensor_drift">Sensor Drift (+25%)</span>
               </button>
-              <button onclick="setFault('thermal_shock')" class="fault-btn px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-white dark:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-[#383b42] hover:bg-gray-50 dark:hover:bg-[#32353b] transition col-span-2 inline-flex items-center justify-center gap-1.5 shadow-sm">
+              <button onclick="setFault('thermal_shock')" class="fault-btn px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-white dark:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-[#383b42] hover:bg-gray-50 dark:hover:bg-[#32353b] transition inline-flex items-center justify-center gap-1.5 shadow-sm">
                 <svg class="w-3 h-3 text-red-600 dark:text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"></path></svg>
-                <span data-i18n="btn_thermal_shock">Thermal Runaway (42&deg;C Inactivation)</span>
+                <span data-i18n="btn_thermal_shock">Thermal Shock (42&deg;C)</span>
+              </button>
+              <!-- Biological Contamination Variables (v2.0) -->
+              <button onclick="setFault('contam_bacteria')" class="fault-btn px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-amber-50/70 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40 hover:bg-amber-100/60 dark:hover:bg-amber-900/30 transition inline-flex items-center justify-center gap-1.5 shadow-sm" title="Bio-contamination: opportunistic competitor microflora">
+                <svg class="w-3 h-3 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8M12 8v8"></path></svg>
+                <span data-i18n="btn_contam_bacteria">Bacterial Contam</span>
+              </button>
+              <button onclick="setFault('contam_phage')" class="fault-btn px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-red-50/70 dark:bg-red-950/20 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800/40 hover:bg-red-100/60 dark:hover:bg-red-900/30 transition inline-flex items-center justify-center gap-1.5 shadow-sm" title="Viral attack: bacteriophage exponential lysis collapse">
+                <svg class="w-3 h-3 text-red-600 dark:text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                <span data-i18n="btn_contam_phage">Phage Lysis Shock</span>
+              </button>
+              <button onclick="setFault('biofouling')" class="fault-btn px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-purple-50/70 dark:bg-purple-950/20 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40 hover:bg-purple-100/60 dark:hover:bg-purple-900/30 transition inline-flex items-center justify-center gap-1.5 shadow-sm" title="Filter & sparger biofouling: kla transfer cut by 60%">
+                <svg class="w-3 h-3 text-purple-600 dark:text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                <span data-i18n="btn_biofouling">Sparger Biofouling</span>
+              </button>
+              <button onclick="sterilizeAndResetCulture()" class="fault-btn px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-emerald-50/70 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 hover:bg-emerald-100/60 dark:hover:bg-emerald-900/30 transition inline-flex items-center justify-center gap-1.5 shadow-sm" title="Steam-in-Place (SIP) sterilization and clean recovery">
+                <svg class="w-3 h-3 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span data-i18n="btn_sip_reset">Steam / CIP Reset</span>
               </button>
             </div>
           </div>
@@ -574,8 +599,8 @@
         </div>
       </div>
 
-      <!-- ADVANCED PROCESS ENGINEERING METRICS & SLIDERS -->
-      <div class="google-card rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <!-- ADVANCED PROCESS ENGINEERING METRICS & SLIDERS (v2.0) -->
+      <div class="google-card rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Hydrodynamics & Scale-up -->
         <div class="bg-gray-50 dark:bg-[#1c1d21] p-3.5 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
           <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2 flex items-center gap-1.5">
@@ -601,6 +626,20 @@
             <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_fixed">C-Incorporated:</span> <span id="disp-c-fixed" class="text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">5.8 g C/L</span></div>
             <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_co2">CO₂ Respiration:</span> <span id="disp-c-co2" class="text-amber-700 dark:text-amber-400 font-semibold tabular-nums">8.2 g C/L</span></div>
             <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_balance">Recovery Balance:</span> <span class="text-blue-700 dark:text-blue-400 font-medium tabular-nums">99.8%</span></div>
+          </div>
+        </div>
+
+        <!-- Media Composition & Contamination Auditor (v2.0) -->
+        <div class="bg-gray-50 dark:bg-[#1c1d21] p-3.5 rounded-xl border border-gray-200 dark:border-white/[0.06] flex flex-col justify-between">
+          <h4 class="text-xs font-mono text-gray-700 dark:text-gray-300 font-semibold mb-2 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            <span data-i18n="media_title">MEDIA COMPOSITION &amp; C/N</span>
+          </h4>
+          <div class="space-y-1.5 text-xs font-mono">
+            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="nitrogen_lbl">Dissolved Nitrogen:</span> <span id="disp-nitrogen" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">5.00 g/L</span></div>
+            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="cn_ratio_lbl">C/N Mass Ratio:</span> <span id="disp-cn-ratio" class="text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">2.80 (Optimal)</span></div>
+            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="purity_lbl">Culture Purity:</span> <span id="disp-purity" class="text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">100.0%</span></div>
+            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="osmo_lbl">Osmolarity:</span> <span id="disp-osmo" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">290 mOsm</span></div>
           </div>
         </div>
 
@@ -632,9 +671,9 @@
 
   </main>
 
-  <!-- BATCH ONBOARDING & SETUP MODAL -->
+  <!-- BATCH ONBOARDING & SETUP MODAL (v2.0) -->
   <div id="modal-setup" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
-    <div class="google-card rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+    <div class="google-card rounded-2xl max-w-4xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
       
       <!-- Modal Header -->
       <div class="flex items-start justify-between pb-4 border-b border-gray-200 dark:border-white/[0.08]">
@@ -666,19 +705,19 @@
         </div>
       </div>
 
-      <!-- Biological Strain Preset Selector -->
+      <!-- Biological Strain Preset Selector (8 Benchmarks) -->
       <div class="mt-4 pb-4 border-b border-gray-100 dark:border-white/[0.04]">
         <label class="block text-xs font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2" data-i18n="modal_sec_strain">Biological Benchmark Strain:</label>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="strain-preset-grid">
-          <!-- E. coli -->
-          <div onclick="selectStrain('ecoli')" id="card-strain-ecoli" class="strain-card p-3 rounded-xl border border-blue-600 dark:border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 cursor-pointer transition">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5" id="strain-preset-grid">
+          <!-- 1. E. coli -->
+          <div onclick="selectStrain('ecoli')" id="card-strain-ecoli" class="strain-card p-3 rounded-xl border border-blue-600 dark:border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 cursor-pointer transition shadow-sm">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold text-gray-900 dark:text-gray-100">Escherichia coli BL21</span>
               <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">Aerobic</span>
             </div>
             <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1" id="desc-strain-ecoli">Fast-growing microbial platform, high recombinant expression (&mu;max: 0.65 h⁻¹).</p>
           </div>
-          <!-- Pichia pastoris -->
+          <!-- 2. Pichia pastoris -->
           <div onclick="selectStrain('pichia')" id="card-strain-pichia" class="strain-card p-3 rounded-xl border border-gray-200 dark:border-[#383b42] bg-white dark:bg-[#1f2024] hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer transition">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold text-gray-900 dark:text-gray-100">Pichia pastoris</span>
@@ -686,7 +725,7 @@
             </div>
             <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1" id="desc-strain-pichia">High cell-density yeast, methanol/glycerol fed-batch (&mu;max: 0.22 h⁻¹).</p>
           </div>
-          <!-- Saccharomyces cerevisiae -->
+          <!-- 3. Saccharomyces cerevisiae -->
           <div onclick="selectStrain('yeast')" id="card-strain-yeast" class="strain-card p-3 rounded-xl border border-gray-200 dark:border-[#383b42] bg-white dark:bg-[#1f2024] hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer transition">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold text-gray-900 dark:text-gray-100">S. cerevisiae</span>
@@ -694,7 +733,7 @@
             </div>
             <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1" id="desc-strain-yeast">Classic Crabtree-positive yeast, respiro-fermentative kinetics (&mu;max: 0.38 h⁻¹).</p>
           </div>
-          <!-- CHO Mammalian -->
+          <!-- 4. CHO Mammalian -->
           <div onclick="selectStrain('cho')" id="card-strain-cho" class="strain-card p-3 rounded-xl border border-gray-200 dark:border-[#383b42] bg-white dark:bg-[#1f2024] hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer transition">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold text-gray-900 dark:text-gray-100">CHO Cells (Mammalian)</span>
@@ -702,13 +741,45 @@
             </div>
             <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1" id="desc-strain-cho">Shear-sensitive mammalian suspension, therapeutic mAb production (&mu;max: 0.038 h⁻¹).</p>
           </div>
+          <!-- 5. Bacillus subtilis -->
+          <div onclick="selectStrain('bsubtilis')" id="card-strain-bsubtilis" class="strain-card p-3 rounded-xl border border-gray-200 dark:border-[#383b42] bg-white dark:bg-[#1f2024] hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-gray-900 dark:text-gray-100">Bacillus subtilis 168</span>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-400">Enzymes</span>
+            </div>
+            <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1" id="desc-strain-bsubtilis">Gram-positive secretory platform for industrial proteases &amp; amylases (&mu;max: 0.55 h⁻¹).</p>
+          </div>
+          <!-- 6. Streptomyces coelicolor -->
+          <div onclick="selectStrain('streptomyces')" id="card-strain-streptomyces" class="strain-card p-3 rounded-xl border border-gray-200 dark:border-[#383b42] bg-white dark:bg-[#1f2024] hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-gray-900 dark:text-gray-100">Streptomyces coelicolor</span>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-400">Antibiotics</span>
+            </div>
+            <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1" id="desc-strain-streptomyces">Filamentous actinomycete for secondary metabolites and polyketides (&mu;max: 0.12 h⁻¹).</p>
+          </div>
+          <!-- 7. Chlorella vulgaris -->
+          <div onclick="selectStrain('chlorella')" id="card-strain-chlorella" class="strain-card p-3 rounded-xl border border-gray-200 dark:border-[#383b42] bg-white dark:bg-[#1f2024] hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-gray-900 dark:text-gray-100">Chlorella vulgaris</span>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-400">Algae</span>
+            </div>
+            <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1" id="desc-strain-chlorella">Photosynthetic microalgae for CO₂ capture, lipids and biomass (&mu;max: 0.08 h⁻¹).</p>
+          </div>
+          <!-- 8. Lactobacillus plantarum -->
+          <div onclick="selectStrain('lactobacillus')" id="card-strain-lactobacillus" class="strain-card p-3 rounded-xl border border-gray-200 dark:border-[#383b42] bg-white dark:bg-[#1f2024] hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-gray-900 dark:text-gray-100">L. plantarum</span>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-400">Probiotic</span>
+            </div>
+            <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1" id="desc-strain-lactobacillus">Probiotic lactic acid bacterium, low-pH tolerant homofermenter (&mu;max: 0.42 h⁻¹).</p>
+          </div>
         </div>
       </div>
 
       <!-- Initial Cultivation Parameters Input Form -->
       <div class="mt-4">
         <label class="block text-xs font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2" data-i18n="modal_sec_params">Initial Cultivation Setpoints:</label>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
             <label class="text-[11px] text-gray-500 dark:text-gray-400 block mb-1 font-mono" data-i18n="param_x0">Initial Biomass X₀ (g/L):</label>
             <input type="number" id="input-init-x" value="0.50" step="0.1" min="0.05" max="20.0" class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 dark:border-[#383b42] bg-white dark:bg-[#1f2024] text-gray-900 dark:text-gray-100 font-mono text-xs focus:outline-none focus:border-blue-500">
@@ -716,6 +787,14 @@
           <div>
             <label class="text-[11px] text-gray-500 dark:text-gray-400 block mb-1 font-mono" data-i18n="param_s0">Initial Glucose S₀ (g/L):</label>
             <input type="number" id="input-init-s" value="30.0" step="1.0" min="1.0" max="150.0" class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 dark:border-[#383b42] bg-white dark:bg-[#1f2024] text-gray-900 dark:text-gray-100 font-mono text-xs focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="text-[11px] text-gray-500 dark:text-gray-400 block mb-1 font-mono" data-i18n="param_n0">Initial Nitrogen N₀ (g/L):</label>
+            <input type="number" id="input-init-n" value="5.0" step="0.5" min="0.1" max="50.0" class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 dark:border-[#383b42] bg-white dark:bg-[#1f2024] text-gray-900 dark:text-gray-100 font-mono text-xs focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="text-[11px] text-gray-500 dark:text-gray-400 block mb-1 font-mono" data-i18n="param_osmo">Osmolarity (mOsm):</label>
+            <input type="number" id="input-init-osmo" value="290" step="10" min="100" max="1000" class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 dark:border-[#383b42] bg-white dark:bg-[#1f2024] text-gray-900 dark:text-gray-100 font-mono text-xs focus:outline-none focus:border-blue-500">
           </div>
           <div>
             <label class="text-[11px] text-gray-500 dark:text-gray-400 block mb-1 font-mono" data-i18n="param_vol">Working Volume (L):</label>
@@ -848,7 +927,25 @@
         actuator_boosting: "Boosting RPM/VVM",
         actuator_throttling: "Throttling Down",
         regime_turbulent: "Fully Turbulent",
-        regime_static: "Static (Zero Shear)"
+        regime_static: "Static (Zero Shear)",
+        btn_pulse_n: "Nitrogen (+2g/L)",
+        param_n0: "Initial Nitrogen N₀ (g/L):",
+        param_osmo: "Medium Osmolarity (mOsm):",
+        media_title: "MEDIA COMPOSITION & C/N",
+        cn_ratio_lbl: "C/N Mass Ratio:",
+        nitrogen_lbl: "Dissolved Nitrogen:",
+        purity_lbl: "Culture Purity:",
+        osmo_lbl: "Osmolarity:",
+        btn_contam_bacteria: "Bacterial Contam",
+        btn_contam_phage: "Phage Lysis Shock",
+        btn_biofouling: "Sparger Biofouling",
+        btn_sip_reset: "Steam / CIP Reset",
+        fault_bacteria: "BIO-CONTAMINATION: COMPETITOR MICROFLORA",
+        fault_phage: "VIRAL ATTACK: BACTERIOPHAGE MASS LYSIS",
+        fault_biofouling: "BIOFOULING: SPARGER & FILTER CLOGGING",
+        cn_status_opt: "Balanced (Optimal)",
+        cn_status_n_lim: "N-Limited (Lipogenic)",
+        cn_status_c_lim: "C-Limited (Starvation)"
       },
       es: {
         app_title: "Gemelo Visual de Bioprocesos",
@@ -942,7 +1039,25 @@
         actuator_boosting: "Aumentando RPM/VVM",
         actuator_throttling: "Reduciendo RPM/VVM",
         regime_turbulent: "Completamente Turbulento",
-        regime_static: "Estático (Cizalla Nula)"
+        regime_static: "Estático (Cizalla Nula)",
+        btn_pulse_n: "Pulso Nitrógeno (+2g/L)",
+        param_n0: "Nitrógeno Inicial N₀ (g/L):",
+        param_osmo: "Osmolaridad del Medio (mOsm):",
+        media_title: "COMPOSICIÓN DE MEDIO Y C/N",
+        cn_ratio_lbl: "Relación C/N Másica:",
+        nitrogen_lbl: "Nitrógeno en Caldo (N):",
+        purity_lbl: "Pureza del Cultivo:",
+        osmo_lbl: "Osmolaridad:",
+        btn_contam_bacteria: "Contaminación Bact.",
+        btn_contam_phage: "Fagólisis Viral",
+        btn_biofouling: "Bioensuciamiento",
+        btn_sip_reset: "Reset Vapor / CIP",
+        fault_bacteria: "BIOCONTAMINACIÓN: MICROFLORA COMPETIDORA",
+        fault_phage: "ATAQUE VIRAL: FAGÓLISIS MASIVA",
+        fault_biofouling: "BIOENSUCIAMIENTO: OBTURACIÓN DIFUSOR Y FILTRO",
+        cn_status_opt: "Equilibrado (Óptimo)",
+        cn_status_n_lim: "Limitado en N (Lipogénico)",
+        cn_status_c_lim: "Limitado en C (Hambre)"
       },
       de: {
         app_title: "Visueller Bioprozess-Zwilling",
@@ -1036,7 +1151,25 @@
         actuator_boosting: "RPM/VVM Steigern",
         actuator_throttling: "Drosseln",
         regime_turbulent: "Voll Turbulent",
-        regime_static: "Statisch (Null Scherung)"
+        regime_static: "Statisch (Null Scherung)",
+        btn_pulse_n: "Stickstoffpuls (+2g/L)",
+        param_n0: "Initialer Stickstoff N₀ (g/L):",
+        param_osmo: "Medium-Osmolarität (mOsm):",
+        media_title: "MEDIENZUSAMMENSETZUNG & C/N",
+        cn_ratio_lbl: "C/N-Massenverhältnis:",
+        nitrogen_lbl: "Stickstoff im Medium (N):",
+        purity_lbl: "Kulturreinheit:",
+        osmo_lbl: "Osmolarität:",
+        btn_contam_bacteria: "Bakterien-Kontam.",
+        btn_contam_phage: "Phagenlyse-Schock",
+        btn_biofouling: "Begaser-Biofouling",
+        btn_sip_reset: "Dampf- / CIP-Reset",
+        fault_bacteria: "BIO-KONTAMINATION: BEGLEITFLORA",
+        fault_phage: "VIRUSANGRIFF: PHAGEN-MASSENLYSE",
+        fault_biofouling: "BIOFOULING: BEGASER-VERSTOPFUNG",
+        cn_status_opt: "Ausgewogen (Optimal)",
+        cn_status_n_lim: "N-Limitiert (Lipogen)",
+        cn_status_c_lim: "C-Limitiert (Mangel)"
       }
     };
 
@@ -1085,6 +1218,9 @@
           }
         }
       });
+
+      // Dynamically re-render reference strain cards in the selected language
+      renderStrainCards();
 
       // Update vessel title in left box
       updateVesselTitle();
@@ -1198,11 +1334,19 @@
     const Strains = {
       ecoli: {
         name: 'Escherichia coli BL21(DE3)',
+        category: { en: 'Aerobic Bacteria', es: 'Bacteria Aerobia', de: 'Aerobes Bakterium' },
+        desc: {
+          en: 'Fast-growing microbial platform, high recombinant expression (μmax: 0.65 h⁻¹).',
+          es: 'Plataforma microbiana de rápido crecimiento, alta expresión recombinante (μmax: 0.65 h⁻¹).',
+          de: 'Schnell wachsendes Bakterium, hohe rekombinante Proteinexpression (μmax: 0.65 h⁻¹).'
+        },
         mu_max: 0.65,
         Ks: 0.20,
+        Kn: 0.15,
         Ko: 0.0006,
         kd: 0.015,
         Yxs: 0.45,
+        Yxn: 5.5,
         ms: 0.025,
         Yxo: 1.15,
         mo: 0.020,
@@ -1214,15 +1358,25 @@
         defaultTemp: 37.0,
         defaultPh: 7.0,
         defaultS0: 30.0,
-        defaultX0: 0.50
+        defaultN0: 5.0,
+        defaultX0: 0.50,
+        defaultOsmo: 290
       },
       pichia: {
         name: 'Pichia pastoris (K. phaffii)',
+        category: { en: 'Methylotrophic Yeast', es: 'Levadura Metilotrófica', de: 'Methylotrophe Hefe' },
+        desc: {
+          en: 'High cell-density yeast, methanol/glycerol fed-batch (μmax: 0.22 h⁻¹).',
+          es: 'Levadura para alta densidad celular, lote alimentado metanol/glicerol (μmax: 0.22 h⁻¹).',
+          de: 'Hochdichte Hefe, Methanol/Glycerin Fed-Batch (μmax: 0.22 h⁻¹).'
+        },
         mu_max: 0.22,
         Ks: 1.20,
+        Kn: 0.18,
         Ko: 0.0008,
         kd: 0.008,
         Yxs: 0.50,
+        Yxn: 5.2,
         ms: 0.015,
         Yxo: 1.05,
         mo: 0.012,
@@ -1234,15 +1388,25 @@
         defaultTemp: 29.5,
         defaultPh: 6.0,
         defaultS0: 40.0,
-        defaultX0: 1.20
+        defaultN0: 5.5,
+        defaultX0: 1.20,
+        defaultOsmo: 300
       },
       yeast: {
         name: 'Saccharomyces cerevisiae',
+        category: { en: 'Crabtree+ Yeast', es: 'Levadura Crabtree+', de: 'Crabtree+ Hefe' },
+        desc: {
+          en: 'Classic Crabtree-positive yeast, respiro-fermentative kinetics (μmax: 0.38 h⁻¹).',
+          es: 'Levadura Crabtree-positiva clásica, cinética respiro-fermentativa (μmax: 0.38 h⁻¹).',
+          de: 'Klassische Crabtree-positive Hefe, respiro-fermentative Kinetik (μmax: 0.38 h⁻¹).'
+        },
         mu_max: 0.38,
         Ks: 0.50,
+        Kn: 0.14,
         Ko: 0.0008,
         kd: 0.010,
         Yxs: 0.48,
+        Yxn: 5.0,
         ms: 0.018,
         Yxo: 1.10,
         mo: 0.015,
@@ -1254,15 +1418,25 @@
         defaultTemp: 30.0,
         defaultPh: 5.5,
         defaultS0: 35.0,
-        defaultX0: 0.80
+        defaultN0: 4.8,
+        defaultX0: 0.80,
+        defaultOsmo: 285
       },
       cho: {
         name: 'CHO Cells (Mammalian)',
+        category: { en: 'Mammalian Suspension', es: 'Suspensión Mamífera', de: 'Säugetierzell-Suspension' },
+        desc: {
+          en: 'Shear-sensitive mammalian suspension, therapeutic mAb production (μmax: 0.038 h⁻¹).',
+          es: 'Células de mamífero sensibles a cizalla, producción de mAb terapéuticos (μmax: 0.038 h⁻¹).',
+          de: 'Scherempfindliche Säugetierzellen, Produktion therapeutischer mAb (μmax: 0.038 h⁻¹).'
+        },
         mu_max: 0.038,
         Ks: 0.40,
+        Kn: 0.08,
         Ko: 0.0005,
         kd: 0.004,
         Yxs: 0.35,
+        Yxn: 6.0,
         ms: 0.006,
         Yxo: 0.90,
         mo: 0.005,
@@ -1274,11 +1448,163 @@
         defaultTemp: 36.8,
         defaultPh: 7.15,
         defaultS0: 25.0,
-        defaultX0: 0.30
+        defaultN0: 4.0,
+        defaultX0: 0.30,
+        defaultOsmo: 310
+      },
+      bsubtilis: {
+        name: 'Bacillus subtilis 168',
+        category: { en: 'Industrial Enzymes', es: 'Enzimas Industriales', de: 'Industrieenzyme' },
+        desc: {
+          en: 'Gram-positive secretory platform for industrial proteases & amylases (μmax: 0.55 h⁻¹).',
+          es: 'Plataforma secretora Gram-positiva para proteasas y amilasas industriales (μmax: 0.55 h⁻¹).',
+          de: 'Gram-positive Sekretionsplattform für industrielle Proteasen & Amylasen (μmax: 0.55 h⁻¹).'
+        },
+        mu_max: 0.55,
+        Ks: 0.35,
+        Kn: 0.16,
+        Ko: 0.0006,
+        kd: 0.012,
+        Yxs: 0.44,
+        Yxn: 5.4,
+        ms: 0.022,
+        Yxo: 1.12,
+        mo: 0.018,
+        Yps: 0.78,
+        alpha: 0.18,
+        beta: 0.020,
+        defaultRpm: 550,
+        defaultVvm: 1.4,
+        defaultTemp: 37.0,
+        defaultPh: 6.80,
+        defaultS0: 35.0,
+        defaultN0: 5.5,
+        defaultX0: 0.60,
+        defaultOsmo: 295
+      },
+      streptomyces: {
+        name: 'Streptomyces coelicolor',
+        category: { en: 'Antibiotics / Idiophase', es: 'Antibióticos / Idiofase', de: 'Antibiotika / Idiophase' },
+        desc: {
+          en: 'Filamentous actinomycete for secondary metabolites and polyketides (μmax: 0.12 h⁻¹).',
+          es: 'Actinomiceto filamentoso para metabolitos secundarios y policétidos (μmax: 0.12 h⁻¹).',
+          de: 'Filamentöses Actinomycet für Sekundärmetaboliten und Polyketide (μmax: 0.12 h⁻¹).'
+        },
+        mu_max: 0.12,
+        Ks: 0.80,
+        Kn: 0.20,
+        Ko: 0.0007,
+        kd: 0.006,
+        Yxs: 0.38,
+        Yxn: 5.0,
+        ms: 0.010,
+        Yxo: 0.95,
+        mo: 0.008,
+        Yps: 0.88,
+        alpha: 0.02,
+        beta: 0.045,
+        defaultRpm: 320,
+        defaultVvm: 0.9,
+        defaultTemp: 30.0,
+        defaultPh: 7.00,
+        defaultS0: 25.0,
+        defaultN0: 4.0,
+        defaultX0: 0.40,
+        defaultOsmo: 300
+      },
+      chlorella: {
+        name: 'Chlorella vulgaris',
+        category: { en: 'Phototrophic Algae', es: 'Microalga Fotosintética', de: 'Phototrophe Alge' },
+        desc: {
+          en: 'Photosynthetic microalgae for CO₂ capture, lipids and biomass (μmax: 0.08 h⁻¹).',
+          es: 'Microalga fotosintética para captura de CO₂, lípidos y biomasa (μmax: 0.08 h⁻¹).',
+          de: 'Photosynthetische Mikroalge zur CO₂-Fixierung, Lipide und Biomasse (μmax: 0.08 h⁻¹).'
+        },
+        mu_max: 0.08,
+        Ks: 0.25,
+        Kn: 0.10,
+        Ko: 0.0005,
+        kd: 0.003,
+        Yxs: 0.52,
+        Yxn: 5.8,
+        ms: 0.005,
+        Yxo: 1.00,
+        mo: 0.004,
+        Yps: 0.70,
+        alpha: 0.05,
+        beta: 0.012,
+        defaultRpm: 120,
+        defaultVvm: 0.5,
+        defaultTemp: 25.0,
+        defaultPh: 7.20,
+        defaultS0: 10.0,
+        defaultN0: 3.5,
+        defaultX0: 0.20,
+        defaultOsmo: 250
+      },
+      lactobacillus: {
+        name: 'Lactobacillus plantarum',
+        category: { en: 'Lactic Acid / Food', es: 'Ácido Láctico / Alimentos', de: 'Milchsäure / Lebensmittel' },
+        desc: {
+          en: 'Probiotic lactic acid bacterium, low-pH tolerant homofermenter (μmax: 0.42 h⁻¹).',
+          es: 'Bacteria láctica probiótica homofermentativa tolerante a bajo pH (μmax: 0.42 h⁻¹).',
+          de: 'Probiotisches Milchsäurebakterium, säuretoleranter Homofermentierer (μmax: 0.42 h⁻¹).'
+        },
+        mu_max: 0.42,
+        Ks: 0.60,
+        Kn: 0.18,
+        Ko: 0.0008,
+        kd: 0.010,
+        Yxs: 0.40,
+        Yxn: 5.2,
+        ms: 0.025,
+        Yxo: 0.90,
+        mo: 0.010,
+        Yps: 0.95,
+        alpha: 0.25,
+        beta: 0.015,
+        defaultRpm: 180,
+        defaultVvm: 0.2,
+        defaultTemp: 37.0,
+        defaultPh: 6.20,
+        defaultS0: 45.0,
+        defaultN0: 6.0,
+        defaultX0: 0.50,
+        defaultOsmo: 305
       }
     };
 
     let selectedStrainKey = 'ecoli';
+
+    function renderStrainCards() {
+      const container = document.getElementById('strain-preset-grid');
+      if (!container) return;
+
+      let html = '';
+      Object.keys(Strains).forEach(key => {
+        const st = Strains[key];
+        const isSelected = (key === selectedStrainKey);
+        const borderClass = isSelected
+          ? 'border-blue-600 dark:border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 shadow-sm'
+          : 'border-gray-200 dark:border-[#383b42] bg-white dark:bg-[#1f2024] hover:border-gray-400 dark:hover:border-gray-500';
+        const tagClass = isSelected
+          ? 'bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300'
+          : 'bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-400';
+        const cat = (st.category && st.category[currentLang]) || (st.category && st.category['en']) || 'Biotech';
+        const desc = (st.desc && st.desc[currentLang]) || (st.desc && st.desc['en']) || '';
+
+        html += `
+          <div onclick="selectStrain('${key}')" id="card-strain-${key}" class="strain-card p-3 rounded-xl border ${borderClass} cursor-pointer transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-gray-900 dark:text-gray-100">${st.name}</span>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded ${tagClass}">${cat}</span>
+            </div>
+            <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1" id="desc-strain-${key}">${desc}</p>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
 
     function selectStrain(key) {
       if (!Strains[key]) return;
@@ -1286,11 +1612,11 @@
       const st = Strains[key];
 
       // Update card styles
-      ['ecoli', 'pichia', 'yeast', 'cho'].forEach(k => {
+      Object.keys(Strains).forEach(k => {
         const card = document.getElementById(`card-strain-${k}`);
         if (card) {
           if (k === key) {
-            card.className = 'strain-card p-3 rounded-xl border border-blue-600 dark:border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 cursor-pointer transition';
+            card.className = 'strain-card p-3 rounded-xl border border-blue-600 dark:border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 cursor-pointer transition shadow-sm';
           } else {
             card.className = 'strain-card p-3 rounded-xl border border-gray-200 dark:border-[#383b42] bg-white dark:bg-[#1f2024] hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer transition';
           }
@@ -1298,11 +1624,20 @@
       });
 
       // Populate input fields in modal
-      document.getElementById('input-init-x').value = st.defaultX0.toFixed(2);
-      document.getElementById('input-init-s').value = st.defaultS0.toFixed(1);
-      document.getElementById('input-init-temp').value = st.defaultTemp.toFixed(1);
-      document.getElementById('input-init-ph').value = st.defaultPh.toFixed(2);
-      document.getElementById('input-init-mumax').value = st.mu_max.toFixed(3);
+      const inX = document.getElementById('input-init-x');
+      if (inX) inX.value = st.defaultX0.toFixed(2);
+      const inS = document.getElementById('input-init-s');
+      if (inS) inS.value = st.defaultS0.toFixed(1);
+      const inN = document.getElementById('input-init-n');
+      if (inN) inN.value = (st.defaultN0 || 5.0).toFixed(1);
+      const inOsmo = document.getElementById('input-init-osmo');
+      if (inOsmo) inOsmo.value = Math.round(st.defaultOsmo || 290);
+      const inTemp = document.getElementById('input-init-temp');
+      if (inTemp) inTemp.value = st.defaultTemp.toFixed(1);
+      const inPh = document.getElementById('input-init-ph');
+      if (inPh) inPh.value = st.defaultPh.toFixed(2);
+      const inMu = document.getElementById('input-init-mumax');
+      if (inMu) inMu.value = st.mu_max.toFixed(3);
     }
 
     function openSetupModal() {
@@ -1327,6 +1662,8 @@
       // Read user inputs
       const initX = parseFloat(document.getElementById('input-init-x').value) || st.defaultX0;
       const initS = parseFloat(document.getElementById('input-init-s').value) || st.defaultS0;
+      const initN = parseFloat(document.getElementById('input-init-n').value) || (st.defaultN0 || 5.0);
+      const initOsmo = parseFloat(document.getElementById('input-init-osmo').value) || (st.defaultOsmo || 290.0);
       const initVol = parseFloat(document.getElementById('input-init-vol').value) || 20.0;
       const initTemp = parseFloat(document.getElementById('input-init-temp').value) || st.defaultTemp;
       const initPh = parseFloat(document.getElementById('input-init-ph').value) || st.defaultPh;
@@ -1336,15 +1673,23 @@
       State.volume_L = initVol;
       State.X = initX;
       State.S = initS;
+      State.N = initN;
+      State.osmolarity_mOsm = initOsmo;
+      State.X_contam = 0.0;
+      State.phage_titer = 0.0;
+      State.biofouling_factor = 1.0;
+      State.culture_purity = 100.0;
       State.P = 0.0;
       State.CL = State.C_star;
       State.temp_C = initTemp;
       State.ph = initPh;
       State.mu_max = initMuMax;
       State.Ks = st.Ks;
+      State.Kn = st.Kn || 0.15;
       State.Ko = st.Ko;
       State.kd = st.kd;
       State.Yxs = st.Yxs;
+      State.Yxn = st.Yxn || 5.5;
       State.ms = st.ms;
       State.Yxo = st.Yxo;
       State.mo = st.mo;
@@ -1352,6 +1697,7 @@
       State.alpha = st.alpha;
       State.beta = st.beta;
       State.time_h = 0.0;
+      State.activeFault = 'none';
 
       // Set initial RPM & VVM based on strain unless in static vessel
       if (State.reactorType !== 'static') {
@@ -1393,6 +1739,9 @@
       telemetryChart.data.datasets.forEach(ds => ds.data = []);
       telemetryChart.update();
 
+      // Reset fault badge
+      setFault('none');
+
       // Start running
       State.isRunning = true;
       const btn = document.getElementById('btn-play-pause');
@@ -1409,7 +1758,7 @@
     }
 
     /* =========================================================================
-       3. GLOBAL SIMULATION STATE
+       3. GLOBAL SIMULATION STATE (v2.0)
        ========================================================================= */
     const State = {
       reactorType: 'str_rushton', // 'str_rushton', 'str_marine', 'airlift', 'pbr', 'static'
@@ -1420,22 +1769,33 @@
       temp_C: 30.0,
       ph: 6.85,
       
-      activeFault: 'none', // 'none', 'compressor', 'impeller_stall', 'sensor_drift', 'thermal_shock'
+      activeFault: 'none', // 'none', 'compressor', 'impeller_stall', 'sensor_drift', 'thermal_shock', 'contam_bacteria', 'contam_phage', 'biofouling'
       autoDOEnabled: false,
       targetDOSat: 30.0,
       
       time_h: 0.0,
       X: 0.80,         // Biomass [g/L]
       S: 35.0,         // Glucose substrate [g/L]
+      N: 5.0,          // Nitrogen source [g/L]
       CL: 0.0078,      // Dissolved Oxygen [g/L] (7.8 mg/L ~ 100%)
       P: 0.00,         // Recombinant Product [g/L]
       C_star: 0.0078,  // Equilibrium DO [g/L]
+
+      // v2.0 Environmental & Biological Variables
+      X_contam: 0.0,
+      phage_titer: 0.0,
+      osmolarity_mOsm: 290.0,
+      biofouling_factor: 1.0,
+      culture_purity: 100.0,
+      cn_ratio: 2.80,
       
       mu_max: 0.35,
       Ks: 2.0,
+      Kn: 0.15,
       Ko: 0.0008,
       kd: 0.012,
       Yxs: 0.48,
+      Yxn: 5.5,
       ms: 0.020,
       Yxo: 1.10,
       mo: 0.015,
@@ -1446,6 +1806,7 @@
       isRunning: true,
       speedMultiplier: 5,
       feedPulseActive: false,
+      feedNitrogenPulseActive: false,
       feedPulseTimer: 0.0
     };
 
@@ -1494,6 +1855,9 @@
       }
       if (State.activeFault === 'compressor') {
         kla = 1.8; // Mass transfer collapses to liquid surface diffusion
+      }
+      if (State.activeFault === 'biofouling') {
+        kla *= 0.40; // Biofouling filter & sparger blockage
       }
       kla = Math.max(1.0, Math.min(180.0, kla));
 
@@ -1560,29 +1924,72 @@
         State.S += 5.0;
         State.feedPulseActive = false;
       }
+      if (State.feedNitrogenPulseActive) {
+        State.N += 2.0;
+        State.feedNitrogenPulseActive = false;
+      }
 
+      // Osmolar stress inhibition
+      const osmoStress = Math.max(0.0, State.osmolarity_mOsm - 350.0);
+      const I_osmo = 600.0 / (600.0 + osmoStress);
+
+      // Dual Monod with Nitrogen limitation
       let mu = 0.0;
-      if (State.S > 1e-4 && State.CL > 1e-6) {
+      if (State.S > 1e-4 && State.N > 1e-4 && State.CL > 1e-6) {
         const temp_factor = Math.exp(-Math.pow((State.temp_C - 30.0) / 7.0, 2));
         const ph_factor = Math.exp(-Math.pow((State.ph - 6.85) / 1.1, 2));
-        mu = State.mu_max * (State.S / (State.Ks + State.S)) * (State.CL / (State.Ko + State.CL)) * temp_factor * ph_factor;
+        mu = State.mu_max * (State.S / (State.Ks + State.S)) * (State.N / (State.Kn + State.N)) * (State.CL / (State.Ko + State.CL)) * temp_factor * ph_factor * I_osmo;
+      }
+
+      // Contaminant bacterial microflora dynamics
+      let mu_contam = 0.0;
+      let q_s_contam = 0.0;
+      let q_o_contam = 0.0;
+      let q_n_contam = 0.0;
+      if (State.X_contam > 1e-5) {
+        if (State.S > 1e-4 && State.N > 1e-4 && State.CL > 1e-6) {
+          mu_contam = 0.72 * (State.S / (0.25 + State.S)) * (State.N / (0.15 + State.N)) * (State.CL / (0.0006 + State.CL));
+        }
+        q_s_contam = (mu_contam / 0.40 + 0.02) * State.X_contam;
+        q_o_contam = (mu_contam / 1.05 + 0.015) * State.X_contam;
+        q_n_contam = (mu_contam / 5.2) * State.X_contam;
+      }
+
+      // Bacteriophage lysis shock
+      let k_lysis = 0.0;
+      if (State.activeFault === 'contam_phage' && State.phage_titer > 0) {
+        State.phage_titer = Math.min(50.0, State.phage_titer + 1.5 * dt_hours);
+        k_lysis = 1.9 * (State.phage_titer / (1.0 + State.phage_titer));
       }
 
       const q_P = State.S > 1e-4 ? (State.alpha * mu + State.beta) : 0.0;
       const q_O2 = State.S > 1e-4 ? ((mu / State.Yxo) + State.mo) : 0.0;
+      const q_N = State.N > 1e-4 ? (mu / State.Yxn) : 0.0;
 
-      const dX_dt = (mu - State.kd) * State.X;
-      const dS_dt = State.S > 1e-4 ? - ((mu / State.Yxs) + State.ms + (q_P / State.Yps)) * State.X : 0.0;
-      const dCL_dt = kla * (State.C_star - State.CL) - q_O2 * State.X;
+      const dX_dt = (mu - State.kd - k_lysis) * State.X;
+      const dX_contam_dt = (State.activeFault === 'contam_bacteria')
+        ? (mu_contam - 0.01) * State.X_contam
+        : -0.05 * State.X_contam;
+
+      const dS_dt = State.S > 1e-4 ? - (((mu / State.Yxs) + State.ms + (q_P / State.Yps)) * State.X + q_s_contam) : 0.0;
+      const dN_dt = State.N > 1e-4 ? - (q_N * State.X + q_n_contam) : 0.0;
+      const dCL_dt = kla * (State.C_star - State.CL) - (q_O2 * State.X + q_o_contam);
       const dP_dt = q_P * State.X;
 
       State.X = Math.max(0.01, State.X + dX_dt * dt_hours);
+      State.X_contam = Math.max(0.0, State.X_contam + dX_contam_dt * dt_hours);
       State.S = Math.max(0.0, State.S + dS_dt * dt_hours);
+      State.N = Math.max(0.0, State.N + dN_dt * dt_hours);
       State.CL = Math.max(0.0001, Math.min(State.C_star * 1.05, State.CL + dCL_dt * dt_hours));
       State.P = Math.max(0.0, State.P + dP_dt * dt_hours);
       State.time_h += dt_hours;
 
-      return { mu, kla, hydro };
+      // Purity and C/N calculation
+      const totalBio = State.X + State.X_contam;
+      State.culture_purity = totalBio > 0.01 ? (State.X / totalBio) * 100.0 : 100.0;
+      State.cn_ratio = (State.S * 0.40) / Math.max(0.01, State.N);
+
+      return { mu, kla, hydro, mu_contam };
     }
 
     /* =========================================================================
@@ -2002,17 +2409,35 @@
         liquidSurfaceMesh.scale.y = vortexScaleY;
       }
 
-      // Dynamic Optical Turbidity & Color Shift based on Biomass
+      // Dynamic Optical Turbidity & Color Shift based on Biomass & Contamination (v2.0)
       if (liquidMesh && liquidMesh.material) {
-        const biomassFrac = Math.min(1.0, (State.X - 0.8) / 10.0);
+        const totalBio = State.X + State.X_contam;
+        const biomassFrac = Math.min(1.0, (totalBio - 0.8) / 10.0);
         
         const isDark = (getEffectiveTheme() === 'dark');
         const baseColor = new THREE.Color(isDark ? 0x223548 : 0xdbeafe);
         const matureColor = new THREE.Color(0xb45309);
-        liquidMesh.material.color.lerpColors(baseColor, matureColor, biomassFrac);
+        const contamColor = new THREE.Color(0x524816); // Dirty yellow-green for microflora contamination
 
-        liquidMesh.material.transmission = THREE.MathUtils.lerp(0.75, 0.20, biomassFrac);
-        liquidMesh.material.roughness = THREE.MathUtils.lerp(0.15, 0.38, biomassFrac);
+        let targetCol = new THREE.Color();
+        targetCol.lerpColors(baseColor, matureColor, biomassFrac);
+
+        if (State.X_contam > 0.05) {
+          const cFrac = Math.min(0.85, State.X_contam / (State.X + State.X_contam));
+          targetCol.lerp(contamColor, cFrac);
+        }
+
+        // If phage lysis collapse, clear broth
+        if (State.activeFault === 'contam_phage' && State.X < 0.25) {
+          targetCol.lerp(baseColor, 0.75);
+          liquidMesh.material.transmission = 0.85;
+          liquidMesh.material.roughness = 0.12;
+        } else {
+          liquidMesh.material.transmission = THREE.MathUtils.lerp(0.75, 0.15, biomassFrac);
+          liquidMesh.material.roughness = THREE.MathUtils.lerp(0.15, 0.42, biomassFrac);
+        }
+
+        liquidMesh.material.color.copy(targetCol);
         
         if (liquidSurfaceMesh && liquidSurfaceMesh.material) {
           liquidSurfaceMesh.material.color.copy(liquidMesh.material.color);
@@ -2277,6 +2702,31 @@
           document.getElementById('disp-c-in').innerText = `${cIn} g C/L`;
           document.getElementById('disp-c-fixed').innerText = `${cFixed} g C/L`;
           document.getElementById('disp-c-co2').innerText = `${Math.max(0.0, cIn - cFixed).toFixed(1)} g C/L`;
+
+          // Media & Biological Contamination Readouts (v2.0)
+          const nitrogenEl = document.getElementById('disp-nitrogen');
+          if (nitrogenEl) nitrogenEl.innerText = `${State.N.toFixed(2)} g/L`;
+
+          const cnRatioEl = document.getElementById('disp-cn-ratio');
+          if (cnRatioEl) {
+            let cnLabel = t('cn_status_opt');
+            if (State.cn_ratio > 12.0) cnLabel = t('cn_status_n_lim');
+            else if (State.cn_ratio < 4.0) cnLabel = t('cn_status_c_lim');
+            cnRatioEl.innerText = `${State.cn_ratio.toFixed(2)} (${cnLabel})`;
+          }
+
+          const purityEl = document.getElementById('disp-purity');
+          if (purityEl) {
+            purityEl.innerText = `${State.culture_purity.toFixed(1)}%`;
+            if (State.culture_purity < 80.0) {
+              purityEl.className = 'text-red-600 dark:text-red-400 font-semibold tabular-nums';
+            } else {
+              purityEl.className = 'text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums';
+            }
+          }
+
+          const osmoEl = document.getElementById('disp-osmo');
+          if (osmoEl) osmoEl.innerText = `${Math.round(State.osmolarity_mOsm)} mOsm`;
         }
 
         // Push to Chart.js
@@ -2433,6 +2883,36 @@
         if (inTemp) inTemp.value = 42.0;
         const dispTemp = document.getElementById('disp-temp');
         if (dispTemp) dispTemp.innerText = '42.0 °C';
+      } else if (type === 'contam_bacteria') {
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400 animate-pulse"></span><span>${t('fault_bacteria')}</span>`;
+        badge.className = 'text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/40 font-semibold inline-flex items-center gap-1.5';
+        if (State.X_contam < 0.10) State.X_contam = 0.18;
+      } else if (type === 'contam_phage') {
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400 animate-ping"></span><span>${t('fault_phage')}</span>`;
+        badge.className = 'text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/40 font-semibold inline-flex items-center gap-1.5';
+        State.phage_titer = 1.0;
+      } else if (type === 'biofouling') {
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-purple-600 dark:bg-purple-400 animate-pulse"></span><span>${t('fault_biofouling')}</span>`;
+        badge.className = 'text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800/40 font-semibold inline-flex items-center gap-1.5';
+        State.biofouling_factor = 0.40;
+      }
+    }
+
+    function sterilizeAndResetCulture() {
+      State.X_contam = 0.0;
+      State.phage_titer = 0.0;
+      State.biofouling_factor = 1.0;
+      State.culture_purity = 100.0;
+      setFault('none');
+      const notif = document.getElementById('feed-notification');
+      if (notif) {
+        notif.innerText = '✓ Steam-in-Place (SIP) Sterilization Complete';
+        notif.classList.remove('opacity-0');
+        notif.classList.add('opacity-100');
+        setTimeout(() => {
+          notif.classList.remove('opacity-100');
+          notif.classList.add('opacity-0');
+        }, 1600);
       }
     }
 
@@ -2459,6 +2939,20 @@
       State.feedPulseActive = true;
       const notif = document.getElementById('feed-notification');
       if (!notif) return;
+      notif.innerText = '+ Glucose Feed Pulse (+5g/L) Injected';
+      notif.classList.remove('opacity-0');
+      notif.classList.add('opacity-100');
+      setTimeout(() => {
+        notif.classList.remove('opacity-100');
+        notif.classList.add('opacity-0');
+      }, 1400);
+    }
+
+    function injectNitrogenPulse() {
+      State.feedNitrogenPulseActive = true;
+      const notif = document.getElementById('feed-notification');
+      if (!notif) return;
+      notif.innerText = '+ Nitrogen Nutrient Pulse (+2g/L) Injected';
       notif.classList.remove('opacity-0');
       notif.classList.add('opacity-100');
       setTimeout(() => {
@@ -2470,16 +2964,22 @@
     function resetSimulation() {
       State.time_h = 0.0;
       State.X = 0.80;
+      State.X_contam = 0.0;
+      State.phage_titer = 0.0;
+      State.biofouling_factor = 1.0;
+      State.culture_purity = 100.0;
       State.S = 35.0;
+      State.N = 5.0;
       State.CL = State.C_star;
       State.P = 0.0;
       telemetryChart.data.labels = [];
       telemetryChart.data.datasets.forEach(ds => ds.data = []);
       telemetryChart.update();
+      setFault('none');
     }
 
     function exportCSV() {
-      let csv = "Time_h,Biomass_g_L,Substrate_g_L,DissolvedOxygen_pct,Product_g_L\n";
+      let csv = "Time_h,Biomass_g_L,Substrate_g_L,Nitrogen_g_L,DissolvedOxygen_pct,Product_g_L,CulturePurity_pct\n";
       const labels = telemetryChart.data.labels;
       const b = telemetryChart.data.datasets[0].data;
       const s = telemetryChart.data.datasets[1].data;
@@ -2487,14 +2987,14 @@
       const p = telemetryChart.data.datasets[3].data;
 
       for (let i = 0; i < labels.length; i++) {
-        csv += `${labels[i]},${b[i]},${s[i]},${doP[i]},${p[i]}\n`;
+        csv += `${labels[i]},${b[i]},${s[i]},${State.N.toFixed(2)},${doP[i]},${p[i]},${State.culture_purity.toFixed(1)}\n`;
       }
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", `bioprocess_run_${State.reactorType}.csv`);
+      link.setAttribute("download", `bioprocess_v2_run_${State.reactorType}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

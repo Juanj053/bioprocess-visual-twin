@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.0] - 2026-11-06
+
+### Added
+- **Dynamic Multilingual Strain Cards (i18n Bug Fix)**:
+  - Resolved dynamic strain re-rendering issue where strain names, categories, and scientific descriptions remained in English upon language switch.
+  - Implemented `renderStrainCards()` triggered on startup, language toggle, and modal activation.
+  - Full trilingual descriptions and taxonomy metadata across English (`EN`), Español (`ES`), and Deutsch (`DE`).
+- **Expanded 8-Organism Industrial Benchmark Suite (1-Click Presets)**:
+  - Expanded library from 4 to 8 industrial and research cell lines:
+    - *Escherichia coli BL21(DE3)*: Recombinant protein expression benchmark.
+    - *Pichia pastoris (K. phaffii)*: High-density methylotrophic yeast fed-batch.
+    - *Saccharomyces cerevisiae*: Classic Crabtree-positive industrial brewer's yeast.
+    - *CHO Cells (Mammalian)*: Shear-sensitive monoclonal antibody (mAb) suspension.
+    - *Bacillus subtilis 168*: Secretory spore-forming host for industrial amylases and proteases ($\mu_{\max} = 0.55\text{ h}^{-1}$).
+    - *Streptomyces coelicolor*: Filamentous actinobacterium for secondary metabolite and antibiotic biosyntheses ($\mu_{\max} = 0.12\text{ h}^{-1}$, high maintenance $\beta$).
+    - *Chlorella vulgaris*: High-efficiency phototrophic microalgae for bio-sequestration and lipids ($\mu_{\max} = 0.08\text{ h}^{-1}$).
+    - *Lactobacillus plantarum*: Food-grade lactic acid producer with acid tolerance down to pH 3.8 ($\mu_{\max} = 0.42\text{ h}^{-1}$).
+- **Version 2.0 Bioprocess Engineering Modules**:
+  - **Media Composition Engine & Dual-Nutrient Limiting Kinetics**:
+    - Nitrogen state variable ($N$), half-saturation constant $K_n = 0.15\text{ g/L}$, and stoichiometric biomass yield on nitrogen $Y_{x/n} = 5.5\text{ g/g}$.
+    - Dual Mancz-Monod kinetic model: $\mu = \mu_{\max} \left(\frac{S}{K_s + S}\right) \left(\frac{N}{K_n + N}\right) \left(\frac{C_L}{K_o + C_L}\right) f(T) f(\text{pH}) I_{\text{osmo}}$.
+    - Media Osmolar Stress inhibition function ($I_{\text{osmo}}$) factoring in hypertonic osmolar pressure ($> 350\text{ mOsm/kg}$).
+    - Real-time Carbon-to-Nitrogen ($C/N$) mass ratio auditor in SCADA dashboard with dynamic limitation warnings.
+    - Interactive Nitrogen Spike feeding button (`+2 g/L`) for fed-batch nitrogen rescue.
+  - **Biological & Environmental Contamination Sandbox**:
+    - *Bacterial Microflora Competition*: Opportunistic competitor microflora invasion ($X_{\text{contam}}$) depleting nutrients, dropping DO, and tinting broth with a biogenic yellow-green turbidity.
+    - *Bacteriophage Lysis Shock*: Exponential viral cascade causing rapid cell membrane rupture, biomass collapse, visual broth clearance, and DO rebound.
+    - *Sparger Biofouling*: Gas distributor occlusion reducing volumetric mass transfer coefficient $k_L a$ by 60%.
+    - *SIP (Steam-in-Place) & CIP Sanitization*: Thermal-chemical sterilization routine restoring culture purity to 100% and sterilizing competitor load.
+- **SCADA UI & Data Export Upgrades**:
+  - 4-column responsive operational auditing grid: Hydrodynamics, Carbon Auditor, Media & Contamination Auditor (v2.0), and Thermal & pH Controllers.
+  - CSV dataset exporter updated with `Nitrogen_g_L` and `CulturePurity_pct` columns.
+
+---
+
 ## [1.4.0] - 2026-11-06
 
 ### Added

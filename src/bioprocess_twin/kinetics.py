@@ -15,7 +15,7 @@ import math
 @dataclass
 class ReactorConfig:
     """Design and hydrodynamic specifications for the bioreactor vessel."""
-    reactor_type: str = "str_rushton"  # "str_rushton", "str_marine", "airlift", "pbr"
+    reactor_type: str = "str_rushton"  # "str_rushton", "str_marine", "airlift", "pbr", "static"
     working_volume_L: float = 20.0
     tank_diameter_m: float = 0.25
     liquid_height_m: float = 0.41
@@ -29,9 +29,11 @@ class ReactorConfig:
     # Kinetic parameters
     mu_max: float = 0.35        # h^-1
     Ks: float = 2.0             # g/L
+    Kn: float = 0.15            # g/L (Nitrogen limitation)
     Ko: float = 0.0008          # g/L (0.8 mg/L)
     kd: float = 0.012           # h^-1
     Yxs: float = 0.48           # g_X / g_S
+    Yxn: float = 5.5            # g_X / g_N
     ms: float = 0.020           # g_S / (g_X * h)
     Yxo: float = 1.10           # g_X / g_O2
     mo: float = 0.015           # g_O2 / (g_X * h)
@@ -39,6 +41,12 @@ class ReactorConfig:
     alpha: float = 0.15         # g_P / g_X
     beta: float = 0.010         # g_P / (g_X * h)
     C_star: float = 0.0078      # g/L O2 at 30°C
+    
+    # Version 2.0 Media and Contamination
+    osmolarity_mOsm: float = 290.0
+    biofouling_factor: float = 1.0
+    phage_lysis_rate: float = 0.0
+    competitor_biomass_g_L: float = 0.0
 
 
 class BioreactorKinetics:
@@ -49,6 +57,15 @@ class BioreactorKinetics:
 
     def compute_hydrodynamics(self, rpm: float | None = None, vvm: float | None = None) -> Dict[str, float]:
         """Calculates Reynolds number, tip speed, volumetric power and kla."""
+        if self.cfg.reactor_type == "static":
+            return {
+                "reynolds": 0.0,
+                "tip_speed_m_s": 0.0,
+                "power_density_kW_m3": 0.0,
+                "kla_h_inv": 1.0,
+                "superficial_velocity_m_s": 0.0,
+            }
+
         rpm_val = rpm if rpm is not None else self.cfg.rpm
         vvm_val = vvm if vvm is not None else self.cfg.vvm
 
@@ -83,7 +100,8 @@ class BioreactorKinetics:
             p_vol = max(P_watts / (self.cfg.working_volume_L / 1000.0), 1.0)
             kla = 0.026 * (p_vol ** 0.4) * (vs ** 0.5) * 3600.0
 
-        kla = max(15.0, min(180.0, kla))
+        kla *= self.cfg.biofouling_factor
+        kla = max(1.0, min(180.0, kla))
 
         return {
             "reynolds": Re,
@@ -94,29 +112,48 @@ class BioreactorKinetics:
         }
 
     def derivatives(self, t: float, y: List[float]) -> List[float]:
-        """ODE derivatives [dX/dt, dS/dt, dCL/dt, dP/dt]."""
+        """ODE derivatives [dX/dt, dS/dt, dCL/dt, dP/dt] or [dX/dt, dS/dt, dCL/dt, dP/dt, dN/dt]."""
         X = max(y[0], 0.0)
         S = max(y[1], 0.0)
         CL = max(y[2], 0.0)
         P = max(y[3], 0.0)
+        has_n = len(y) >= 5
+        N = max(y[4], 0.0) if has_n else 5.0
 
         hydro = self.compute_hydrodynamics()
         kla = hydro["kla_h_inv"]
 
-        # Dual Monod
-        if S > 1e-4 and CL > 1e-6:
+        # Dual Monod with Nitrogen limitation and Osmolar stress
+        osmo_stress = max(0.0, self.cfg.osmolarity_mOsm - 350.0)
+        i_osmo = 600.0 / (600.0 + osmo_stress)
+
+        if S > 1e-4 and N > 1e-4 and CL > 1e-6:
             temp_factor = math.exp(-(((self.cfg.temperature_C - 30.0) / 7.0) ** 2))
             ph_factor = math.exp(-(((self.cfg.ph - 6.85) / 1.1) ** 2))
-            mu = self.cfg.mu_max * (S / (self.cfg.Ks + S)) * (CL / (self.cfg.Ko + CL)) * temp_factor * ph_factor
+            mu = (
+                self.cfg.mu_max
+                * (S / (self.cfg.Ks + S))
+                * (N / (self.cfg.Kn + N))
+                * (CL / (self.cfg.Ko + CL))
+                * temp_factor
+                * ph_factor
+                * i_osmo
+            )
         else:
             mu = 0.0
 
         qp = (self.cfg.alpha * mu + self.cfg.beta) if S > 1e-4 else 0.0
         qo2 = ((mu / self.cfg.Yxo) + self.cfg.mo) if S > 1e-4 else 0.0
+        qn = (mu / self.cfg.Yxn) if N > 1e-4 else 0.0
 
-        dX_dt = (mu - self.cfg.kd) * X
+        k_lysis = self.cfg.phage_lysis_rate
+
+        dX_dt = (mu - self.cfg.kd - k_lysis) * X
         dS_dt = - ((mu / self.cfg.Yxs) + self.cfg.ms + (qp / self.cfg.Yps)) * X if S > 1e-4 else 0.0
         dCL_dt = kla * (self.cfg.C_star - CL) - qo2 * X
         dP_dt = qp * X
+        dN_dt = - qn * X
 
+        if has_n:
+            return [dX_dt, dS_dt, dCL_dt, dP_dt, dN_dt]
         return [dX_dt, dS_dt, dCL_dt, dP_dt]
