@@ -2,7 +2,7 @@
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Bioprocess Batch Analytics &amp; Results Dashboard | Digital Twin</title>
   <meta name="description" content="High-resolution time-course telemetry, yield calculations, stoichiometric verification, and respirometry for bioreactor batch runs.">
   
@@ -34,10 +34,27 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
+    /* Safe Area & Mobile Ergonomics */
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+      --sar: env(safe-area-inset-right, 0px);
+    }
+    header {
+      padding-top: max(0.5rem, var(--sat));
+      padding-left: max(0.75rem, var(--sal));
+      padding-right: max(0.75rem, var(--sar));
+    }
+    body {
+      padding-bottom: max(0.5rem, var(--sab));
+      -webkit-text-size-adjust: 100%;
+    }
+
     /* Google Minimalist Palette */
     html.light body { background-color: #f8f9fa; color: #202124; }
     html.dark body { background-color: #16171a; color: #f1f3f4; }
-    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; touch-action: manipulation; }
     .font-mono { font-family: 'JetBrains Mono', monospace; }
     .tabular-nums { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
 
@@ -76,26 +93,26 @@
 <body class="min-h-screen flex flex-col antialiased">
 
   <!-- TOP APP BAR -->
-  <header class="sticky top-0 z-40 bg-white/95 dark:bg-[#1b1c20]/95 backdrop-blur-md border-b border-gray-200 dark:border-white/[0.08] px-4 py-2.5 flex items-center justify-between no-print">
-    <div class="flex items-center gap-3">
+  <header class="sticky top-0 z-40 bg-white/95 dark:bg-[#1b1c20]/95 backdrop-blur-md border-b border-gray-200 dark:border-white/[0.08] px-3 sm:px-4 py-2 sm:py-2.5 flex flex-wrap sm:flex-nowrap gap-2 items-center justify-between no-print">
+    <div class="flex items-center gap-2.5 sm:gap-3">
       <a href="index.html" class="p-1.5 rounded-xl border border-gray-200 dark:border-[#383b42] hover:bg-gray-100 dark:hover:bg-[#282a2e] text-gray-700 dark:text-gray-300 transition inline-flex items-center gap-1.5 text-xs font-mono" title="Return to 3D Digital Twin Simulator">
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         <span data-i18n="btn_back_sim">3D Twin</span>
       </a>
       <div class="h-4 w-px bg-gray-200 dark:bg-[#383b42]"></div>
       <div>
-        <div class="flex items-center gap-2">
-          <h1 class="text-sm font-semibold tracking-tight text-gray-900 dark:text-gray-100" data-i18n="dash_page_title">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <h1 class="text-xs sm:text-sm font-semibold tracking-tight text-gray-900 dark:text-gray-100" data-i18n="dash_page_title">
             Batch Analytics Dashboard
           </h1>
-          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 font-mono font-medium">v2.1.0</span>
+          <span class="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 font-mono font-medium">v2.2.0</span>
         </div>
-        <p class="text-[11px] text-gray-500 dark:text-gray-400">Bioprocess Telemetry &bull; <a href="https://www.linkedin.com/in/juanj-alva" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">Ing. Juan José Álvarez Morales</a></p>
+        <p class="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400">Bioprocess Telemetry &bull; <a href="https://www.linkedin.com/in/juanj-alva" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">Ing. Juan José Álvarez Morales</a></p>
       </div>
     </div>
 
     <!-- CONTROLS: LANGUAGE & THEME -->
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
       <!-- Language Selector -->
       <div class="segmented-control gap-0.5">
         <button id="lang-en" onclick="setLanguage('en')" class="px-2 py-1 rounded-lg text-xs font-mono font-medium transition bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42]">EN</button>
@@ -117,13 +134,13 @@
       </div>
 
       <!-- Action Buttons -->
-      <button onclick="exportFullBatchCSV()" class="px-3 py-1.5 rounded-xl bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#35373c] text-xs font-mono transition inline-flex items-center gap-1.5 shadow-sm">
+      <button onclick="exportFullBatchCSV()" class="p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#35373c] text-xs font-mono transition inline-flex items-center gap-1.5 shadow-sm" title="Export CSV">
         <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-        <span>CSV</span>
+        <span class="hidden sm:inline">CSV</span>
       </button>
-      <button onclick="window.print()" class="px-3 py-1.5 rounded-xl bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#35373c] text-xs font-mono transition inline-flex items-center gap-1.5 shadow-sm">
+      <button onclick="window.print()" class="p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#35373c] text-xs font-mono transition inline-flex items-center gap-1.5 shadow-sm" title="Print PDF">
         <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        <span>Print PDF</span>
+        <span class="hidden sm:inline">Print PDF</span>
       </button>
     </div>
   </header>
@@ -141,7 +158,7 @@
           <h2 class="text-base sm:text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100" data-i18n="dash_title">
             Bioprocess Batch Analytics &amp; Results Dashboard
           </h2>
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 font-mono font-medium">v2.1.0</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 font-mono font-medium">v2.2.0</span>
         </div>
         <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="dash_subtitle">
           High-resolution time-course telemetry, yield calculations, stoichiometric verification, and respirometry.
@@ -383,6 +400,7 @@
         </h3>
         <span class="text-[11px] text-gray-500 dark:text-gray-400 font-mono">GMP Reference Guidelines &bull; Pirt &amp; Monod Formalism</span>
       </div>
+      <div class="sm:hidden text-[10px] text-gray-400 dark:text-gray-500 font-mono text-right mb-1" data-i18n="table_scroll_hint">&larr; Swipe to inspect &rarr;</div>
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs font-mono">
           <thead>
@@ -424,6 +442,7 @@
           </button>
         </div>
       </div>
+      <div class="sm:hidden text-[10px] text-gray-400 dark:text-gray-500 font-mono text-right mb-1" data-i18n="table_scroll_hint">&larr; Swipe to inspect &rarr;</div>
       <div class="overflow-x-auto max-h-[380px] overflow-y-auto">
         <table class="w-full text-left text-xs font-mono">
           <thead class="sticky top-0 bg-gray-50 dark:bg-[#1c1d21] border-b border-gray-200 dark:border-[#383b42] text-gray-500 dark:text-gray-400 z-10">
@@ -496,7 +515,8 @@
         th_our: "OUR (mmol/L/h)",
         th_temp: "Temp (°C)",
         th_ph: "pH",
-        th_purity: "Purity (%)"
+        th_purity: "Purity (%)",
+        table_scroll_hint: "← Swipe table to inspect full columns →"
       },
       es: {
         dash_page_title: "Panel de Analítica de Lote",
@@ -535,7 +555,8 @@
         th_our: "OUR (mmol/L/h)",
         th_temp: "Temp (°C)",
         th_ph: "pH",
-        th_purity: "Pureza (%)"
+        th_purity: "Pureza (%)",
+        table_scroll_hint: "← Desliza la tabla para ver todas las columnas →"
       },
       de: {
         dash_page_title: "Chargenanalyse-Dashboard",
@@ -574,7 +595,8 @@
         th_our: "OUR (mmol/L/h)",
         th_temp: "Temp (°C)",
         th_ph: "pH",
-        th_purity: "Reinheit (%)"
+        th_purity: "Reinheit (%)",
+        table_scroll_hint: "← Wischen, um alle Spalten zu sehen →"
       }
     };
 
@@ -1199,7 +1221,7 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", `bioprocess_v2_1_analytics_${(batchData.metadata && batchData.metadata.reactorType) || 'run'}.csv`);
+      link.setAttribute("download", `bioprocess_v2_2_analytics_${(batchData.metadata && batchData.metadata.reactorType) || 'run'}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1211,7 +1233,7 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", `bioprocess_v2_1_manifest.json`);
+      link.setAttribute("download", `bioprocess_v2_2_manifest.json`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

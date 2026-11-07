@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.2.0] - 2026-11-06
+
+### Added
+- **Adaptive Mobile Ergonomics & Responsive Layout Architecture**:
+  - Re-architected top header to compress vertical space on mobile devices (height reduced from 271px down to ~76-120px).
+  - Implemented collapsible mobile action drawer (`#mobile-actions-drawer`) housing simulation speed toggles (1x/5x/20x), substrate pulses, language switcher (EN/ES/DE), theme toggle, and CSV export.
+  - Added smooth horizontal vessel carousel with momentum scrolling (`overflow-x-auto no-scrollbar scroll-smooth flex-nowrap`) preventing multi-line button wrapping.
+  - Added native iOS Safari & Android safe-area insets (`env(safe-area-inset-top/bottom/left/right)`).
+- **3D WebGL Viewport Touch Ergonomics & Anti-Trapping Mode**:
+  - Implemented dual-mode touch interaction switcher (`#btn-touch-mode`) toggling between `3D Orbit` (`controls.enabled = true`) and `Page Scroll` (`controls.enabled = false; touch-action: pan-y;`) to prevent OrbitControls from trapping mobile users when scrolling vertically.
+  - Added responsive viewport canvas bounds (`min-height: 320px; height: 40vh; max-height: 480px;`).
+- **Mobile Sub-Navigation & Segmented Content Tabs**:
+  - Added mobile segmented sub-tab bar (`[ 📊 Telemetry ]` / `[ ⚡ Faults ]` / `[ 🔬 Kinetics ]` / `[ All ]`) with `setMobileSubTab()` allowing single-tap section navigation on small screens.
+  - Auto-restores full multi-column grid layout when resizing to desktop (`>= 1024px`).
+- **Touch-Friendly Controls & iOS Safari Auto-Zoom Prevention**:
+  - Enlarged range slider thumbs to 22px on touchscreens (`pointer: coarse`).
+  - Added `inputmode="decimal"` and calibrated input font sizes to prevent unwanted iOS Safari viewport zoom upon input focus.
+- **Responsive Batch Setup Modal Sheet**:
+  - Adapted `#modal-setup` to an ergonomic sheet with sticky header and sticky footer (`Close` / `Launch Batch Simulation`).
+- **Mobile-Optimized Results Dashboard (`dashboard.html` & `#view-dashboard`)**:
+  - Responsive 2-column KPI grid on mobile.
+  - Added horizontal swipe hints for data tables (`← Swipe to inspect →`).
+  - Compact header actions with icon fallbacks on ultra-compact viewports.
+- **100% Trilingual Parity (EN, ES, DE)**:
+  - All new touch mode toggles, subtabs, and swipe hints fully localized.
+
+---
+
 ## [2.1.0] - 2026-11-06
 
 ### Added
