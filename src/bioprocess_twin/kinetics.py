@@ -42,6 +42,16 @@ class ReactorConfig:
     beta: float = 0.010         # g_P / (g_X * h)
     C_star: float = 0.0078      # g/L O2 at 30°C
     
+    # Environmental optima and tolerances
+    opt_temperature_C: float = 30.0
+    opt_ph: float = 6.85
+    temp_sigma: float = 7.0
+    ph_sigma: float = 1.1
+
+    # Shear sensitivity threshold and lysis rate
+    v_tip_crit_m_s: float = 3.0
+    k_shear: float = 0.045
+
     # Version 2.0 Media and Contamination
     osmolarity_mOsm: float = 290.0
     biofouling_factor: float = 1.0
@@ -128,8 +138,10 @@ class BioreactorKinetics:
         i_osmo = 600.0 / (600.0 + osmo_stress)
 
         if S > 1e-4 and N > 1e-4 and CL > 1e-6:
-            temp_factor = math.exp(-(((self.cfg.temperature_C - 30.0) / 7.0) ** 2))
-            ph_factor = math.exp(-(((self.cfg.ph - 6.85) / 1.1) ** 2))
+            t_sig = max(0.5, self.cfg.temp_sigma)
+            p_sig = max(0.1, self.cfg.ph_sigma)
+            temp_factor = math.exp(-(((self.cfg.temperature_C - self.cfg.opt_temperature_C) / t_sig) ** 2))
+            ph_factor = math.exp(-(((self.cfg.ph - self.cfg.opt_ph) / p_sig) ** 2))
             mu = (
                 self.cfg.mu_max
                 * (S / (self.cfg.Ks + S))
@@ -146,9 +158,13 @@ class BioreactorKinetics:
         qo2 = ((mu / self.cfg.Yxo) + self.cfg.mo) if S > 1e-4 else 0.0
         qn = (mu / self.cfg.Yxn) if N > 1e-4 else 0.0
 
+        v_tip = hydro["tip_speed_m_s"]
+        v_crit = max(0.1, self.cfg.v_tip_crit_m_s)
+        kd_shear = self.cfg.k_shear * (((v_tip - v_crit) / v_crit) ** 2) if v_tip > v_crit else 0.0
+
         k_lysis = self.cfg.phage_lysis_rate
 
-        dX_dt = (mu - self.cfg.kd - k_lysis) * X
+        dX_dt = (mu - (self.cfg.kd + kd_shear) - k_lysis) * X
         dS_dt = - ((mu / self.cfg.Yxs) + self.cfg.ms + (qp / self.cfg.Yps)) * X if S > 1e-4 else 0.0
         dCL_dt = kla * (self.cfg.C_star - CL) - qo2 * X
         dP_dt = qp * X

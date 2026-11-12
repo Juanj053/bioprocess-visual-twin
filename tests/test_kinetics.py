@@ -56,3 +56,35 @@ def test_nitrogen_and_lysis_kinetics():
     assert dX < 0.0  # High viral lysis causes biomass drop
     assert dN < 0.0  # Nitrogen consumed during metabolism
 
+
+def test_strain_specific_optima_and_shear_lysis():
+    # E. coli profile at 37°C should not suffer 30°C penalty when opt_temperature_C=37.0
+    cfg_opt = ReactorConfig(
+        temperature_C=37.0,
+        opt_temperature_C=37.0,
+        ph=7.0,
+        opt_ph=7.0,
+        rpm=300.0,
+        v_tip_crit_m_s=4.5,
+    )
+    cfg_generic = ReactorConfig(
+        temperature_C=37.0,
+        opt_temperature_C=30.0,
+        ph=7.0,
+        opt_ph=6.85,
+        rpm=300.0,
+        v_tip_crit_m_s=4.5,
+    )
+    y0 = [1.0, 30.0, 0.0078, 0.0, 5.0]
+    dx_opt = BioreactorKinetics(cfg_opt).derivatives(0.0, y0)[0]
+    dx_gen = BioreactorKinetics(cfg_generic).derivatives(0.0, y0)[0]
+    assert dx_opt > dx_gen
+
+    # Shear-sensitive CHO configuration under excessive tip speed (> 1.5 m/s)
+    cfg_low_shear = ReactorConfig(rpm=120.0, v_tip_crit_m_s=1.5, k_shear=0.25)
+    cfg_high_shear = ReactorConfig(rpm=750.0, v_tip_crit_m_s=1.5, k_shear=0.25)
+    dx_low = BioreactorKinetics(cfg_low_shear).derivatives(0.0, y0)[0]
+    dx_high = BioreactorKinetics(cfg_high_shear).derivatives(0.0, y0)[0]
+    assert dx_high < dx_low
+
+

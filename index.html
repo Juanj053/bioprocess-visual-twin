@@ -244,7 +244,7 @@
             <h1 id="app-title" class="text-xs sm:text-sm font-semibold tracking-tight text-gray-900 dark:text-gray-100 truncate max-w-[130px] sm:max-w-none">
               Bioprocess Visual Twin
             </h1>
-            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 font-mono font-medium">v2.3.1</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 font-mono font-medium">v2.4.0</span>
             <span class="hidden md:inline-block text-[10px] px-1.5 py-0.2 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-300 font-mono border border-gray-200 dark:border-[#35373c]">3D-WEBGL</span>
           </div>
           <p id="app-subtitle" class="hidden sm:block text-[11px] text-gray-500 dark:text-gray-400">Physics-Informed Real-Time Digital Twin &bull; <a href="https://www.linkedin.com/in/juanj-alva" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">Ing. Juan José Álvarez Morales</a></p>
@@ -818,7 +818,7 @@
           <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_fed">C-Carbon Fed:</span> <span id="disp-c-in" class="text-gray-900 dark:text-gray-100 font-semibold tabular-nums">14.0 g C/L</span></div>
           <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_fixed">C-Incorporated:</span> <span id="disp-c-fixed" class="text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">5.8 g C/L</span></div>
           <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_co2">CO₂ Respiration:</span> <span id="disp-c-co2" class="text-amber-700 dark:text-amber-400 font-semibold tabular-nums">8.2 g C/L</span></div>
-          <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_balance">Recovery Balance:</span> <span class="text-blue-700 dark:text-blue-400 font-medium tabular-nums">99.8%</span></div>
+          <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400 text-[11px]" data-i18n="c_balance">Recovery Balance:</span> <span id="disp-c-recovery" class="text-blue-700 dark:text-blue-400 font-medium tabular-nums">100.0%</span></div>
         </div>
       </div>
 
@@ -876,7 +876,7 @@
           <h2 class="text-base sm:text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100" data-i18n="dash_title">
             Bioprocess Batch Analytics &amp; Results Dashboard
           </h2>
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 font-mono font-medium">v2.3.1</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 font-mono font-medium">v2.4.0</span>
         </div>
         <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="dash_subtitle">
           High-resolution time-course telemetry, yield calculations, stoichiometric verification, and respirometry.
@@ -2244,6 +2244,12 @@
         defaultVvm: 1.5,
         defaultTemp: 37.0,
         defaultPh: 7.0,
+        optTemp: 37.0,
+        optPh: 7.0,
+        tempSigma: 6.5,
+        phSigma: 1.0,
+        vTipCrit: 4.5,
+        kShear: 0.03,
         defaultS0: 30.0,
         defaultN0: 5.0,
         defaultX0: 0.50,
@@ -2274,6 +2280,12 @@
         defaultVvm: 1.8,
         defaultTemp: 29.5,
         defaultPh: 6.0,
+        optTemp: 29.5,
+        optPh: 6.0,
+        tempSigma: 5.5,
+        phSigma: 1.2,
+        vTipCrit: 4.2,
+        kShear: 0.03,
         defaultS0: 40.0,
         defaultN0: 5.5,
         defaultX0: 1.20,
@@ -2304,6 +2316,12 @@
         defaultVvm: 1.2,
         defaultTemp: 30.0,
         defaultPh: 5.5,
+        optTemp: 30.0,
+        optPh: 5.5,
+        tempSigma: 6.0,
+        phSigma: 1.2,
+        vTipCrit: 4.2,
+        kShear: 0.03,
         defaultS0: 35.0,
         defaultN0: 4.8,
         defaultX0: 0.80,
@@ -2334,6 +2352,12 @@
         defaultVvm: 0.2,
         defaultTemp: 36.8,
         defaultPh: 7.15,
+        optTemp: 36.8,
+        optPh: 7.15,
+        tempSigma: 2.5,
+        phSigma: 0.45,
+        vTipCrit: 1.5,
+        kShear: 0.12,
         defaultS0: 25.0,
         defaultN0: 4.0,
         defaultX0: 0.30,
@@ -2364,6 +2388,12 @@
         defaultVvm: 1.4,
         defaultTemp: 37.0,
         defaultPh: 6.80,
+        optTemp: 37.0,
+        optPh: 6.80,
+        tempSigma: 6.5,
+        phSigma: 1.0,
+        vTipCrit: 4.5,
+        kShear: 0.03,
         defaultS0: 35.0,
         defaultN0: 5.5,
         defaultX0: 0.60,
@@ -2394,6 +2424,12 @@
         defaultVvm: 0.9,
         defaultTemp: 30.0,
         defaultPh: 7.00,
+        optTemp: 30.0,
+        optPh: 7.00,
+        tempSigma: 5.0,
+        phSigma: 0.9,
+        vTipCrit: 2.4,
+        kShear: 0.06,
         defaultS0: 25.0,
         defaultN0: 4.0,
         defaultX0: 0.40,
@@ -2424,6 +2460,12 @@
         defaultVvm: 0.5,
         defaultTemp: 25.0,
         defaultPh: 7.20,
+        optTemp: 25.0,
+        optPh: 7.20,
+        tempSigma: 5.5,
+        phSigma: 1.1,
+        vTipCrit: 2.2,
+        kShear: 0.05,
         defaultS0: 10.0,
         defaultN0: 3.5,
         defaultX0: 0.20,
@@ -2454,6 +2496,12 @@
         defaultVvm: 0.2,
         defaultTemp: 37.0,
         defaultPh: 6.20,
+        optTemp: 37.0,
+        optPh: 6.20,
+        tempSigma: 5.5,
+        phSigma: 1.3,
+        vTipCrit: 3.8,
+        kShear: 0.03,
         defaultS0: 45.0,
         defaultN0: 6.0,
         defaultX0: 0.50,
@@ -2570,6 +2618,12 @@
       State.CL = State.C_star;
       State.temp_C = initTemp;
       State.ph = initPh;
+      State.optTemp = st.optTemp ?? st.defaultTemp;
+      State.optPh = st.optPh ?? st.defaultPh;
+      State.tempSigma = st.tempSigma ?? 6.5;
+      State.phSigma = st.phSigma ?? 1.1;
+      State.vTipCrit = st.vTipCrit ?? 3.5;
+      State.kShear = st.kShear ?? 0.045;
       State.mu_max = initMuMax;
       State.Ks = st.Ks;
       State.Kn = st.Kn || 0.15;
@@ -2584,6 +2638,9 @@
       State.alpha = st.alpha;
       State.beta = st.beta;
       State.time_h = 0.0;
+      State.peakX = State.X;
+      State.mu = 0.0;
+      State.netMu = 0.0;
       State.activeFault = 'none';
 
       // Set initial RPM & VVM based on strain unless in static vessel
@@ -2699,6 +2756,15 @@
       Yps: 0.85,
       alpha: 0.15,
       beta: 0.010,
+      optTemp: 30.0,
+      optPh: 6.85,
+      tempSigma: 7.0,
+      phSigma: 1.1,
+      vTipCrit: 3.0,
+      kShear: 0.045,
+      mu: 0.0,
+      netMu: 0.0,
+      peakX: 0.80,
       
       isRunning: true,
       speedMultiplier: 5,
@@ -2771,61 +2837,72 @@
       return { Re, v_tip, P_density_kW_m3, kla, regime: t('regime_turbulent') };
     }
 
+    function evaluateKineticsRates(snap, hydro, kLysis, activeFault) {
+      const X = Math.max(0.0, snap.X);
+      const X_contam = Math.max(0.0, snap.X_contam);
+      const S = Math.max(0.0, snap.S);
+      const N = Math.max(0.0, snap.N);
+      const CL = Math.max(0.0, snap.CL);
+
+      // Osmolar stress inhibition
+      const osmoStress = Math.max(0.0, State.osmolarity_mOsm - 350.0);
+      const I_osmo = 600.0 / (600.0 + osmoStress);
+
+      // Strain-calibrated thermal & pH optima + Dual Monod
+      let mu = 0.0;
+      if (S > 1e-4 && N > 1e-4 && CL > 1e-6) {
+        const tOpt = State.optTemp ?? 30.0;
+        const pOpt = State.optPh ?? 6.85;
+        const tSig = Math.max(0.5, State.tempSigma ?? 7.0);
+        const pSig = Math.max(0.1, State.phSigma ?? 1.1);
+        const temp_factor = Math.exp(-Math.pow((State.temp_C - tOpt) / tSig, 2));
+        const ph_factor = Math.exp(-Math.pow((State.ph - pOpt) / pSig, 2));
+        mu = State.mu_max * (S / (State.Ks + S)) * (N / (State.Kn + N)) * (CL / (State.Ko + CL)) * temp_factor * ph_factor * I_osmo;
+      }
+
+      // Contaminant bacterial microflora dynamics
+      let mu_contam = 0.0;
+      let q_s_contam = 0.0;
+      let q_o_contam = 0.0;
+      let q_n_contam = 0.0;
+      if (X_contam > 1e-5) {
+        if (S > 1e-4 && N > 1e-4 && CL > 1e-6) {
+          mu_contam = 0.72 * (S / (0.25 + S)) * (N / (0.15 + N)) * (CL / (0.0006 + CL));
+        }
+        q_s_contam = (mu_contam / 0.40 + 0.02) * X_contam;
+        q_o_contam = (mu_contam / 1.05 + 0.015) * X_contam;
+        q_n_contam = (mu_contam / 5.2) * X_contam;
+      }
+
+      // Shear-stress biological lysis when impeller tip speed exceeds strain tolerance
+      const vTipCrit = Math.max(0.1, State.vTipCrit || 3.0);
+      const kdShear = hydro.v_tip > vTipCrit
+        ? (State.kShear || 0.045) * Math.pow((hydro.v_tip - vTipCrit) / vTipCrit, 2)
+        : 0.0;
+
+      const q_P = S > 1e-4 ? (State.alpha * mu + State.beta) : 0.0;
+      const q_O2 = S > 1e-4 ? ((mu / State.Yxo) + State.mo) : 0.0;
+      const q_N = N > 1e-4 ? (mu / State.Yxn) : 0.0;
+
+      const netMu = mu - (State.kd + kdShear) - kLysis;
+      const dX = netMu * X;
+      const dX_contam = (activeFault === 'contam_bacteria')
+        ? (mu_contam - 0.01) * X_contam
+        : -0.05 * X_contam;
+      const dS = S > 1e-4 ? -(((mu / State.Yxs) + State.ms + (q_P / State.Yps)) * X + q_s_contam) : 0.0;
+      const dN = N > 1e-4 ? -(q_N * X + q_n_contam) : 0.0;
+      const dP = q_P * X;
+      const totalOUR_g_L_h = q_O2 * X + q_o_contam;
+
+      return { mu, netMu, mu_contam, dX, dX_contam, dS, dN, dP, totalOUR_g_L_h };
+    }
+
     function stepKinetics(dt_hours) {
       if (!State.isRunning) return null;
 
       if (State.activeFault === 'thermal_shock') {
         State.temp_C = 42.0;
       }
-
-      // Closed-Loop Auto-DO Controller (Cascade PID simulation)
-      if (State.autoDOEnabled && State.reactorType !== 'static') {
-        const currentDOSat = (State.CL / State.C_star) * 100.0;
-        const doError = State.targetDOSat - currentDOSat;
-        
-        if (doError > 2.0) { // Oxygen deficit -> increase RPM then VVM
-          if (State.rpm < 800) {
-            State.rpm = Math.min(800, State.rpm + 12.0 * dt_hours * 60.0);
-          } else if (State.vvm < 2.5) {
-            State.vvm = Math.min(2.5, State.vvm + 0.15 * dt_hours * 60.0);
-          }
-          const act = document.getElementById('status-actuator');
-          if (act) {
-            act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse"></span><span>${t('actuator_boosting')}</span>`;
-            act.className = 'text-blue-700 dark:text-blue-400 font-semibold inline-flex items-center gap-1.5';
-          }
-        } else if (doError < -5.0) { // Excess oxygen -> throttle back
-          if (State.vvm > 0.8) {
-            State.vvm = Math.max(0.8, State.vvm - 0.1 * dt_hours * 60.0);
-          } else if (State.rpm > 300) {
-            State.rpm = Math.max(300, State.rpm - 10.0 * dt_hours * 60.0);
-          }
-          const act = document.getElementById('status-actuator');
-          if (act) {
-            act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span><span>${t('actuator_throttling')}</span>`;
-            act.className = 'text-gray-500 dark:text-gray-400 font-semibold inline-flex items-center gap-1.5';
-          }
-        } else {
-          const act = document.getElementById('status-actuator');
-          if (act) {
-            act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('actuator_holding')}</span>`;
-            act.className = 'text-emerald-700 dark:text-emerald-400 font-semibold inline-flex items-center gap-1.5';
-          }
-        }
-        
-        // Update input range UI
-        const inRpm = document.getElementById('input-rpm');
-        if (inRpm) inRpm.value = Math.round(State.rpm);
-        const valRpm = document.getElementById('val-rpm');
-        if (valRpm) valRpm.innerText = `${Math.round(State.rpm)} RPM`;
-        const inVvm = document.getElementById('input-vvm');
-        if (inVvm) inVvm.value = State.vvm.toFixed(1);
-        const valVvm = document.getElementById('val-vvm');
-        if (valVvm) valVvm.innerText = `${State.vvm.toFixed(1)} vvm`;
-      }
-
-      const hydro = computeHydrodynamics();
-      const kla = hydro.kla;
 
       if (State.feedPulseActive) {
         State.S += 5.0;
@@ -2836,68 +2913,112 @@
         State.feedNitrogenPulseActive = false;
       }
 
-      // Osmolar stress inhibition
-      const osmoStress = Math.max(0.0, State.osmolarity_mOsm - 350.0);
-      const I_osmo = 600.0 / (600.0 + osmoStress);
+      // Sub-stepped Heun (RK2) for slow states + exact exponential integration for stiff C_L
+      let hydro = computeHydrodynamics();
+      const maxSubDt = Math.min(0.005, 0.25 / Math.max(1.0, hydro.kla));
+      const nSteps = Math.max(1, Math.min(400, Math.ceil(dt_hours / maxSubDt)));
+      const subDt = dt_hours / nSteps;
 
-      // Dual Monod with Nitrogen limitation
-      let mu = 0.0;
-      if (State.S > 1e-4 && State.N > 1e-4 && State.CL > 1e-6) {
-        const temp_factor = Math.exp(-Math.pow((State.temp_C - 30.0) / 7.0, 2));
-        const ph_factor = Math.exp(-Math.pow((State.ph - 6.85) / 1.1, 2));
-        mu = State.mu_max * (State.S / (State.Ks + State.S)) * (State.N / (State.Kn + State.N)) * (State.CL / (State.Ko + State.CL)) * temp_factor * ph_factor * I_osmo;
-      }
+      let actuatorMode = 'standby';
+      let lastRates = null;
 
-      // Contaminant bacterial microflora dynamics
-      let mu_contam = 0.0;
-      let q_s_contam = 0.0;
-      let q_o_contam = 0.0;
-      let q_n_contam = 0.0;
-      if (State.X_contam > 1e-5) {
-        if (State.S > 1e-4 && State.N > 1e-4 && State.CL > 1e-6) {
-          mu_contam = 0.72 * (State.S / (0.25 + State.S)) * (State.N / (0.15 + State.N)) * (State.CL / (0.0006 + State.CL));
+      for (let stepIdx = 0; stepIdx < nSteps; stepIdx++) {
+        // Closed-Loop Auto-DO Controller (Cascade PID integrated smoothly per substep)
+        if (State.autoDOEnabled && State.reactorType !== 'static') {
+          const currentDOSat = (State.CL / State.C_star) * 100.0;
+          const doError = State.targetDOSat - currentDOSat;
+
+          if (doError > 2.0) {
+            if (State.rpm < 800) {
+              State.rpm = Math.min(800, State.rpm + 12.0 * subDt * 60.0);
+            } else if (State.vvm < 2.5) {
+              State.vvm = Math.min(2.5, State.vvm + 0.15 * subDt * 60.0);
+            }
+            actuatorMode = 'boosting';
+          } else if (doError < -5.0) {
+            if (State.vvm > 0.8) {
+              State.vvm = Math.max(0.8, State.vvm - 0.1 * subDt * 60.0);
+            } else if (State.rpm > 300) {
+              State.rpm = Math.max(300, State.rpm - 10.0 * subDt * 60.0);
+            }
+            actuatorMode = 'throttling';
+          } else {
+            actuatorMode = 'holding';
+          }
+          hydro = computeHydrodynamics();
         }
-        q_s_contam = (mu_contam / 0.40 + 0.02) * State.X_contam;
-        q_o_contam = (mu_contam / 1.05 + 0.015) * State.X_contam;
-        q_n_contam = (mu_contam / 5.2) * State.X_contam;
+
+        let k_lysis = 0.0;
+        if (State.activeFault === 'contam_phage' && State.phage_titer > 0) {
+          State.phage_titer = Math.min(50.0, State.phage_titer + 1.5 * subDt);
+          k_lysis = 1.9 * (State.phage_titer / (1.0 + State.phage_titer));
+        }
+
+        const k1 = evaluateKineticsRates(State, hydro, k_lysis, State.activeFault);
+
+        // Exact exponential predictor for stiff dissolved oxygen O2 dynamics
+        const cEq1 = State.C_star - (k1.totalOUR_g_L_h / hydro.kla);
+        const expFactor = Math.exp(-hydro.kla * subDt);
+        const clPred = Math.max(1e-5, Math.min(State.C_star * 1.05, cEq1 + (State.CL - cEq1) * expFactor));
+
+        const snapPred = {
+          X: Math.max(0.01, State.X + k1.dX * subDt),
+          X_contam: Math.max(0.0, State.X_contam + k1.dX_contam * subDt),
+          S: Math.max(0.0, State.S + k1.dS * subDt),
+          N: Math.max(0.0, State.N + k1.dN * subDt),
+          CL: clPred,
+          P: Math.max(0.0, State.P + k1.dP * subDt)
+        };
+
+        const k2 = evaluateKineticsRates(snapPred, hydro, k_lysis, State.activeFault);
+
+        State.X = Math.max(0.01, State.X + 0.5 * (k1.dX + k2.dX) * subDt);
+        State.X_contam = Math.max(0.0, State.X_contam + 0.5 * (k1.dX_contam + k2.dX_contam) * subDt);
+        State.S = Math.max(0.0, State.S + 0.5 * (k1.dS + k2.dS) * subDt);
+        State.N = Math.max(0.0, State.N + 0.5 * (k1.dN + k2.dN) * subDt);
+        State.P = Math.max(0.0, State.P + 0.5 * (k1.dP + k2.dP) * subDt);
+
+        const qO2Avg = 0.5 * (k1.totalOUR_g_L_h + k2.totalOUR_g_L_h);
+        const cEqAvg = State.C_star - (qO2Avg / hydro.kla);
+        State.CL = Math.max(1e-5, Math.min(State.C_star * 1.05, cEqAvg + (State.CL - cEqAvg) * expFactor));
+
+        State.time_h += subDt;
+        State.peakX = Math.max(State.peakX || State.X, State.X);
+        lastRates = k2;
       }
 
-      // Bacteriophage lysis shock
-      let k_lysis = 0.0;
-      if (State.activeFault === 'contam_phage' && State.phage_titer > 0) {
-        State.phage_titer = Math.min(50.0, State.phage_titer + 1.5 * dt_hours);
-        k_lysis = 1.9 * (State.phage_titer / (1.0 + State.phage_titer));
+      if (State.autoDOEnabled && State.reactorType !== 'static') {
+        const act = document.getElementById('status-actuator');
+        if (act) {
+          if (actuatorMode === 'boosting') {
+            act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse"></span><span>${t('actuator_boosting')}</span>`;
+            act.className = 'text-blue-700 dark:text-blue-400 font-semibold inline-flex items-center gap-1.5';
+          } else if (actuatorMode === 'throttling') {
+            act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span><span>${t('actuator_throttling')}</span>`;
+            act.className = 'text-gray-500 dark:text-gray-400 font-semibold inline-flex items-center gap-1.5';
+          } else {
+            act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('actuator_holding')}</span>`;
+            act.className = 'text-emerald-700 dark:text-emerald-400 font-semibold inline-flex items-center gap-1.5';
+          }
+        }
+        const inRpm = document.getElementById('input-rpm');
+        if (inRpm) inRpm.value = Math.round(State.rpm);
+        const valRpm = document.getElementById('val-rpm');
+        if (valRpm) valRpm.innerText = `${Math.round(State.rpm)} RPM`;
+        const inVvm = document.getElementById('input-vvm');
+        if (inVvm) inVvm.value = State.vvm.toFixed(1);
+        const valVvm = document.getElementById('val-vvm');
+        if (valVvm) valVvm.innerText = `${State.vvm.toFixed(1)} vvm`;
       }
-
-      const q_P = State.S > 1e-4 ? (State.alpha * mu + State.beta) : 0.0;
-      const q_O2 = State.S > 1e-4 ? ((mu / State.Yxo) + State.mo) : 0.0;
-      const q_N = State.N > 1e-4 ? (mu / State.Yxn) : 0.0;
-
-      const dX_dt = (mu - State.kd - k_lysis) * State.X;
-      const dX_contam_dt = (State.activeFault === 'contam_bacteria')
-        ? (mu_contam - 0.01) * State.X_contam
-        : -0.05 * State.X_contam;
-
-      const dS_dt = State.S > 1e-4 ? - (((mu / State.Yxs) + State.ms + (q_P / State.Yps)) * State.X + q_s_contam) : 0.0;
-      const dN_dt = State.N > 1e-4 ? - (q_N * State.X + q_n_contam) : 0.0;
-      const dCL_dt = kla * (State.C_star - State.CL) - (q_O2 * State.X + q_o_contam);
-      const dP_dt = q_P * State.X;
-
-      State.X = Math.max(0.01, State.X + dX_dt * dt_hours);
-      State.X_contam = Math.max(0.0, State.X_contam + dX_contam_dt * dt_hours);
-      State.S = Math.max(0.0, State.S + dS_dt * dt_hours);
-      State.N = Math.max(0.0, State.N + dN_dt * dt_hours);
-      State.CL = Math.max(0.0001, Math.min(State.C_star * 1.05, State.CL + dCL_dt * dt_hours));
-      State.P = Math.max(0.0, State.P + dP_dt * dt_hours);
-      State.time_h += dt_hours;
 
       // Purity and C/N calculation
       const totalBio = State.X + State.X_contam;
       State.culture_purity = totalBio > 0.01 ? (State.X / totalBio) * 100.0 : 100.0;
       State.cn_ratio = (State.S * 0.40) / Math.max(0.01, State.N);
-      State.mu = mu;
+      State.mu = lastRates ? lastRates.mu : 0.0;
+      State.netMu = lastRates ? lastRates.netMu : 0.0;
 
-      return { mu, kla, hydro, mu_contam };
+      return { mu: State.mu, kla: hydro.kla, hydro, mu_contam: lastRates ? lastRates.mu_contam : 0.0 };
     }
 
     /* =========================================================================
@@ -3492,14 +3613,16 @@
       const S = state.S;
       const N = state.N;
       const mu = state.mu || 0;
+      const netMu = state.netMu !== undefined ? state.netMu : mu;
       const strainObj = (typeof Strains !== 'undefined' && Strains[state.currentStrainKey]) ? Strains[state.currentStrainKey] : null;
-      const muMax = (strainObj && strainObj.mu_max) ? strainObj.mu_max : 0.65;
+      const muMax = state.mu_max || (strainObj && strainObj.mu_max) || 0.65;
       const x0 = state.initial_X || 0.8;
+      const peakX = Math.max(x0, state.peakX || X);
       const purity = state.culture_purity !== undefined ? state.culture_purity : (state.purity_pct !== undefined ? state.purity_pct : 100.0);
       const fault = state.activeFault || 'none';
 
       // 1. Death / Lysis
-      if (fault === 'phage' || purity < 80.0 || (state.prevX && (X < state.prevX - 0.25) && mu < -0.015)) {
+      if (fault === 'contam_phage' || fault === 'phage' || purity < 80.0 || (netMu < -0.015 && (peakX - X > 0.10 || netMu < -0.05))) {
         return 'death';
       }
       // 2. Stationary (substrate depleted or carrying plateau reached)
@@ -3798,7 +3921,7 @@
           y: {
             title: { display: true, text: 'Concentration [g/L]', color: '#9aa0a6', font: { family: 'JetBrains Mono', size: 10 } },
             min: 0,
-            max: 42,
+            suggestedMax: 42,
             grid: { color: 'rgba(255, 255, 255, 0.04)' },
             ticks: { color: '#9aa0a6', font: { family: 'JetBrains Mono', size: 9 } }
           },
@@ -3865,7 +3988,7 @@
           if (State.reactorType === 'static') {
             shearAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('alarm_zero_shear')}</span>`;
             shearAlarm.className = 'text-emerald-700 dark:text-emerald-400 font-medium inline-flex items-center gap-1.5';
-          } else if (simStep.hydro.v_tip > 3.0) {
+          } else if (simStep.hydro.v_tip > (State.vTipCrit || 3.0)) {
             shearAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400"></span><span>${t('alarm_high_shear')}</span>`;
             shearAlarm.className = 'text-red-700 dark:text-red-400 font-semibold inline-flex items-center gap-1.5';
           } else {
@@ -3888,13 +4011,18 @@
           document.getElementById('overlay-shear').innerText = `${(simStep.hydro.v_tip * 6.0).toFixed(1)} s⁻¹`;
           document.getElementById('overlay-turbidity').innerText = State.X > 6.0 ? 'Dense (Turbid)' : (State.X > 2.5 ? 'Moderate' : 'Low (Clear)');
 
-          // Carbon calculations
-          const sConsumed = Math.max(0.0, 35.0 - State.S);
-          const cIn = (sConsumed * 0.40).toFixed(1);
-          const cFixed = (((State.X - 0.8) * 0.48) + (State.P * 0.45)).toFixed(1);
-          document.getElementById('disp-c-in').innerText = `${cIn} g C/L`;
-          document.getElementById('disp-c-fixed').innerText = `${cFixed} g C/L`;
-          document.getElementById('disp-c-co2').innerText = `${Math.max(0.0, cIn - cFixed).toFixed(1)} g C/L`;
+          // Dynamic Carbon Balance Auditor (respects initial batch setup + Fed-Batch pulses)
+          const sTotalAvailable = (State.initial_S || 35.0) + (State.s_fed_total || 0.0);
+          const sConsumed = Math.max(0.0, sTotalAvailable - State.S);
+          const cInVal = sConsumed * 0.40;
+          const cFixedVal = Math.max(0.0, ((State.X - (State.initial_X || 0.8)) * 0.48) + (State.P * 0.45));
+          const cCo2Val = Math.max(0.0, cInVal - cFixedVal);
+          const cRecPct = cInVal > 0.01 ? (((cFixedVal + cCo2Val) / cInVal) * 100.0) : 100.0;
+          document.getElementById('disp-c-in').innerText = `${cInVal.toFixed(1)} g C/L`;
+          document.getElementById('disp-c-fixed').innerText = `${cFixedVal.toFixed(1)} g C/L`;
+          document.getElementById('disp-c-co2').innerText = `${cCo2Val.toFixed(1)} g C/L`;
+          const cRecEl = document.getElementById('disp-c-recovery');
+          if (cRecEl) cRecEl.innerText = `${cRecPct.toFixed(1)}%`;
 
           // Media & Biological Contamination Readouts (v2.0)
           const nitrogenEl = document.getElementById('disp-nitrogen');
@@ -4180,13 +4308,16 @@
 
     function resetSimulation() {
       State.time_h = 0.0;
-      State.X = 0.80;
+      State.X = State.initial_X || 0.80;
+      State.peakX = State.X;
+      State.netMu = 0.0;
+      State.mu = 0.0;
       State.X_contam = 0.0;
       State.phage_titer = 0.0;
       State.biofouling_factor = 1.0;
       State.culture_purity = 100.0;
-      State.S = 35.0;
-      State.N = 5.0;
+      State.S = State.initial_S || 35.0;
+      State.N = State.initial_N || 5.0;
       State.CL = State.C_star;
       State.P = 0.0;
       State.s_fed_total = 0.0;
@@ -4201,26 +4332,38 @@
       setFault('none');
     }
 
-    function exportCSV() {
-      let csv = "Time_h,Biomass_g_L,Substrate_g_L,Nitrogen_g_L,DissolvedOxygen_pct,Product_g_L,CulturePurity_pct\n";
-      const labels = telemetryChart.data.labels;
-      const b = telemetryChart.data.datasets[0].data;
-      const s = telemetryChart.data.datasets[1].data;
-      const doP = telemetryChart.data.datasets[2].data;
-      const p = telemetryChart.data.datasets[3].data;
-
-      for (let i = 0; i < labels.length; i++) {
-        csv += `${labels[i]},${b[i]},${s[i]},${State.N.toFixed(2)},${doP[i]},${p[i]},${State.culture_purity.toFixed(1)}\n`;
-      }
-
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    function downloadBlobFile(content, mimeType, filename) {
+      const blob = new Blob([content], { type: mimeType });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", `bioprocess_v2_run_${State.reactorType}.csv`);
+      link.setAttribute("download", filename);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function exportCSV() {
+      const history = (State.batchHistory && State.batchHistory.length > 0)
+        ? State.batchHistory
+        : [{
+            time_h: State.time_h,
+            X: State.X,
+            S: State.S,
+            N: State.N,
+            DO_pct: (State.CL / State.C_star) * 100,
+            P: State.P,
+            culture_purity: State.culture_purity
+          }];
+
+      let csv = "Time_h,Biomass_g_L,Substrate_g_L,Nitrogen_g_L,DissolvedOxygen_pct,Product_g_L,CulturePurity_pct\n";
+      for (const h of history) {
+        const pur = h.culture_purity !== undefined ? h.culture_purity : 100.0;
+        csv += `${Number(h.time_h).toFixed(2)},${Number(h.X).toFixed(3)},${Number(h.S).toFixed(2)},${Number(h.N).toFixed(2)},${Number(h.DO_pct).toFixed(1)},${Number(h.P).toFixed(3)},${Number(pur).toFixed(1)}\n`;
+      }
+
+      downloadBlobFile(csv, 'text/csv;charset=utf-8;', `bioprocess_v2_4_run_${State.reactorType}.csv`);
     }
 
     /* =========================================================================
@@ -4282,6 +4425,7 @@
           metadata: {
             strain: State.currentStrainKey || 'ecoli',
             strainName: Strains[State.currentStrainKey] ? Strains[State.currentStrainKey].name : 'Escherichia coli BL21(DE3)',
+            mu_max: State.mu_max || 0.65,
             reactorType: State.reactorType,
             volume_L: State.volume_L || 20.0,
             total_time_h: State.time_h,
@@ -4828,14 +4972,7 @@
         csv += `${h.time_h},${h.X},${h.S},${h.N},${h.DO_pct},${h.P},${h.mu},${h.kla},${h.our},${h.qs},${h.qp},${h.temp},${h.ph},${h.culture_purity},${h.osmolarity},${h.cn_ratio}\n`;
       }
 
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `bioprocess_v2_2_full_batch_${State.reactorType}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      downloadBlobFile(csv, 'text/csv;charset=utf-8;', `bioprocess_v2_4_full_batch_${State.reactorType}.csv`);
     }
 
     function exportBatchJSON() {
@@ -4843,10 +4980,11 @@
       const payload = {
         metadata: {
           software: "bioprocess-visual-twin",
-          version: "2.3.1",
+          version: "2.4.0",
           author: "Ing. Juan José Álvarez Morales",
           strainKey: State.currentStrainKey || 'ecoli',
           strainName: Strains[State.currentStrainKey] ? Strains[State.currentStrainKey].name : 'Escherichia coli BL21(DE3)',
+          mu_max: State.mu_max || 0.65,
           reactorType: State.reactorType,
           workingVolume_L: State.volume_L || 20.0,
           totalDuration_h: State.time_h,
@@ -4861,14 +4999,7 @@
         telemetry: history
       };
 
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `bioprocess_v2_2_manifest_${State.reactorType}.json`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      downloadBlobFile(JSON.stringify(payload, null, 2), 'application/json;charset=utf-8;', `bioprocess_v2_4_manifest_${State.reactorType}.json`);
     }
 
     // Initialize on DOM load

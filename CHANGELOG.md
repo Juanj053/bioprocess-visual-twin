@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.4.0] - 2026-11-12
+
+### Added
+- **Adaptive Sub-Stepped Exponential / Heun ODE Solver (`index.html`)**:
+  - Replaced single-step explicit Euler in `stepKinetics(dt_hours)` with `evaluateKineticsRates()` + adaptive sub-stepping (`maxSubDt = min(0.005, 0.25 / max(1, kla))`, up to 400 substeps per frame).
+  - Integrated stiff dissolved oxygen mass transfer ($dC_L/dt = k_La(C^* - C_L) - Q_{O_2}$) with exact analytical exponential integration alongside 2nd-order Heun predictor-corrector for slow states $(X, X_{\text{contam}}, S, N, P)$, eliminating Euler DO overshoot and $\mu$ oscillation at `20x` speed and high $k_La$.
+  - Smooth sub-step integration for cascade Auto-DO PID actuation and bacteriophage lysis kinetics.
+- **Strain-Specific Thermal/pH Optima & Shear Lysis Model (`index.html`, `src/bioprocess_twin/kinetics.py`)**:
+  - Added per-strain physiological optima and shear thresholds (`optTemp`, `optPh`, `tempSigma`, `phSigma`, `vTipCrit`, `kShear`) across all 8 preset strains (e.g., *E. coli* at `37.0 °C / pH 7.0`, *S. cerevisiae* at `30.0 °C / pH 5.5`, shear-sensitive *CHO* with `vTipCrit = 1.5 m/s` and `kShear = 0.12 h⁻¹`).
+  - Added `opt_temperature_C`, `opt_ph`, `temp_sigma`, `ph_sigma`, `v_tip_crit_m_s`, and `k_shear` to Python `ReactorConfig` and `BioreactorKinetics.derivatives()`, plus hydrodynamic shear alarm parity (`State.vTipCrit`) in SCADA UI.
+  - Added unit tests `test_strain_specific_optima_and_shear_lysis` and `test_stiff_high_kla_and_thermal_optima_stability`.
+
+### Fixed
+- **Live Carbon Balance Auditor & `resetSimulation()` Strain Retention**:
+  - Fixed live carbon balance calculation in `mainLoop` to reference `State.initial_S + State.s_fed_total` and `State.initial_X` instead of hardcoded `35.0` and `0.8`, and wired live recovery balance readout (`#disp-c-recovery`).
+  - Updated `resetSimulation()` to restore `State.initial_X`, `State.initial_S`, `State.initial_N`, and reset `peakX`/`mu`/`netMu` rather than overwriting selected strain baselines.
+- **Instantaneous Death/Lysis Phase Classification & Chart Scaling**:
+  - Fixed `classifyInstantaneousPhase()` matching `activeFault === 'contam_phage'` (previously `'phage'`), using customized `state.mu_max`, and detecting net biomass decline via `state.netMu` and `state.peakX`.
+  - Changed `telemetryChart` Y-axis `max: 42` to `suggestedMax: 42` so high-substrate strains (*Lactobacillus* at `45 g/L`) and Fed-Batch pulses auto-scale cleanly.
+- **Complete CSV Export, Blob Cleanup & Dashboard `mu_max` Sync (`index.html`, `dashboard.html`)**:
+  - Fixed `exportCSV()` to export the full `State.batchHistory` dataset (preserving historical `Nitrogen` and `CulturePurity` trajectories instead of truncating to the 70-point rolling telemetry window).
+  - Included `mu_max` in `saveBatchRunToStorage()` and synthetic benchmark metadata so standalone `dashboard.html` computes accurate growth phase boundaries for any strain.
+  - Extracted `downloadBlobFile()` helper calling `URL.revokeObjectURL()` after downloads in both `index.html` and `dashboard.html`.
+
+---
+
 ## [2.3.1] - 2026-11-06
 
 ### Fixed
