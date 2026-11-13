@@ -2,7 +2,7 @@
 Bioprocess Visual Twin: Interactive Bioreactor Physics & Telemetry Engine.
 """
 
-__version__ = "2.5.0"
+__version__ = "2.6.0"
 __author__ = "Juan José Álvarez Morales"
 __license__ = "MIT"
 

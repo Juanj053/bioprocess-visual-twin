@@ -9,7 +9,7 @@
   <a href="https://juanj053.github.io/bioprocess-visual-twin/"><img src="https://img.shields.io/badge/Live%20Demo-Launch%20Simulator-06B6D4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live Demo"></a>
   <a href="https://juanj053.github.io/bioprocess-visual-twin/dashboard.html"><img src="https://img.shields.io/badge/Analytics-Results%20Dashboard-4F46E5?style=for-the-badge&logo=databricks&logoColor=white" alt="Dashboard"></a>
   <a href="https://github.com/Juanj053/bioprocess-visual-twin/actions"><img src="https://img.shields.io/badge/CI-passing-brightgreen?style=for-the-badge&logo=githubactions&logoColor=white" alt="CI"></a>
-  <a href="https://github.com/Juanj053/bioprocess-visual-twin/releases"><img src="https://img.shields.io/badge/Release-v2.5.0-blue?style=for-the-badge" alt="Release"></a>
+  <a href="https://github.com/Juanj053/bioprocess-visual-twin/releases"><img src="https://img.shields.io/badge/Release-v2.6.0-blue?style=for-the-badge" alt="Release"></a>
   <a href="https://www.linkedin.com/in/juanj-alva"><img src="https://img.shields.io/badge/LinkedIn-Juan%20Jos%C3%A9%20%C3%81lvarez-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License"></a>
   <img src="https://img.shields.io/badge/3D%20Engine-Three.js%20WebGL-10B981?style=for-the-badge&logo=threedotjs&logoColor=white" alt="Engine">
@@ -37,6 +37,7 @@ In biochemical engineering and precision industrial biotechnology, computer simu
 - **Automatic Growth Phase Differentiation & Visual Shading (v2.3.0)**: Algorithmic detection and real-time visualization of the canonical microbial growth phases (**Lag**, **Exponential / Log**, **Deceleration**, **Stationary**, and **Lysis / Death**). Shaded canvas background bands in SCADA telemetry and batch analytics charts, real-time live SCADA phase badge, interactive milestone segmentation bar, and phase-annotated tooltips.
 - **Stiff ODE Integrator & Strain-Calibrated Physiology (v2.4.0)**: Adaptive sub-stepped 2nd-order Heun solver with exact exponential dissolved-oxygen integration (eliminating $k_L a$ Euler oscillation at `20x` speed), per-strain thermal/pH optima, biological shear-stress lysis thresholds, dynamic carbon balance tracking, and lossless CSV/JSON history export.
 - **60 FPS Runtime & Bounded Analytics Engine (v2.5.0)**: Zero-GC Three.js color/bubble allocation, conditional WebGL rendering sleep on hidden tabs / Results Dashboard / settled pauses, pure ODE step decoupled from DOM caching & 12.5 Hz dirty-checked HUD updates, `Chart.js.update('none')`, bounded history compaction (`MAX_HISTORY_POINTS = 1500`) with exact time-weighted OUR/hypoxia integration, and non-blocking `requestIdleCallback` `localStorage` persistence.
+- **Modular Web Workers, A/B Benchmarking & Offline PWA (v2.6.0)**: Zero-duplication native ES modules (`js/`), precompiled static Tailwind CSS (`css/styles.css`, removing runtime JIT overhead), off-thread Web Worker batch acceleration (`48h Batch` / `+24h Worker`), Run A vs Run B comparative overlay with interpolated baselines and KPI delta badges, local HTTP CLI server (`bioprocess-twin ui`), and offline-ready PWA caching (`manifest.webmanifest`, `sw.js`).
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -122,17 +123,25 @@ bioprocess-visual-twin/
 ├── .github/workflows/
 │   └── deploy-pages.yml         # Automated GitHub Actions test and GitHub Pages deployment
 ├── src/bioprocess_twin/
-│   ├── __init__.py              # Package entrypoint (v2.5.0)
+│   ├── __init__.py              # Package entrypoint (v2.6.0)
 │   ├── kinetics.py              # Hydrodynamics (Re, P/V, kla) and Monod ODE system
 │   ├── simulator.py             # Numerical stiff Radau / RK45 timecourse solver
 │   ├── analytics.py             # Batch KPIs, Carbon closure, stoichiometric audit, and growth phases
-│   └── cli.py                   # Command-line interface (simulate, ui)
+│   └── cli.py                   # Command-line interface (simulate, local HTTP ui server)
 ├── tests/
 │   ├── test_kinetics.py         # Unit tests for hydrodynamics and derivatives
 │   ├── test_simulator.py        # Numerical integration trajectory tests
-│   └── test_analytics.py        # Stoichiometric & KPI verification tests
+│   ├── test_analytics.py        # Stoichiometric & KPI verification tests
+│   └── test_cli.py              # Local UI HTTP server and MIME header tests
+├── js/                          # Shared ES modules (i18n, theme, strains, phases, kinetics, dashboard, worker)
+├── css/
+│   └── styles.css               # Precompiled minified Tailwind + studio CSS
+├── assets/
+│   └── icon.svg                 # Bioreactor vector PWA/favicon asset
 ├── index.html                   # 3D Twin + Integrated Results Dashboard (EN/ES/DE)
 ├── dashboard.html               # Dedicated Standalone Batch Analytics Dashboard
+├── manifest.webmanifest         # Progressive Web App manifest
+├── sw.js                        # Offline Service Worker cache
 ├── pyproject.toml               # PEP 517/621 packaging (Hatchling)
 ├── CITATION.cff                 # Academic citation metadata
 ├── LICENSE                      # MIT License
@@ -161,7 +170,7 @@ If you utilize this simulator in your academic coursework, research publications
   month        = nov,
   year         = 2026,
   publisher    = {GitHub},
-  version      = {2.5.0},
+  version      = {2.6.0},
   url          = {https://github.com/Juanj053/bioprocess-visual-twin}
 }
 ```

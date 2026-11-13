@@ -6,24 +6,10 @@
   <title>Bioprocess Visual Twin 3D | Interactive Bioreactor Simulator</title>
   <meta name="description" content="Physics-informed WebGL 3D digital twin for stirred-tank, airlift, and static bioreactors with real-time SCADA telemetry, fault injection, strain presets, and closed-loop control.">
   
-  <!-- Favicon (Clean SVG) -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231a73e8'><circle cx='12' cy='12' r='10'/></svg>">
-
-  <!-- Tailwind CSS with class-based Dark Mode -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          }
-        }
-      }
-    };
-  </script>
+  <!-- PWA Manifest & Vector Icon -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./assets/icon.svg">
+  <meta name="theme-color" content="#1a73e8">
   
   <!-- Chart.js for SCADA Real-time Telemetry -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -34,200 +20,23 @@
 
   <!-- Typography: Inter & JetBrains Mono (Google Minimalist Standard) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <style>
-    /* Safe Area & Mobile Ergonomics */
-    :root {
-      --sat: env(safe-area-inset-top, 0px);
-      --sab: env(safe-area-inset-bottom, 0px);
-      --sal: env(safe-area-inset-left, 0px);
-      --sar: env(safe-area-inset-right, 0px);
-    }
-    header {
-      padding-top: max(0.5rem, var(--sat));
-      padding-left: max(0.75rem, var(--sal));
-      padding-right: max(0.75rem, var(--sar));
-    }
-    body {
-      padding-bottom: max(0.5rem, var(--sab));
-    }
 
-    /* Scrollbar Utilities (Clean Horizontal Pill Bars) */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    /* Light & Dark Base Transitions */
-    html {
-      transition: background-color 0.2s ease, color 0.2s ease;
-      -webkit-text-size-adjust: 100%;
-    }
-    html.light body {
-      background-color: #f8f9fa;
-      color: #202124;
-    }
-    html.dark body {
-      background-color: #16171a;
-      color: #f1f3f4;
-    }
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      overflow-x: hidden;
-      touch-action: manipulation;
-    }
-    .font-mono {
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .tabular-nums {
-      font-variant-numeric: tabular-nums;
-      font-feature-settings: "tnum";
-    }
-    
-    /* Google Minimalist Card System */
-    .google-card {
-      transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    html.light .google-card {
-      background-color: #ffffff;
-      border: 1px solid #dadce0;
-      box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.08), 0 1px 2px 0 rgba(60, 64, 67, 0.04);
-    }
-    html.light .google-card:hover {
-      border-color: #bdc1c6;
-    }
-    html.dark .google-card {
-      background-color: #212226;
-      border: 1px solid #32353b;
-      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.35);
-    }
-    html.dark .google-card:hover {
-      border-color: #42464e;
-    }
-    
-    /* Google Segmented Controls */
-    .segmented-control {
-      padding: 3px;
-      border-radius: 12px;
-      display: inline-flex;
-      align-items: center;
-      transition: background-color 0.2s ease, border-color 0.2s ease;
-    }
-    html.light .segmented-control {
-      background-color: #f1f3f4;
-      border: 1px solid #dadce0;
-    }
-    html.dark .segmented-control {
-      background-color: #191a1d;
-      border: 1px solid #32353b;
-    }
-    
-    /* Precision Range Sliders (Mobile & Touch Adaptation) */
-    input[type=range] {
-      -webkit-appearance: none;
-      height: 4px;
-      border-radius: 9999px;
-      outline: none;
-      transition: background 0.2s ease;
-      touch-action: pan-y;
-    }
-    html.light input[type=range] {
-      background: #dadce0;
-    }
-    html.dark input[type=range] {
-      background: #32353b;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      height: 14px;
-      width: 14px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid #ffffff;
-      transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.2s ease;
-    }
-    @media (pointer: coarse), (max-width: 768px) {
-      input[type=range] {
-        height: 6px;
-      }
-      input[type=range]::-webkit-slider-thumb {
-        height: 22px !important;
-        width: 22px !important;
-      }
-    }
-    html.light input[type=range]::-webkit-slider-thumb {
-      background: #1a73e8;
-      border-color: #ffffff;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
-    html.light input[type=range]::-webkit-slider-thumb:hover {
-      transform: scale(1.15);
-      box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.15);
-    }
-    html.dark input[type=range]::-webkit-slider-thumb {
-      background: #8ab4f8;
-      border-color: #212226;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-    }
-    html.dark input[type=range]::-webkit-slider-thumb:hover {
-      transform: scale(1.15);
-      box-shadow: 0 0 0 4px rgba(138, 180, 248, 0.2);
-    }
-
-    /* 3D Canvas Box (Responsive Mobile/Desktop Heights) */
-    #canvas-container {
-      position: relative;
-      width: 100%;
-      height: 40vh;
-      min-height: 320px;
-      max-height: 480px;
-      transition: background-color 0.2s ease, border-color 0.2s ease;
-    }
-    @media (min-width: 1024px) {
-      #canvas-container {
-        height: 100%;
-        min-height: 520px;
-        max-height: none;
-      }
-    }
-    html.light #canvas-container {
-      background-color: #f1f3f4;
-      border: 1px solid #dadce0;
-    }
-    html.dark #canvas-container {
-      background-color: #191a1d;
-      border: 1px solid #32353b;
-    }
-    #threeCanvas {
-      width: 100% !important;
-      height: 100% !important;
-      outline: none;
-    }
-
-    /* Modal Backdrop */
-    .modal-backdrop {
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-    }
-  </style>
+  <!-- Compiled Static Tailwind + Design System CSS (v2.6.0 Offline-Ready) -->
+  <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body class="min-h-screen flex flex-col selection:bg-blue-500/20 selection:text-blue-900 dark:selection:text-blue-200">
 
   <!-- TOP APP BAR / HEADER (Responsive Google Minimalist) -->
-  <header class="border-b border-gray-200 dark:border-white/[0.08] bg-white/95 dark:bg-[#1b1c20]/95 backdrop-blur-md sticky top-0 z-40 transition-colors">
+  <header class="no-print border-b border-gray-200 dark:border-white/[0.08] bg-white/95 dark:bg-[#1b1c20]/95 backdrop-blur-md sticky top-0 z-40 transition-colors">
     
     <!-- Primary Top Bar: Brand, View Tabs, Mobile Quick Controls & Desktop Action Bar -->
-    <div class="px-3 sm:px-4 lg:px-8 py-2 flex items-center justify-between gap-2 sm:gap-4">
+    <div class="px-3 sm:px-4 lg:px-5 py-2 flex flex-wrap items-center justify-between gap-2">
       
       <!-- BRAND / TITLE -->
-      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gray-100 dark:bg-[#25272c] border border-gray-200 dark:border-[#35373c] flex items-center justify-center text-gray-700 dark:text-gray-200 shadow-sm transition-colors shrink-0">
+      <div class="flex items-center gap-2 shrink-0">
+        <div class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-[#25272c] border border-gray-200 dark:border-[#35373c] flex items-center justify-center text-gray-700 dark:text-gray-200 shadow-sm transition-colors shrink-0">
           <!-- SVG Bioreactor Vessel Icon -->
           <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <rect x="5" y="4" width="14" height="15" rx="4"></rect>
@@ -240,89 +49,94 @@
           </svg>
         </div>
         <div>
-          <div class="flex items-center gap-1.5 sm:gap-2">
+          <div class="flex items-center gap-1.5">
             <h1 id="app-title" class="text-xs sm:text-sm font-semibold tracking-tight text-gray-900 dark:text-gray-100 truncate max-w-[130px] sm:max-w-none">
               Bioprocess Visual Twin
             </h1>
-            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 font-mono font-medium">v2.5.0</span>
-            <span class="hidden md:inline-block text-[10px] px-1.5 py-0.2 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-300 font-mono border border-gray-200 dark:border-[#35373c]">3D-WEBGL</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 font-mono font-medium">v2.6.0</span>
+            <span class="hidden 2xl:inline-block text-[10px] px-1.5 py-0.2 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-300 font-mono border border-gray-200 dark:border-[#35373c]">3D-WEBGL</span>
           </div>
-          <p id="app-subtitle" class="hidden sm:block text-[11px] text-gray-500 dark:text-gray-400">Physics-Informed Real-Time Digital Twin &bull; <a href="https://www.linkedin.com/in/juanj-alva" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">Ing. Juan José Álvarez Morales</a></p>
+          <p id="app-subtitle" class="hidden sm:block text-[10px] text-gray-500 dark:text-gray-400">Digital Twin &bull; <a href="https://www.linkedin.com/in/juanj-alva" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">Ing. Juan José Álvarez Morales</a></p>
         </div>
       </div>
 
       <!-- PRIMARY VIEW NAVIGATION (3D Simulator vs Results Dashboard) -->
-      <div class="segmented-control gap-0.5 sm:gap-1" title="Switch View Mode">
-        <button id="view-tab-sim" onclick="switchView('sim')" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-medium transition-all bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42] inline-flex items-center gap-1 sm:gap-1.5">
-          <svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+      <div class="segmented-control gap-0.5 shrink-0" title="Switch View Mode">
+        <button id="view-tab-sim" onclick="switchView('sim')" class="px-2 py-1 rounded-lg text-xs font-medium transition-all bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42] inline-flex items-center gap-1 whitespace-nowrap">
+          <svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
           <span data-i18n="tab_sim">3D Twin</span>
         </button>
-        <button id="view-tab-dash" onclick="switchView('dash')" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-transparent inline-flex items-center gap-1 sm:gap-1.5">
-          <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+        <button id="view-tab-dash" onclick="switchView('dash')" class="px-2 py-1 rounded-lg text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-transparent inline-flex items-center gap-1 whitespace-nowrap">
+          <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
           <span class="hidden sm:inline" data-i18n="tab_dashboard">Results</span>
           <span id="badge-history-count" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40">0 pts</span>
         </button>
       </div>
 
       <!-- DESKTOP ACTIONS CLUSTER (Hidden on mobile < lg) -->
-      <div class="hidden lg:flex items-center gap-2">
+      <div class="hidden lg:flex flex-wrap items-center gap-1.5">
         <!-- SETUP & STRAIN BUTTON -->
-        <button id="btn-open-setup" onclick="openSetupModal()" class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-[#212226] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-[#35373c] text-xs font-medium shadow-sm hover:bg-gray-50 dark:hover:bg-[#2b2d32] transition inline-flex items-center gap-1.5" title="Configure Batch Parameters & Select Strain">
-          <svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7m0-4V3m8 18v-9m0-4V3m8 18v-5m0-4V3M1 14h6m2-6h6m2 8h6"></path></svg>
+        <button id="btn-open-setup" onclick="openSetupModal()" class="px-2 py-1 rounded-xl bg-white dark:bg-[#212226] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-[#35373c] text-[11px] font-medium shadow-sm hover:bg-gray-50 dark:hover:bg-[#2b2d32] transition inline-flex items-center gap-1 whitespace-nowrap" title="Configure Batch Parameters & Select Strain">
+          <svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7m0-4V3m8 18v-9m0-4V3m8 18v-5m0-4V3M1 14h6m2-6h6m2 8h6"></path></svg>
           <span data-i18n="btn_setup">Batch Setup</span>
         </button>
 
         <!-- LANGUAGE SELECTOR (EN / ES / DE) -->
-        <div class="segmented-control gap-0.5" title="Switch Interface Language">
-          <button id="lang-en" onclick="setLanguage('en')" class="px-2 py-1 rounded-lg text-xs font-mono font-medium transition bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42]">EN</button>
-          <button id="lang-es" onclick="setLanguage('es')" class="px-2 py-1 text-xs font-mono font-medium transition text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-lg">ES</button>
-          <button id="lang-de" onclick="setLanguage('de')" class="px-2 py-1 text-xs font-mono font-medium transition text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-lg">DE</button>
+        <div class="segmented-control gap-0.5 shrink-0" title="Switch Interface Language">
+          <button id="lang-en" onclick="setLanguage('en')" class="px-1.5 py-1 rounded-lg text-[11px] font-mono font-medium transition bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42]">EN</button>
+          <button id="lang-es" onclick="setLanguage('es')" class="px-1.5 py-1 text-[11px] font-mono font-medium transition text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-lg">ES</button>
+          <button id="lang-de" onclick="setLanguage('de')" class="px-1.5 py-1 text-[11px] font-mono font-medium transition text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-lg">DE</button>
         </div>
 
         <!-- THEME SELECTOR (Auto / Light / Dark) -->
-        <div class="segmented-control gap-0.5" title="Switch Theme (System / Light / Dark)">
-          <button id="theme-system" onclick="setTheme('system')" class="p-1.5 rounded-lg text-xs transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" title="Automatic System Theme">
+        <div class="segmented-control gap-0.5 shrink-0" title="Switch Theme (System / Light / Dark)">
+          <button id="theme-system" onclick="setTheme('system')" class="p-1 rounded-lg text-xs transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" title="Automatic System Theme">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
           </button>
-          <button id="theme-light" onclick="setTheme('light')" class="p-1.5 rounded-lg text-xs transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" title="Light Theme">
+          <button id="theme-light" onclick="setTheme('light')" class="p-1 rounded-lg text-xs transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" title="Light Theme">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
           </button>
-          <button id="theme-dark" onclick="setTheme('dark')" class="p-1.5 rounded-lg text-xs transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" title="Dark Theme">
+          <button id="theme-dark" onclick="setTheme('dark')" class="p-1 rounded-lg text-xs transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" title="Dark Theme">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>
           </button>
         </div>
 
         <!-- PLAYBACK CONTROLS -->
-        <div class="segmented-control gap-1">
-          <button id="btn-play-pause" onclick="togglePlayPause()" class="px-2.5 py-1 rounded-lg bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-[#383b42] font-mono text-xs inline-flex items-center gap-1.5 transition">
+        <div class="segmented-control gap-0.5 shrink-0">
+          <button id="btn-play-pause" onclick="togglePlayPause()" class="px-2 py-1 rounded-lg bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-[#383b42] font-mono text-[11px] inline-flex items-center gap-1 transition whitespace-nowrap">
             <span id="play-icon">
               <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
             </span>
             <span id="play-text" class="font-medium">PAUSE</span>
           </button>
-          <button onclick="setSpeed(1)" id="btn-speed-1" class="px-2 py-1 text-xs font-mono text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md transition">1x</button>
-          <button onclick="setSpeed(5)" id="btn-speed-5" class="px-2 py-1 text-xs font-mono text-gray-900 dark:text-gray-100 bg-white dark:bg-[#2b2d32] font-semibold border border-gray-200 dark:border-[#383b42] rounded-md transition">5x</button>
-          <button onclick="setSpeed(20)" id="btn-speed-20" class="px-2 py-1 text-xs font-mono text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md transition">20x</button>
-          <button onclick="resetSimulation()" class="p-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-md transition" title="Reset Simulation Batch">
+          <button onclick="setSpeed(1)" id="btn-speed-1" class="px-1.5 py-1 text-[11px] font-mono text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md transition">1x</button>
+          <button onclick="setSpeed(5)" id="btn-speed-5" class="px-1.5 py-1 text-[11px] font-mono text-gray-900 dark:text-gray-100 bg-white dark:bg-[#2b2d32] font-semibold border border-gray-200 dark:border-[#383b42] rounded-md transition">5x</button>
+          <button onclick="setSpeed(20)" id="btn-speed-20" class="px-1.5 py-1 text-[11px] font-mono text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md transition">20x</button>
+          <button id="btn-ff-48h" onclick="runFastForwardWorker(48, 'restart')" class="px-1.5 py-1 text-[11px] font-mono text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 rounded-md transition inline-flex items-center gap-1 whitespace-nowrap" title="Run instant 48h batch horizon off-thread (Web Worker)">
+            <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>
+            <span data-i18n="btn_ff_48h">Fast 48h</span>
+          </button>
+          <button id="btn-ff-24h" onclick="runFastForwardWorker(24, 'continue')" class="px-1.5 py-1 text-[11px] font-mono text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 rounded-md transition whitespace-nowrap" title="Advance +24h horizon in Web Worker" data-i18n="btn_ff_24h">+24h Worker</button>
+          <button onclick="resetSimulation()" class="p-1 text-xs text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-md transition" title="Reset Simulation Batch">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
           </button>
         </div>
 
         <!-- GLUCOSE FEED PULSE -->
-        <button onclick="injectFeedPulse()" class="px-3 py-1.5 bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-[#35373c] font-medium rounded-xl text-xs transition active:scale-95 inline-flex items-center gap-1.5 shadow-sm" title="Inject glucose substrate (+5 g/L)">
-          <svg class="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2h6"></path><path d="M9 3v18M18 15v6m-3-3h6"></path></svg>
+        <button onclick="injectFeedPulse()" class="px-2 py-1 bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-[#35373c] font-medium rounded-xl text-[11px] transition active:scale-95 inline-flex items-center gap-1 shadow-sm whitespace-nowrap" title="Inject glucose substrate (+5 g/L)">
+          <svg class="w-3.5 h-3.5 text-gray-600 dark:text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2h6"></path><path d="M9 3v18M18 15v6m-3-3h6"></path></svg>
           <span data-i18n="btn_pulse">Feed Pulse (+5g/L)</span>
         </button>
 
         <!-- NITROGEN FEED PULSE (v2.0) -->
-        <button onclick="injectNitrogenPulse()" class="px-3 py-1.5 bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-[#35373c] font-medium rounded-xl text-xs transition active:scale-95 inline-flex items-center gap-1.5 shadow-sm" title="Inject nitrogen nutrient pulse (+2 g/L)">
-          <svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg>
+        <button onclick="injectNitrogenPulse()" class="px-2 py-1 bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-[#35373c] font-medium rounded-xl text-[11px] transition active:scale-95 inline-flex items-center gap-1 shadow-sm whitespace-nowrap" title="Inject nitrogen nutrient pulse (+2 g/L)">
+          <svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg>
           <span data-i18n="btn_pulse_n">Nitrogen (+2g/L)</span>
         </button>
 
         <!-- CSV EXPORT -->
-        <button onclick="exportCSV()" class="px-3 py-1.5 bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#35373c] rounded-xl text-xs font-mono transition inline-flex items-center gap-1.5 shadow-sm">
-          <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>
+        <button onclick="exportCSV()" class="px-2 py-1 bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#35373c] rounded-xl text-[11px] font-mono transition inline-flex items-center gap-1 shadow-sm whitespace-nowrap">
+          <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>
           <span>CSV</span>
         </button>
       </div>
@@ -390,6 +204,16 @@
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
           </button>
         </div>
+      </div>
+
+      <!-- Row 1b: Web Worker Instant Horizon -->
+      <div class="grid grid-cols-2 gap-2">
+        <button id="mob-btn-ff-48h" onclick="runFastForwardWorker(48, 'restart')" class="py-1.5 px-3 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/40 font-mono font-medium rounded-xl text-xs transition active:scale-95 inline-flex items-center justify-center gap-1.5 shadow-sm">
+          <span data-i18n="btn_ff_48h">Fast 48h</span>
+        </button>
+        <button id="mob-btn-ff-24h" onclick="runFastForwardWorker(24, 'continue')" class="py-1.5 px-3 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/40 font-mono font-medium rounded-xl text-xs transition active:scale-95 inline-flex items-center justify-center gap-1.5 shadow-sm">
+          <span data-i18n="btn_ff_24h">+24h Worker</span>
+        </button>
       </div>
 
       <!-- Row 2: Pulses (Glucose & Nitrogen) -->
@@ -488,9 +312,9 @@
             </button>
           </div>
 
-          <!-- In-situ 3D Sensor Badges (Overlay) -->
-          <div class="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between text-[10px] font-mono pointer-events-none z-20">
-            <div class="flex flex-wrap gap-1.5 text-gray-600 dark:text-gray-400">
+          <!-- In-situ 3D Sensor Badges + Interactive Hint (Unified Non-Overlapping Overlay) -->
+          <div class="absolute bottom-2.5 left-2.5 right-2.5 flex items-end justify-between gap-2 text-[10px] font-mono pointer-events-none z-20">
+            <div class="flex flex-wrap gap-1.5 text-gray-600 dark:text-gray-400 min-w-0">
               <span class="bg-white/90 dark:bg-[#1b1c20]/90 backdrop-blur-md px-2 py-0.5 rounded-md border border-gray-200 dark:border-white/[0.08] flex items-center gap-1 shadow-sm">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
                 <span>OD600:</span> <b id="overlay-od" class="text-gray-900 dark:text-gray-100 tabular-nums">0.82</b>
@@ -506,15 +330,15 @@
             </div>
 
             <!-- Mobile hint badge -->
-            <div class="lg:hidden text-[9px] font-mono text-gray-500 dark:text-gray-400 bg-white/80 dark:bg-[#1b1c20]/80 px-2 py-0.5 rounded-md border border-gray-200 dark:border-white/[0.06] shadow-sm">
+            <div class="lg:hidden shrink-0 text-[9px] font-mono text-gray-500 dark:text-gray-400 bg-white/80 dark:bg-[#1b1c20]/80 px-2 py-0.5 rounded-md border border-gray-200 dark:border-white/[0.06] shadow-sm">
               <span id="hint-touch-mobile">Tap to rotate</span>
             </div>
-          </div>
 
-          <!-- Interactive 3D Orbit Hint (Desktop) -->
-          <div class="absolute bottom-3 right-3 text-[10px] font-mono text-gray-500 dark:text-gray-400 bg-white/80 dark:bg-[#1b1c20]/80 px-2.5 py-1 rounded-md border border-gray-200 dark:border-white/[0.06] pointer-events-none z-20 hidden lg:flex items-center gap-1.5 shadow-sm">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10M12 2v4M12 22v-4M2 12h4M22 12h-4"></path></svg>
-            <span data-i18n="hint_3d">Drag to Rotate &bull; Scroll to Zoom</span>
+            <!-- Desktop orbit hint -->
+            <div class="hidden lg:inline-flex shrink-0 items-center gap-1 text-[10px] font-mono text-gray-500 dark:text-gray-400 bg-white/80 dark:bg-[#1b1c20]/80 px-2 py-0.5 rounded-md border border-gray-200 dark:border-white/[0.06] shadow-sm whitespace-nowrap">
+              <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10M12 2v4M12 22v-4M2 12h4M22 12h-4"></path></svg>
+              <span data-i18n="hint_3d">Drag to Rotate &bull; Scroll to Zoom</span>
+            </div>
           </div>
         </div>
 
@@ -876,7 +700,7 @@
           <h2 class="text-base sm:text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100" data-i18n="dash_title">
             Bioprocess Batch Analytics &amp; Results Dashboard
           </h2>
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 font-mono font-medium">v2.5.0</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 font-mono font-medium">v2.6.0</span>
         </div>
         <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="dash_subtitle">
           High-resolution time-course telemetry, yield calculations, stoichiometric verification, and respirometry.
@@ -907,10 +731,20 @@
       </div>
 
       <!-- Action Toolbar -->
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2 no-print">
         <button onclick="switchView('sim')" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs shadow-sm transition inline-flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           <span data-i18n="btn_back_sim">Return to 3D Twin</span>
+        </button>
+        <button id="btn-pin-baseline" onclick="pinCurrentAsBaseline()" class="px-3 py-1.5 rounded-xl bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/40 text-xs font-mono transition inline-flex items-center gap-1.5 shadow-sm">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
+          <span data-i18n="btn_pin_baseline">Pin Run A</span>
+        </button>
+        <button id="btn-toggle-compare" onclick="toggleCompareMode()" class="px-3 py-1.5 rounded-xl bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#35373c] text-xs font-mono transition inline-flex items-center gap-1.5 shadow-sm">
+          <span data-i18n="btn_compare_ab">Compare vs A</span>
+        </button>
+        <button id="btn-clear-baseline" onclick="clearBaselineRun()" class="hidden px-2.5 py-1.5 rounded-xl bg-white dark:bg-[#212226] hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/40 text-xs font-mono transition inline-flex items-center gap-1 shadow-sm">
+          <span data-i18n="btn_clear_baseline">Clear A</span>
         </button>
         <a href="dashboard.html" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#35373c] text-xs font-mono transition inline-flex items-center gap-1.5 shadow-sm" title="Open Standalone Dashboard Page">
           <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
@@ -929,6 +763,15 @@
           <span data-i18n="btn_print_pdf">PDF</span>
         </button>
       </div>
+    </div>
+
+    <!-- A/B RUN COMPARISON BENCHMARK BAR (v2.6.0) -->
+    <div id="dash-ab-panel" class="google-card rounded-2xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3">
+      <div class="space-y-0.5">
+        <div class="text-[10px] font-mono uppercase tracking-wider text-indigo-600 dark:text-indigo-400 font-semibold" data-i18n="ab_banner_title">A/B Batch Run Comparison</div>
+        <div id="dash-ab-summary" class="text-xs font-mono text-gray-600 dark:text-gray-300">No Baseline Pinned — click 'Pin Run A' to benchmark another batch condition.</div>
+      </div>
+      <div id="dash-ab-deltas" class="flex flex-wrap items-center gap-1.5"></div>
     </div>
 
     <!-- 6 EXECUTIVE KPI METRIC CARDS -->
@@ -1371,539 +1214,49 @@
     </div>
   </div>
 
-  <!-- JAVASCRIPT: I18N, THEME ENGINE, BIOPROCESS KINETICS & THREE.JS 3D RENDERER -->
-  <script>
-    /* =========================================================================
-       0. MULTILANGUAGE (i18n) ENGINE & DICTIONARY
-       ========================================================================= */
+  <!-- JAVASCRIPT: MODULAR ES ARCHITECTURE, WEB WORKER, A/B BENCHMARK & THREE.JS RENDERER (v2.6.0) -->
+  <script type="module">
+    import { i18n, translate, loadSavedLang, saveLang, applyTranslationsToDOM } from './js/i18n.js';
+    import { getEffectiveTheme as _getEffectiveTheme, loadSavedTheme, saveTheme, applyThemeDocumentClass } from './js/theme.js';
+    import { Strains } from './js/strains.js';
+    import {
+      GrowthPhaseMeta,
+      classifyInstantaneousPhase as _classifyInstantaneousPhase,
+      analyzeBatchGrowthPhases,
+      renderGrowthPhaseBreakdownDOM,
+      createGrowthPhaseBackgroundPlugin
+    } from './js/phases.js';
+    import {
+      MAX_HISTORY_POINTS,
+      RECENT_HIGH_RES_COUNT,
+      createDefaultSimState,
+      computeHydrodynamics as _computeHydrodynamics,
+      integrateBioprocessStep,
+      buildHistoryPoint,
+      compactHistoryArray,
+      computeBatchKpis
+    } from './js/kinetics.js';
+    import {
+      loadBaselinePayload,
+      saveBaselinePayload,
+      clearBaselinePayload,
+      getDashboardChartOptions as _getDashboardChartOptions,
+      interpolateSeriesAtTimes,
+      renderStoichTableDOM,
+      renderTelemetryTableDOM,
+      buildFullBatchCSV,
+      renderComparisonPanelDOM
+    } from './js/dashboard-shared.js';
+
     let currentLang = 'en'; // 'en', 'es', 'de'
 
-    const i18n = {
-      en: {
-        app_title: "Bioprocess Visual Twin",
-        app_subtitle: "Physics-Informed Real-Time Digital Twin • Ing. Juan José Álvarez Morales",
-        reactor_rushton: "STR (Rushton)",
-        reactor_marine: "STR (Marine)",
-        reactor_airlift: "Airlift Loop",
-        reactor_pbr: "Photobioreactor",
-        reactor_static: "Static Vessel",
-        btn_setup: "Batch Setup",
-        btn_pulse: "Feed Pulse (+5g/L)",
-        time_lbl: "Time:",
-        cam_view: "View:",
-        cam_front: "Front",
-        cam_impeller: "Impeller",
-        cam_vortex: "Vortex",
-        sensor_shear: "Shear:",
-        sensor_turb: "Turbidity:",
-        hint_3d: "Drag to Rotate • Scroll to Zoom",
-        lbl_agitation: "Agitation:",
-        lbl_aeration: "Aeration:",
-        kpi_biomass_title: "Biomass X",
-        kpi_growth_rate: "Growth μ:",
-        kpi_substrate_title: "Substrate S",
-        kpi_consumed: "Consumed:",
-        kpi_oxygen_title: "Dissolved O₂",
-        kpi_kla: "kla transfer:",
-        kpi_product_title: "Target Product",
-        kpi_yield: "Yield Y_P/S:",
-        chart_title: "SCADA Multi-Channel Telemetry Stream",
-        chart_fps: "60 FPS Sync",
-        leg_biomass: "Biomass (g/L)",
-        leg_substrate: "Substrate (g/L)",
-        leg_do: "DO (% Sat)",
-        leg_product: "Product (g/L)",
-        sandbox_title: "Process Disturbance & Recovery Sandbox",
-        fault_normal: "NORMAL OPERATION",
-        lbl_autodo: "Auto DO (Cascade PID):",
-        inject_disturbance: "Inject Disturbance:",
-        btn_clear_fault: "Clear Fault",
-        btn_compressor_stop: "Compressor Stop",
-        btn_stall_impeller: "Stall Impeller",
-        btn_sensor_drift: "Sensor Drift (+25%)",
-        btn_thermal_shock: "Thermal Runaway (42°C)",
-        lp_kinetics_title: "Luedeking-Piret Kinetics:",
-        lp_alpha_lbl: "Growth-Assoc (α):",
-        lp_beta_lbl: "Non-Growth (β):",
-        safety_title: "Safety Interlocks",
-        risk_hypoxia: "Hypoxia Risk:",
-        risk_shear: "Shear Stress:",
-        status_actuator_lbl: "PID Actuator:",
-        hydro_title: "HYDRODYNAMICS & SCALE",
-        hydro_re: "Reynolds (Re):",
-        hydro_vtip: "Tip Speed (v_tip):",
-        hydro_pv: "Power P/V:",
-        hydro_regime: "Flow Regime:",
-        carbon_title: "CARBON BALANCE AUDITOR",
-        c_fed: "C-Carbon Fed:",
-        c_fixed: "C-Incorporated:",
-        c_co2: "CO₂ Respiration:",
-        c_balance: "Recovery Balance:",
-        controllers_title: "THERMAL & pH CONTROLLERS",
-        temp_lbl: "Broth Temp:",
-        ph_lbl: "Broth pH:",
-        modal_title: "Bioprocess Batch Configuration",
-        modal_subtitle: "Select organism benchmark model and configure initial batch operating parameters.",
-        modal_sec_lang: "Select Interface Language:",
-        modal_sec_strain: "Biological Benchmark Strain:",
-        modal_sec_params: "Initial Cultivation Setpoints:",
-        param_x0: "Initial Biomass X₀ (g/L):",
-        param_s0: "Initial Glucose S₀ (g/L):",
-        param_vol: "Working Volume (L):",
-        param_temp: "Target Temperature (°C):",
-        param_ph: "Target pH:",
-        param_mumax: "μmax Kinetic (h⁻¹):",
-        btn_close: "Close",
-        btn_launch_batch: "Launch Batch Simulation",
-        vessel_str_rushton: "20 L Bench-Scale Stirred Tank (Rushton)",
-        vessel_str_marine: "20 L Mammalian Stirred Tank (Marine)",
-        vessel_airlift: "20 L Airlift Loop Bioreactor (Draft Tube)",
-        vessel_pbr: "20 L Tubular Photobioreactor (Algae/Cyanobacteria)",
-        vessel_static: "20 L Static Culture Vessel (Surface Oxygenation)",
-        alarm_safe: "Safe (>20%)",
-        alarm_warning_o2: "Warning: Low O₂",
-        alarm_critical_o2: "Critical (<15%)",
-        alarm_optimal_shear: "Optimal (<3.0 m/s)",
-        alarm_high_shear: "High Shear (>3.0 m/s)",
-        alarm_zero_shear: "Zero Shear (Static Safe)",
-        actuator_standby: "Manual Standby",
-        actuator_holding: "Holding 30% Setpoint",
-        actuator_boosting: "Boosting RPM/VVM",
-        actuator_throttling: "Throttling Down",
-        regime_turbulent: "Fully Turbulent",
-        regime_static: "Static (Zero Shear)",
-        btn_pulse_n: "Nitrogen (+2g/L)",
-        param_n0: "Initial Nitrogen N₀ (g/L):",
-        param_osmo: "Medium Osmolarity (mOsm):",
-        media_title: "MEDIA COMPOSITION & C/N",
-        cn_ratio_lbl: "C/N Mass Ratio:",
-        nitrogen_lbl: "Dissolved Nitrogen:",
-        purity_lbl: "Culture Purity:",
-        osmo_lbl: "Osmolarity:",
-        btn_contam_bacteria: "Bacterial Contam",
-        btn_contam_phage: "Phage Lysis Shock",
-        btn_biofouling: "Sparger Biofouling",
-        btn_sip_reset: "Steam / CIP Reset",
-        fault_bacteria: "BIO-CONTAMINATION: COMPETITOR MICROFLORA",
-        fault_phage: "VIRAL ATTACK: BACTERIOPHAGE MASS LYSIS",
-        fault_biofouling: "BIOFOULING: SPARGER & FILTER CLOGGING",
-        cn_status_opt: "Balanced (Optimal)",
-        cn_status_n_lim: "N-Limited (Lipogenic)",
-        cn_status_c_lim: "C-Limited (Starvation)",
-        tab_sim: "3D Twin",
-        tab_dashboard: "Results Dashboard",
-        dash_title: "Bioprocess Batch Analytics & Results Dashboard",
-        dash_subtitle: "High-resolution time-course telemetry, yield calculations, stoichiometric verification, and respirometry.",
-        btn_back_sim: "Return to 3D Twin",
-        btn_view_dashboard: "Analytics Dashboard ↗",
-        btn_standalone: "Standalone View ↗",
-        btn_export_full_csv: "Export Full Run CSV",
-        btn_export_json: "Export JSON Manifest",
-        btn_print_pdf: "Print / PDF Report",
-        dash_strain_lbl: "Organism:",
-        dash_vessel_lbl: "Vessel Architecture:",
-        dash_duration_lbl: "Simulated Time:",
-        dash_purity_lbl: "Culture Sterility:",
-        dash_kpi_deltax: "Biomass Formed (ΔX):",
-        dash_kpi_yxs: "Biomass Yield (Y_X/S):",
-        dash_kpi_qp: "Productivity (Q_P):",
-        dash_kpi_carbon: "Carbon Closure:",
-        dash_kpi_kla: "Mean Transfer (kLa):",
-        dash_kpi_health: "Culture Purity:",
-        dash_chart_growth: "Biomass, Substrate & Product Dynamics",
-        dash_chart_respiration: "Dissolved Oxygen, OUR & Mass Transfer Profile",
-        dash_chart_rates: "Specific Kinetic Rates (μ, q_S, q_P)",
-        dash_chart_env: "Culture Purity, Osmolarity & Environment",
-        dash_table_stoich: "Bioprocess Stoichiometric & Kinetic Verification",
-        dash_table_telemetry: "Full Batch Telemetry Log",
-        th_param: "Parameter",
-        th_symbol: "Symbol",
-        th_value: "Batch Value",
-        th_unit: "Unit",
-        th_benchmark: "Benchmark Range",
-        th_status: "Status",
-        th_time: "Time (h)",
-        th_biomass: "Biomass (g/L)",
-        th_substrate: "Substrate (g/L)",
-        th_nitrogen: "Nitrogen (g/L)",
-        th_do: "DO (%)",
-        th_product: "Product (g/L)",
-        th_mu: "μ (h⁻¹)",
-        th_kla: "kLa (h⁻¹)",
-        th_our: "OUR (mmol/L/h)",
-        th_temp: "Temp (°C)",
-        th_ph: "pH",
-        th_purity: "Purity (%)",
-        touch_orbit: "3D Orbit",
-        touch_scroll: "Page Scroll",
-        hint_touch_rotate: "Tap to rotate 3D",
-        hint_touch_scroll: "Tap to scroll page",
-        mob_tab_telem: "Telemetry",
-        mob_tab_faults: "Faults",
-        mob_tab_kinetics: "Kinetics",
-        mob_tab_all: "All",
-        table_scroll_hint: "← Swipe table to inspect full columns →",
-        phase_lag: "Lag Phase",
-        phase_exponential: "Exponential (Log)",
-        phase_deceleration: "Deceleration Phase",
-        phase_stationary: "Stationary Phase",
-        phase_death: "Lysis / Death Phase",
-        dash_growth_phases_title: "Growth Phase Segments:"
-      },
-      es: {
-        app_title: "Gemelo Visual de Bioprocesos",
-        app_subtitle: "Gemelo Digital en Tiempo Real Basado en Física • Ing. Juan José Álvarez Morales",
-        reactor_rushton: "STR (Rushton)",
-        reactor_marine: "STR (Marine)",
-        reactor_airlift: "Bucle Airlift",
-        reactor_pbr: "Fotobiorreactor",
-        reactor_static: "Recipiente Estático",
-        btn_setup: "Configurar Lote",
-        btn_pulse: "Pulso Glucosa (+5g/L)",
-        time_lbl: "Tiempo:",
-        cam_view: "Vista:",
-        cam_front: "Frontal",
-        cam_impeller: "Impulsor",
-        cam_vortex: "Vórtice",
-        sensor_shear: "Cizalla:",
-        sensor_turb: "Turbidez:",
-        hint_3d: "Arrastre para Rotar • Scroll para Zoom",
-        lbl_agitation: "Agitación:",
-        lbl_aeration: "Aireación:",
-        kpi_biomass_title: "Biomasa X",
-        kpi_growth_rate: "Crecimiento μ:",
-        kpi_substrate_title: "Sustrato S",
-        kpi_consumed: "Consumido:",
-        kpi_oxygen_title: "Oxígeno Disuelto O₂",
-        kpi_kla: "Transferencia kla:",
-        kpi_product_title: "Producto Diana",
-        kpi_yield: "Rendimiento Y_P/S:",
-        chart_title: "Telemetría Multicanal SCADA en Tiempo Real",
-        chart_fps: "Sincronía 60 FPS",
-        leg_biomass: "Biomasa (g/L)",
-        leg_substrate: "Sustrato (g/L)",
-        leg_do: "OD (% Sat)",
-        leg_product: "Producto (g/L)",
-        sandbox_title: "Sandbox de Perturbaciones y Recuperación de Proceso",
-        fault_normal: "OPERACIÓN NORMAL",
-        lbl_autodo: "OD Automático (PID en Cascada):",
-        inject_disturbance: "Inyectar Perturbación:",
-        btn_clear_fault: "Limpiar Fallo",
-        btn_compressor_stop: "Parada Compresor",
-        btn_stall_impeller: "Detener Agitador",
-        btn_sensor_drift: "Deriva Sensor (+25%)",
-        btn_thermal_shock: "Inactivación Térmica (42°C)",
-        lp_kinetics_title: "Cinética de Luedeking-Piret:",
-        lp_alpha_lbl: "Asoc-Crecimiento (α):",
-        lp_beta_lbl: "No-Asoc (β):",
-        safety_title: "Enclavamientos de Seguridad",
-        risk_hypoxia: "Riesgo de Hipoxia:",
-        risk_shear: "Estrés de Cizalla:",
-        status_actuator_lbl: "Actuador PID:",
-        hydro_title: "HIDRODINÁMICA Y ESCALADO",
-        hydro_re: "Reynolds (Re):",
-        hydro_vtip: "Velocidad de Punta (v_tip):",
-        hydro_pv: "Potencia P/V:",
-        hydro_regime: "Régimen de Flujo:",
-        carbon_title: "AUDITOR DE BALANCE DE CARBONO",
-        c_fed: "Carbono C-Alimentado:",
-        c_fixed: "C-Incorporado:",
-        c_co2: "Respiración CO₂:",
-        c_balance: "Balance de Recuperación:",
-        controllers_title: "CONTROLADORES TÉRMICOS Y DE pH",
-        temp_lbl: "Temp. Caldo:",
-        ph_lbl: "pH Caldo:",
-        modal_title: "Configuración de Lote de Bioproceso",
-        modal_subtitle: "Seleccione el modelo biológico de referencia y configure los parámetros iniciales del lote.",
-        modal_sec_lang: "Seleccionar Idioma de Interfaz:",
-        modal_sec_strain: "Cepa Biológica de Referencia:",
-        modal_sec_params: "Puntos de Consigna Iniciales de Cultivo:",
-        param_x0: "Biomasa Inicial X₀ (g/L):",
-        param_s0: "Glucosa Inicial S₀ (g/L):",
-        param_vol: "Volumen de Trabajo (L):",
-        param_temp: "Temperatura Objetivo (°C):",
-        param_ph: "pH Objetivo:",
-        param_mumax: "Cinética μmax (h⁻¹):",
-        btn_close: "Cerrar",
-        btn_launch_batch: "Iniciar Simulación de Lote",
-        vessel_str_rushton: "Tanque Agitado de 20 L a Escala de Banco (Rushton)",
-        vessel_str_marine: "Tanque Agitado para Células de Mamífero de 20 L (Hélice Marina)",
-        vessel_airlift: "Biorreactor de Bucle Airlift de 20 L (Tubo Guía)",
-        vessel_pbr: "Fotobiorreactor Tubular de 20 L (Microalgas)",
-        vessel_static: "Recipiente de Cultivo Estático de 20 L (Oxigenación Superficial)",
-        alarm_safe: "Seguro (>20%)",
-        alarm_warning_o2: "Aviso: Bajo O₂",
-        alarm_critical_o2: "Crítico (<15%)",
-        alarm_optimal_shear: "Óptimo (<3.0 m/s)",
-        alarm_high_shear: "Alta Cizalla (>3.0 m/s)",
-        alarm_zero_shear: "Cizalla Nula (Estático)",
-        actuator_standby: "Espera Manual",
-        actuator_holding: "Manteniendo consigna 30%",
-        actuator_boosting: "Aumentando RPM/VVM",
-        actuator_throttling: "Reduciendo RPM/VVM",
-        regime_turbulent: "Completamente Turbulento",
-        regime_static: "Estático (Cizalla Nula)",
-        btn_pulse_n: "Pulso Nitrógeno (+2g/L)",
-        param_n0: "Nitrógeno Inicial N₀ (g/L):",
-        param_osmo: "Osmolaridad del Medio (mOsm):",
-        media_title: "COMPOSICIÓN DE MEDIO Y C/N",
-        cn_ratio_lbl: "Relación C/N Másica:",
-        nitrogen_lbl: "Nitrógeno en Caldo (N):",
-        purity_lbl: "Pureza del Cultivo:",
-        osmo_lbl: "Osmolaridad:",
-        btn_contam_bacteria: "Contaminación Bact.",
-        btn_contam_phage: "Fagólisis Viral",
-        btn_biofouling: "Bioensuciamiento",
-        btn_sip_reset: "Reset Vapor / CIP",
-        fault_bacteria: "BIOCONTAMINACIÓN: MICROFLORA COMPETIDORA",
-        fault_phage: "ATAQUE VIRAL: FAGÓLISIS MASIVA",
-        fault_biofouling: "BIOENSUCIAMIENTO: OBTURACIÓN DIFUSOR Y FILTRO",
-        cn_status_opt: "Equilibrado (Óptimo)",
-        cn_status_n_lim: "Limitado en N (Lipogénico)",
-        cn_status_c_lim: "Limitado en C (Hambre)",
-        tab_sim: "Gemelo 3D",
-        tab_dashboard: "Panel de Resultados",
-        dash_title: "Panel de Resultados y Analítica de Lote de Bioproceso",
-        dash_subtitle: "Telemetría temporal de alta resolución, cálculo de rendimientos, verificación estequiométrica y respirometría.",
-        btn_back_sim: "Volver al Gemelo 3D",
-        btn_view_dashboard: "Panel de Analítica ↗",
-        btn_standalone: "Página Independiente ↗",
-        btn_export_full_csv: "Exportar CSV Completo",
-        btn_export_json: "Exportar Manifiesto JSON",
-        btn_print_pdf: "Imprimir / Guardar PDF",
-        dash_strain_lbl: "Organismo:",
-        dash_vessel_lbl: "Arquitectura de Recipiente:",
-        dash_duration_lbl: "Tiempo Simulado:",
-        dash_purity_lbl: "Esterilidad de Cultivo:",
-        dash_kpi_deltax: "Biomasa Formada (ΔX):",
-        dash_kpi_yxs: "Rendimiento Biomasa (Y_X/S):",
-        dash_kpi_qp: "Productividad (Q_P):",
-        dash_kpi_carbon: "Cierre de Carbono:",
-        dash_kpi_kla: "Transferencia Media (kLa):",
-        dash_kpi_health: "Pureza de Cultivo:",
-        dash_chart_growth: "Dinámica de Biomasa, Sustratos y Producto",
-        dash_chart_respiration: "Oxígeno Disuelto, OUR y Perfil de Transferencia",
-        dash_chart_rates: "Tasas Cinéticas Específicas (μ, q_S, q_P)",
-        dash_chart_env: "Pureza de Cultivo, Osmolaridad y Entorno",
-        dash_table_stoich: "Verificación Estequiométrica y Cinética de Bioproceso",
-        dash_table_telemetry: "Registro Completo de Telemetría de Lote",
-        th_param: "Parámetro",
-        th_symbol: "Símbolo",
-        th_value: "Valor de Lote",
-        th_unit: "Unidad",
-        th_benchmark: "Rango de Referencia",
-        th_status: "Estado",
-        th_time: "Tiempo (h)",
-        th_biomass: "Biomasa (g/L)",
-        th_substrate: "Sustrato (g/L)",
-        th_nitrogen: "Nitrógeno (g/L)",
-        th_do: "OD (%)",
-        th_product: "Producto (g/L)",
-        th_mu: "μ (h⁻¹)",
-        th_kla: "kLa (h⁻¹)",
-        th_our: "OUR (mmol/L/h)",
-        th_temp: "Temp (°C)",
-        th_ph: "pH",
-        th_purity: "Pureza (%)",
-        touch_orbit: "Rotar 3D",
-        touch_scroll: "Desplazar",
-        hint_touch_rotate: "Toca para girar 3D",
-        hint_touch_scroll: "Toca para deslizar",
-        mob_tab_telem: "Telemetría",
-        mob_tab_faults: "Fallos",
-        mob_tab_kinetics: "Cinética",
-        mob_tab_all: "Todo",
-        table_scroll_hint: "← Desliza la tabla para ver todas las columnas →",
-        phase_lag: "Fase de Latencia (Lag)",
-        phase_exponential: "Fase Exponencial (Log)",
-        phase_deceleration: "Fase de Desaceleración",
-        phase_stationary: "Fase Estacionaria",
-        phase_death: "Fase de Muerte / Lisis",
-        dash_growth_phases_title: "Fases de Crecimiento:"
-      },
-      de: {
-        app_title: "Visueller Bioprozess-Zwilling",
-        app_subtitle: "Physikbasierter Echtzeit-Digital-Zwilling • Ing. Juan José Álvarez Morales",
-        reactor_rushton: "STR (Rushton)",
-        reactor_marine: "STR (Marine)",
-        reactor_airlift: "Airlift-Schlaufe",
-        reactor_pbr: "Photobioreaktor",
-        reactor_static: "Statisches Gefäß",
-        btn_setup: "Batch-Setup",
-        btn_pulse: "Fütterungspuls (+5g/L)",
-        time_lbl: "Zeit:",
-        cam_view: "Ansicht:",
-        cam_front: "Front",
-        cam_impeller: "Rührer",
-        cam_vortex: "Wirbel",
-        sensor_shear: "Scherung:",
-        sensor_turb: "Trübung:",
-        hint_3d: "Ziehen zum Drehen • Scrollen für Zoom",
-        lbl_agitation: "Rühren:",
-        lbl_aeration: "Begasung:",
-        kpi_biomass_title: "Biomasse X",
-        kpi_growth_rate: "Wachstum μ:",
-        kpi_substrate_title: "Substrat S",
-        kpi_consumed: "Verbraucht:",
-        kpi_oxygen_title: "Gelöster O₂",
-        kpi_kla: "kla-Transfer:",
-        kpi_product_title: "Zielprodukt",
-        kpi_yield: "Ausbeute Y_P/S:",
-        chart_title: "SCADA Mehrkanal-Telemetriestrom",
-        chart_fps: "60 FPS Sync",
-        leg_biomass: "Biomasse (g/L)",
-        leg_substrate: "Substrat (g/L)",
-        leg_do: "DO (% Sättigung)",
-        leg_product: "Produkt (g/L)",
-        sandbox_title: "Prozessstörungs- & Erholungs-Sandbox",
-        fault_normal: "NORMALBETRIEB",
-        lbl_autodo: "Auto-DO (Kaskaden-PID):",
-        inject_disturbance: "Störung Injizieren:",
-        btn_clear_fault: "Fehler Löschen",
-        btn_compressor_stop: "Kompressorstopp",
-        btn_stall_impeller: "Rührer Blockieren",
-        btn_sensor_drift: "Sensordrift (+25%)",
-        btn_thermal_shock: "Thermischer Schock (42°C)",
-        lp_kinetics_title: "Luedeking-Piret-Kinetik:",
-        lp_alpha_lbl: "Wachstums-Assoc (α):",
-        lp_beta_lbl: "Nicht-Wachstum (β):",
-        safety_title: "Sicherheitsverriegelungen",
-        risk_hypoxia: "Hypoxierisiko:",
-        risk_shear: "Scherbelastung:",
-        status_actuator_lbl: "PID-Aktor:",
-        hydro_title: "HYDRODYNAMIK & MASSSTAB",
-        hydro_re: "Reynolds (Re):",
-        hydro_vtip: "Spitzengeschw. (v_tip):",
-        hydro_pv: "Leistung P/V:",
-        hydro_regime: "Strömungsregime:",
-        carbon_title: "KOHLENSTOFFBILANZ-AUDITOR",
-        c_fed: "C-Kohlenstoff Zufuhr:",
-        c_fixed: "C-Inkorporiert:",
-        c_co2: "CO₂-Atmung:",
-        c_balance: "Wiedergewinnung:",
-        controllers_title: "TEMPERATUR- & pH-REGLER",
-        temp_lbl: "Kultur-Temp.:",
-        ph_lbl: "Kultur-pH:",
-        modal_title: "Bioprozess-Batch-Konfiguration",
-        modal_subtitle: "Wählen Sie ein Referenzmodell und konfigurieren Sie die Startparameter.",
-        modal_sec_lang: "Schnittstellensprache Wählen:",
-        modal_sec_strain: "Biologischer Referenzstamm:",
-        modal_sec_params: "Initiale Kultivierungs-Sollwerte:",
-        param_x0: "Initiale Biomasse X₀ (g/L):",
-        param_s0: "Initiales Substrat S₀ (g/L):",
-        param_vol: "Arbeitsvolumen (L):",
-        param_temp: "Zieltemperatur (°C):",
-        param_ph: "Ziel-pH:",
-        param_mumax: "μmax Kinetik (h⁻¹):",
-        btn_close: "Schließen",
-        btn_launch_batch: "Batch-Simulation Starten",
-        vessel_str_rushton: "20-L Labor-Rührkesselreaktor (Rushton)",
-        vessel_str_marine: "20-L Säugetierzell-Rührkessel (Marine-Propeller)",
-        vessel_airlift: "20-L Airlift-Schlaufenbioreaktor (Leitrohr)",
-        vessel_pbr: "20-L Rohr-Photobioreaktor (Algen)",
-        vessel_static: "20-L Statisches Kulturgefäß (Oberflächenbegasung)",
-        alarm_safe: "Sicher (>20%)",
-        alarm_warning_o2: "Warnung: Niedriger O₂",
-        alarm_critical_o2: "Kritisch (<15%)",
-        alarm_optimal_shear: "Optimal (<3.0 m/s)",
-        alarm_high_shear: "Hohe Scherkraft (>3.0 m/s)",
-        alarm_zero_shear: "Null Scherung (Statisch)",
-        actuator_standby: "Manueller Standby",
-        actuator_holding: "30% Sollwert Halten",
-        actuator_boosting: "RPM/VVM Steigern",
-        actuator_throttling: "Drosseln",
-        regime_turbulent: "Voll Turbulent",
-        regime_static: "Statisch (Null Scherung)",
-        btn_pulse_n: "Stickstoffpuls (+2g/L)",
-        param_n0: "Initialer Stickstoff N₀ (g/L):",
-        param_osmo: "Medium-Osmolarität (mOsm):",
-        media_title: "MEDIENZUSAMMENSETZUNG & C/N",
-        cn_ratio_lbl: "C/N-Massenverhältnis:",
-        nitrogen_lbl: "Stickstoff im Medium (N):",
-        purity_lbl: "Kulturreinheit:",
-        osmo_lbl: "Osmolarität:",
-        btn_contam_bacteria: "Bakterien-Kontam.",
-        btn_contam_phage: "Phagenlyse-Schock",
-        btn_biofouling: "Begaser-Biofouling",
-        btn_sip_reset: "Dampf- / CIP-Reset",
-        fault_bacteria: "BIO-KONTAMINATION: BEGLEITFLORA",
-        fault_phage: "VIRUSANGRIFF: PHAGEN-MASSENLYSE",
-        fault_biofouling: "BIOFOULING: BEGASER-VERSTOPFUNG",
-        cn_status_opt: "Ausgewogen (Optimal)",
-        cn_status_n_lim: "N-Limitiert (Lipogen)",
-        cn_status_c_lim: "C-Limitiert (Mangel)",
-        tab_sim: "3D-Zwilling",
-        tab_dashboard: "Ergebnis-Dashboard",
-        dash_title: "Bioprozess-Chargenanalyse & Ergebnis-Dashboard",
-        dash_subtitle: "Hochauflösende Zeitverlaufstelemetrie, Ausbeuteberechnungen, stöchiometrische Prüfung und Respirometrie.",
-        btn_back_sim: "Zurück zum 3D-Simulator",
-        btn_view_dashboard: "Analyse-Dashboard ↗",
-        btn_standalone: "Eigenständige Ansicht ↗",
-        btn_export_full_csv: "Vollständige CSV exportieren",
-        btn_export_json: "JSON-Manifest exportieren",
-        btn_print_pdf: "Drucken / PDF-Bericht",
-        dash_strain_lbl: "Organismus:",
-        dash_vessel_lbl: "Gefäßarchitektur:",
-        dash_duration_lbl: "Simulierte Zeit:",
-        dash_purity_lbl: "Kultursterilität:",
-        dash_kpi_deltax: "Biomassebildung (ΔX):",
-        dash_kpi_yxs: "Biomasseausbeute (Y_X/S):",
-        dash_kpi_qp: "Produktivität (Q_P):",
-        dash_kpi_carbon: "Kohlenstoffbilanz:",
-        dash_kpi_kla: "Mittlerer Transfer (kLa):",
-        dash_kpi_health: "Kulturreinheit:",
-        dash_chart_growth: "Biomasse-, Substrat- und Produktdynamik",
-        dash_chart_respiration: "Gelöster Sauerstoff, OUR & Stoffübergangsprofil",
-        dash_chart_rates: "Spezifische kinetische Raten (μ, q_S, q_P)",
-        dash_chart_env: "Kulturreinheit, Osmolarität & Umwelt",
-        dash_table_stoich: "Bioprozess-Stöchiometrie- & Kinetikprüfung",
-        dash_table_telemetry: "Vollständiges Chargen-Telemetrieprotokoll",
-        th_param: "Parameter",
-        th_symbol: "Symbol",
-        th_value: "Chargenwert",
-        th_unit: "Einheit",
-        th_benchmark: "Referenzbereich",
-        th_status: "Status",
-        th_time: "Zeit (h)",
-        th_biomass: "Biomasse (g/L)",
-        th_substrate: "Substrat (g/L)",
-        th_nitrogen: "Stickstoff (g/L)",
-        th_do: "DO (%)",
-        th_product: "Produkt (g/L)",
-        th_mu: "μ (h⁻¹)",
-        th_kla: "kLa (h⁻¹)",
-        th_our: "OUR (mmol/L/h)",
-        th_temp: "Temp (°C)",
-        th_ph: "pH",
-        th_purity: "Reinheit (%)",
-        touch_orbit: "3D-Orbit",
-        touch_scroll: "Scrollen",
-        hint_touch_rotate: "Tippen für 3D-Drehung",
-        hint_touch_scroll: "Tippen zum Scrollen",
-        mob_tab_telem: "Telemetrie",
-        mob_tab_faults: "Störungen",
-        mob_tab_kinetics: "Kinetik",
-        mob_tab_all: "Alle",
-        table_scroll_hint: "← Wischen, um alle Spalten zu sehen →",
-        phase_lag: "Lag-Phase (Anlaufphase)",
-        phase_exponential: "Exponentielle Phase (Log)",
-        phase_deceleration: "Verzögerungsphase",
-        phase_stationary: "Stationäre Phase",
-        phase_death: "Absterbe- / Lysisphase",
-        dash_growth_phases_title: "Wachstumsphasen:"
-      }
-    };
-
     function t(key) {
-      return (i18n[currentLang] && i18n[currentLang][key]) || (i18n['en'] && i18n['en'][key]) || key;
+      return translate(currentLang, key);
     }
 
     function setLanguage(lang) {
       if (!i18n[lang]) return;
-      currentLang = lang;
-      try {
-        localStorage.setItem('bioprocess-lang', lang);
-      } catch (e) {}
+      currentLang = saveLang(lang);
       applyLanguage();
     }
 
@@ -1986,55 +1339,20 @@
     let currentThemeMode = 'system'; // 'system', 'light', 'dark'
 
     function getEffectiveTheme() {
-      if (currentThemeMode === 'system') {
-        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-      }
-      return currentThemeMode;
+      return _getEffectiveTheme(currentThemeMode);
     }
 
     function setTheme(mode) {
-      currentThemeMode = mode;
-      try {
-        localStorage.setItem('bioprocess-theme', mode);
-      } catch (e) {}
+      currentThemeMode = saveTheme(mode);
       applyTheme();
     }
 
     function applyTheme() {
-      const effective = getEffectiveTheme();
-      const html = document.documentElement;
-      
-      if (effective === 'dark') {
-        html.classList.add('dark');
-        html.classList.remove('light');
-      } else {
-        html.classList.remove('dark');
-        html.classList.add('light');
-      }
-
-      // Update segmented theme control active state
-      ['system', 'light', 'dark'].forEach(m => {
-        const btn = document.getElementById(`theme-${m}`);
-        if (btn) {
-          if (m === currentThemeMode) {
-            btn.className = 'p-1.5 rounded-lg text-xs transition bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42]';
-          } else {
-            btn.className = 'p-1.5 rounded-lg text-xs transition text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border border-transparent';
-          }
-        }
-        const mobThemeBtn = document.getElementById(`mob-theme-${m}`);
-        if (mobThemeBtn) {
-          if (m === currentThemeMode) {
-            mobThemeBtn.className = 'p-1.5 rounded-lg text-xs transition bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42]';
-          } else {
-            mobThemeBtn.className = 'p-1.5 rounded-lg text-xs transition text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border border-transparent';
-          }
-        }
-      });
+      const effective = applyThemeDocumentClass(currentThemeMode);
+      const isDark = (effective === 'dark');
 
       // Update Three.js scene background and fog (zero new allocations)
       if (scene && renderer) {
-        const isDark = (effective === 'dark');
         const bgColor = isDark ? 0x191a1d : 0xf1f3f4;
         renderer.setClearColor(bgColor, 1);
         _colThemeBg.setHex(bgColor);
@@ -2049,7 +1367,6 @@
 
       // Update Chart.js colors to match theme
       if (telemetryChart) {
-        const isDark = (effective === 'dark');
         const textColor = isDark ? '#9aa0a6' : '#5f6368';
         const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
         
@@ -2072,10 +1389,14 @@
         telemetryChart.data.datasets[2].borderColor = isDark ? '#8ab4f8' : '#1a73e8';
         telemetryChart.data.datasets[3].borderColor = isDark ? '#c58af9' : '#7627bb';
 
-        telemetryChart.update();
+        telemetryChart.update('none');
 
         // Update Dashboard Chart.js instances if active
         if (chartDashGrowth && chartDashGrowth.options) {
+          const tipBg = isDark ? 'rgba(27, 28, 32, 0.95)' : 'rgba(255, 255, 255, 0.95)';
+          const tipTitle = isDark ? '#f1f3f4' : '#202124';
+          const tipBody = isDark ? '#dadce0' : '#3c4043';
+          const tipBorder = isDark ? '#383b42' : '#dadce0';
           [chartDashGrowth, chartDashOxygen, chartDashRates, chartDashEnv].forEach(ch => {
             if (ch && ch.options && ch.options.scales) {
               if (ch.options.scales.x) {
@@ -2092,14 +1413,20 @@
                 ch.options.scales.y1.title.color = textColor;
                 ch.options.scales.y1.ticks.color = textColor;
               }
-              if (ch.options.scales.y2) {
-                ch.options.scales.y2.title.color = textColor;
-                ch.options.scales.y2.ticks.color = textColor;
+              if (ch.options.plugins && ch.options.plugins.tooltip) {
+                ch.options.plugins.tooltip.backgroundColor = tipBg;
+                ch.options.plugins.tooltip.titleColor = tipTitle;
+                ch.options.plugins.tooltip.bodyColor = tipBody;
+                ch.options.plugins.tooltip.borderColor = tipBorder;
               }
-              ch.update();
+              ch.update('none');
             }
           });
         }
+      }
+
+      if (State.activeView === 'dash') {
+        renderDashboard();
       }
     }
 
@@ -2225,299 +1552,8 @@
     });
 
     /* =========================================================================
-       2. STRAIN BENCHMARK DATABASE & BATCH SETUP
+       2. STRAIN BENCHMARK DATABASE (Imported from ./js/strains.js) & BATCH SETUP
        ========================================================================= */
-    const Strains = {
-      ecoli: {
-        name: 'Escherichia coli BL21(DE3)',
-        category: { en: 'Aerobic Bacteria', es: 'Bacteria Aerobia', de: 'Aerobes Bakterium' },
-        desc: {
-          en: 'Fast-growing microbial platform, high recombinant expression (μmax: 0.65 h⁻¹).',
-          es: 'Plataforma microbiana de rápido crecimiento, alta expresión recombinante (μmax: 0.65 h⁻¹).',
-          de: 'Schnell wachsendes Bakterium, hohe rekombinante Proteinexpression (μmax: 0.65 h⁻¹).'
-        },
-        mu_max: 0.65,
-        Ks: 0.20,
-        Kn: 0.15,
-        Ko: 0.0006,
-        kd: 0.015,
-        Yxs: 0.45,
-        Yxn: 5.5,
-        ms: 0.025,
-        Yxo: 1.15,
-        mo: 0.020,
-        Yps: 0.80,
-        alpha: 0.22,
-        beta: 0.005,
-        defaultRpm: 600,
-        defaultVvm: 1.5,
-        defaultTemp: 37.0,
-        defaultPh: 7.0,
-        optTemp: 37.0,
-        optPh: 7.0,
-        tempSigma: 6.5,
-        phSigma: 1.0,
-        vTipCrit: 4.5,
-        kShear: 0.03,
-        defaultS0: 30.0,
-        defaultN0: 5.0,
-        defaultX0: 0.50,
-        defaultOsmo: 290
-      },
-      pichia: {
-        name: 'Pichia pastoris (K. phaffii)',
-        category: { en: 'Methylotrophic Yeast', es: 'Levadura Metilotrófica', de: 'Methylotrophe Hefe' },
-        desc: {
-          en: 'High cell-density yeast, methanol/glycerol fed-batch (μmax: 0.22 h⁻¹).',
-          es: 'Levadura para alta densidad celular, lote alimentado metanol/glicerol (μmax: 0.22 h⁻¹).',
-          de: 'Hochdichte Hefe, Methanol/Glycerin Fed-Batch (μmax: 0.22 h⁻¹).'
-        },
-        mu_max: 0.22,
-        Ks: 1.20,
-        Kn: 0.18,
-        Ko: 0.0008,
-        kd: 0.008,
-        Yxs: 0.50,
-        Yxn: 5.2,
-        ms: 0.015,
-        Yxo: 1.05,
-        mo: 0.012,
-        Yps: 0.90,
-        alpha: 0.12,
-        beta: 0.015,
-        defaultRpm: 500,
-        defaultVvm: 1.8,
-        defaultTemp: 29.5,
-        defaultPh: 6.0,
-        optTemp: 29.5,
-        optPh: 6.0,
-        tempSigma: 5.5,
-        phSigma: 1.2,
-        vTipCrit: 4.2,
-        kShear: 0.03,
-        defaultS0: 40.0,
-        defaultN0: 5.5,
-        defaultX0: 1.20,
-        defaultOsmo: 300
-      },
-      yeast: {
-        name: 'Saccharomyces cerevisiae',
-        category: { en: 'Crabtree+ Yeast', es: 'Levadura Crabtree+', de: 'Crabtree+ Hefe' },
-        desc: {
-          en: 'Classic Crabtree-positive yeast, respiro-fermentative kinetics (μmax: 0.38 h⁻¹).',
-          es: 'Levadura Crabtree-positiva clásica, cinética respiro-fermentativa (μmax: 0.38 h⁻¹).',
-          de: 'Klassische Crabtree-positive Hefe, respiro-fermentative Kinetik (μmax: 0.38 h⁻¹).'
-        },
-        mu_max: 0.38,
-        Ks: 0.50,
-        Kn: 0.14,
-        Ko: 0.0008,
-        kd: 0.010,
-        Yxs: 0.48,
-        Yxn: 5.0,
-        ms: 0.018,
-        Yxo: 1.10,
-        mo: 0.015,
-        Yps: 0.75,
-        alpha: 0.18,
-        beta: 0.008,
-        defaultRpm: 450,
-        defaultVvm: 1.2,
-        defaultTemp: 30.0,
-        defaultPh: 5.5,
-        optTemp: 30.0,
-        optPh: 5.5,
-        tempSigma: 6.0,
-        phSigma: 1.2,
-        vTipCrit: 4.2,
-        kShear: 0.03,
-        defaultS0: 35.0,
-        defaultN0: 4.8,
-        defaultX0: 0.80,
-        defaultOsmo: 285
-      },
-      cho: {
-        name: 'CHO Cells (Mammalian)',
-        category: { en: 'Mammalian Suspension', es: 'Suspensión Mamífera', de: 'Säugetierzell-Suspension' },
-        desc: {
-          en: 'Shear-sensitive mammalian suspension, therapeutic mAb production (μmax: 0.038 h⁻¹).',
-          es: 'Células de mamífero sensibles a cizalla, producción de mAb terapéuticos (μmax: 0.038 h⁻¹).',
-          de: 'Scherempfindliche Säugetierzellen, Produktion therapeutischer mAb (μmax: 0.038 h⁻¹).'
-        },
-        mu_max: 0.038,
-        Ks: 0.40,
-        Kn: 0.08,
-        Ko: 0.0005,
-        kd: 0.004,
-        Yxs: 0.35,
-        Yxn: 6.0,
-        ms: 0.006,
-        Yxo: 0.90,
-        mo: 0.005,
-        Yps: 0.92,
-        alpha: 0.08,
-        beta: 0.025,
-        defaultRpm: 90,
-        defaultVvm: 0.2,
-        defaultTemp: 36.8,
-        defaultPh: 7.15,
-        optTemp: 36.8,
-        optPh: 7.15,
-        tempSigma: 2.5,
-        phSigma: 0.45,
-        vTipCrit: 1.5,
-        kShear: 0.12,
-        defaultS0: 25.0,
-        defaultN0: 4.0,
-        defaultX0: 0.30,
-        defaultOsmo: 310
-      },
-      bsubtilis: {
-        name: 'Bacillus subtilis 168',
-        category: { en: 'Industrial Enzymes', es: 'Enzimas Industriales', de: 'Industrieenzyme' },
-        desc: {
-          en: 'Gram-positive secretory platform for industrial proteases & amylases (μmax: 0.55 h⁻¹).',
-          es: 'Plataforma secretora Gram-positiva para proteasas y amilasas industriales (μmax: 0.55 h⁻¹).',
-          de: 'Gram-positive Sekretionsplattform für industrielle Proteasen & Amylasen (μmax: 0.55 h⁻¹).'
-        },
-        mu_max: 0.55,
-        Ks: 0.35,
-        Kn: 0.16,
-        Ko: 0.0006,
-        kd: 0.012,
-        Yxs: 0.44,
-        Yxn: 5.4,
-        ms: 0.022,
-        Yxo: 1.12,
-        mo: 0.018,
-        Yps: 0.78,
-        alpha: 0.18,
-        beta: 0.020,
-        defaultRpm: 550,
-        defaultVvm: 1.4,
-        defaultTemp: 37.0,
-        defaultPh: 6.80,
-        optTemp: 37.0,
-        optPh: 6.80,
-        tempSigma: 6.5,
-        phSigma: 1.0,
-        vTipCrit: 4.5,
-        kShear: 0.03,
-        defaultS0: 35.0,
-        defaultN0: 5.5,
-        defaultX0: 0.60,
-        defaultOsmo: 295
-      },
-      streptomyces: {
-        name: 'Streptomyces coelicolor',
-        category: { en: 'Antibiotics / Idiophase', es: 'Antibióticos / Idiofase', de: 'Antibiotika / Idiophase' },
-        desc: {
-          en: 'Filamentous actinomycete for secondary metabolites and polyketides (μmax: 0.12 h⁻¹).',
-          es: 'Actinomiceto filamentoso para metabolitos secundarios y policétidos (μmax: 0.12 h⁻¹).',
-          de: 'Filamentöses Actinomycet für Sekundärmetaboliten und Polyketide (μmax: 0.12 h⁻¹).'
-        },
-        mu_max: 0.12,
-        Ks: 0.80,
-        Kn: 0.20,
-        Ko: 0.0007,
-        kd: 0.006,
-        Yxs: 0.38,
-        Yxn: 5.0,
-        ms: 0.010,
-        Yxo: 0.95,
-        mo: 0.008,
-        Yps: 0.88,
-        alpha: 0.02,
-        beta: 0.045,
-        defaultRpm: 320,
-        defaultVvm: 0.9,
-        defaultTemp: 30.0,
-        defaultPh: 7.00,
-        optTemp: 30.0,
-        optPh: 7.00,
-        tempSigma: 5.0,
-        phSigma: 0.9,
-        vTipCrit: 2.4,
-        kShear: 0.06,
-        defaultS0: 25.0,
-        defaultN0: 4.0,
-        defaultX0: 0.40,
-        defaultOsmo: 300
-      },
-      chlorella: {
-        name: 'Chlorella vulgaris',
-        category: { en: 'Phototrophic Algae', es: 'Microalga Fotosintética', de: 'Phototrophe Alge' },
-        desc: {
-          en: 'Photosynthetic microalgae for CO₂ capture, lipids and biomass (μmax: 0.08 h⁻¹).',
-          es: 'Microalga fotosintética para captura de CO₂, lípidos y biomasa (μmax: 0.08 h⁻¹).',
-          de: 'Photosynthetische Mikroalge zur CO₂-Fixierung, Lipide und Biomasse (μmax: 0.08 h⁻¹).'
-        },
-        mu_max: 0.08,
-        Ks: 0.25,
-        Kn: 0.10,
-        Ko: 0.0005,
-        kd: 0.003,
-        Yxs: 0.52,
-        Yxn: 5.8,
-        ms: 0.005,
-        Yxo: 1.00,
-        mo: 0.004,
-        Yps: 0.70,
-        alpha: 0.05,
-        beta: 0.012,
-        defaultRpm: 120,
-        defaultVvm: 0.5,
-        defaultTemp: 25.0,
-        defaultPh: 7.20,
-        optTemp: 25.0,
-        optPh: 7.20,
-        tempSigma: 5.5,
-        phSigma: 1.1,
-        vTipCrit: 2.2,
-        kShear: 0.05,
-        defaultS0: 10.0,
-        defaultN0: 3.5,
-        defaultX0: 0.20,
-        defaultOsmo: 250
-      },
-      lactobacillus: {
-        name: 'Lactobacillus plantarum',
-        category: { en: 'Lactic Acid / Food', es: 'Ácido Láctico / Alimentos', de: 'Milchsäure / Lebensmittel' },
-        desc: {
-          en: 'Probiotic lactic acid bacterium, low-pH tolerant homofermenter (μmax: 0.42 h⁻¹).',
-          es: 'Bacteria láctica probiótica homofermentativa tolerante a bajo pH (μmax: 0.42 h⁻¹).',
-          de: 'Probiotisches Milchsäurebakterium, säuretoleranter Homofermentierer (μmax: 0.42 h⁻¹).'
-        },
-        mu_max: 0.42,
-        Ks: 0.60,
-        Kn: 0.18,
-        Ko: 0.0008,
-        kd: 0.010,
-        Yxs: 0.40,
-        Yxn: 5.2,
-        ms: 0.025,
-        Yxo: 0.90,
-        mo: 0.010,
-        Yps: 0.95,
-        alpha: 0.25,
-        beta: 0.015,
-        defaultRpm: 180,
-        defaultVvm: 0.2,
-        defaultTemp: 37.0,
-        defaultPh: 6.20,
-        optTemp: 37.0,
-        optPh: 6.20,
-        tempSigma: 5.5,
-        phSigma: 1.3,
-        vTipCrit: 3.8,
-        kShear: 0.03,
-        defaultS0: 45.0,
-        defaultN0: 6.0,
-        defaultX0: 0.50,
-        defaultOsmo: 305
-      }
-    };
-
     let selectedStrainKey = 'ecoli';
 
     function renderStrainCards() {
@@ -2724,289 +1760,26 @@
     }
 
     /* =========================================================================
-       3. GLOBAL SIMULATION STATE (v2.0)
+       3. GLOBAL SIMULATION STATE (v2.6 Modular Factory)
        ========================================================================= */
-    const State = {
-      reactorType: 'str_rushton', // 'str_rushton', 'str_marine', 'airlift', 'pbr', 'static'
-      volume_L: 20.0,
-      
-      rpm: 450,
-      vvm: 1.2,
-      temp_C: 30.0,
-      ph: 6.85,
-      
-      activeFault: 'none', // 'none', 'compressor', 'impeller_stall', 'sensor_drift', 'thermal_shock', 'contam_bacteria', 'contam_phage', 'biofouling'
-      autoDOEnabled: false,
-      targetDOSat: 30.0,
-      
-      time_h: 0.0,
-      X: 0.80,         // Biomass [g/L]
-      S: 35.0,         // Glucose substrate [g/L]
-      N: 5.0,          // Nitrogen source [g/L]
-      CL: 0.0078,      // Dissolved Oxygen [g/L] (7.8 mg/L ~ 100%)
-      P: 0.00,         // Recombinant Product [g/L]
-      C_star: 0.0078,  // Equilibrium DO [g/L]
-
-      // v2.0 Environmental & Biological Variables
-      X_contam: 0.0,
-      phage_titer: 0.0,
-      osmolarity_mOsm: 290.0,
-      biofouling_factor: 1.0,
-      culture_purity: 100.0,
-      cn_ratio: 2.80,
-      
-      mu_max: 0.35,
-      Ks: 2.0,
-      Kn: 0.15,
-      Ko: 0.0008,
-      kd: 0.012,
-      Yxs: 0.48,
-      Yxn: 5.5,
-      ms: 0.020,
-      Yxo: 1.10,
-      mo: 0.015,
-      Yps: 0.85,
-      alpha: 0.15,
-      beta: 0.010,
-      optTemp: 30.0,
-      optPh: 6.85,
-      tempSigma: 7.0,
-      phSigma: 1.1,
-      vTipCrit: 3.0,
-      kShear: 0.045,
-      mu: 0.0,
-      netMu: 0.0,
-      peakX: 0.80,
-      
-      isRunning: true,
-      speedMultiplier: 5,
-      feedPulseActive: false,
-      feedNitrogenPulseActive: false,
-      feedPulseTimer: 0.0,
-
-      // v2.1 Batch History & Analytics
-      batchHistory: [],
-      s_fed_total: 0.0,
-      n_fed_total: 0.0,
-      currentStrainKey: 'ecoli',
-      initial_X: 0.80,
-      initial_S: 35.0,
-      initial_N: 5.0,
-      activeView: 'sim'
-    };
+    const State = createDefaultSimState();
 
     /* =========================================================================
-       4. HYDRODYNAMICS & PROCESS CORRELATIONS
+       4. HYDRODYNAMICS & PROCESS CORRELATIONS (Delegated to ./js/kinetics.js)
        ========================================================================= */
     function computeHydrodynamics() {
-      const D_tank = 0.25; // [m]
-      const D_impeller = D_tank * 0.35; // [m]
-      const rho = 1000; // [kg/m^3]
-      const mu_visc = 0.001; // [Pa*s]
-
-      // Static vessel has zero forced agitation and zero sparging
-      if (State.reactorType === 'static') {
-        return {
-          Re: 0,
-          v_tip: 0.0,
-          P_density_kW_m3: 0.0,
-          kla: 1.0, // Pure surface liquid-gas mass transfer
-          regime: t('regime_static')
-        };
-      }
-
-      const effectiveRpm = (State.activeFault === 'impeller_stall') ? 0.0 : State.rpm;
-      const effectiveVvm = (State.activeFault === 'compressor') ? 0.005 : State.vvm;
-      const N_rps = effectiveRpm / 60.0;
-      
-      const Re = (rho * N_rps * Math.pow(D_impeller, 2)) / mu_visc;
-      const v_tip = Math.PI * D_impeller * N_rps;
-
-      let Np = 5.0; // Rushton 6-blade
-      if (State.reactorType === 'str_marine') Np = 0.87;
-      if (State.reactorType === 'airlift') Np = 0.0;
-      if (State.reactorType === 'pbr') Np = 0.1;
-
-      const P_watts = Np * rho * Math.pow(N_rps, 3) * Math.pow(D_impeller, 5);
-      const P_density_kW_m3 = (P_watts / (State.volume_L / 1000.0)) / 1000.0;
-
-      const Fg_m3_s = (effectiveVvm * State.volume_L) / (1000.0 * 60.0);
-      const A_tank = Math.PI * Math.pow(D_tank / 2.0, 2);
-      const vs_m_s = Fg_m3_s / A_tank;
-
-      let kla = 0.026 * Math.pow(Math.max(1.0, (P_watts / (State.volume_L / 1000.0))), 0.4) * Math.pow(Math.max(0.0001, vs_m_s), 0.5) * 3600.0;
-      if (State.reactorType === 'airlift') {
-        kla = 0.32 * Math.pow(Math.max(0.0001, vs_m_s), 0.7) * 3600.0;
-      }
-      if (State.activeFault === 'compressor') {
-        kla = 1.8; // Mass transfer collapses to liquid surface diffusion
-      }
-      if (State.activeFault === 'biofouling') {
-        kla *= 0.40; // Biofouling filter & sparger blockage
-      }
-      kla = Math.max(1.0, Math.min(180.0, kla));
-
-      return { Re, v_tip, P_density_kW_m3, kla, regime: t('regime_turbulent') };
-    }
-
-    function evaluateKineticsRates(snap, hydro, kLysis, activeFault) {
-      const X = Math.max(0.0, snap.X);
-      const X_contam = Math.max(0.0, snap.X_contam);
-      const S = Math.max(0.0, snap.S);
-      const N = Math.max(0.0, snap.N);
-      const CL = Math.max(0.0, snap.CL);
-
-      // Osmolar stress inhibition
-      const osmoStress = Math.max(0.0, State.osmolarity_mOsm - 350.0);
-      const I_osmo = 600.0 / (600.0 + osmoStress);
-
-      // Strain-calibrated thermal & pH optima + Dual Monod
-      let mu = 0.0;
-      if (S > 1e-4 && N > 1e-4 && CL > 1e-6) {
-        const tOpt = State.optTemp ?? 30.0;
-        const pOpt = State.optPh ?? 6.85;
-        const tSig = Math.max(0.5, State.tempSigma ?? 7.0);
-        const pSig = Math.max(0.1, State.phSigma ?? 1.1);
-        const temp_factor = Math.exp(-Math.pow((State.temp_C - tOpt) / tSig, 2));
-        const ph_factor = Math.exp(-Math.pow((State.ph - pOpt) / pSig, 2));
-        mu = State.mu_max * (S / (State.Ks + S)) * (N / (State.Kn + N)) * (CL / (State.Ko + CL)) * temp_factor * ph_factor * I_osmo;
-      }
-
-      // Contaminant bacterial microflora dynamics
-      let mu_contam = 0.0;
-      let q_s_contam = 0.0;
-      let q_o_contam = 0.0;
-      let q_n_contam = 0.0;
-      if (X_contam > 1e-5) {
-        if (S > 1e-4 && N > 1e-4 && CL > 1e-6) {
-          mu_contam = 0.72 * (S / (0.25 + S)) * (N / (0.15 + N)) * (CL / (0.0006 + CL));
-        }
-        q_s_contam = (mu_contam / 0.40 + 0.02) * X_contam;
-        q_o_contam = (mu_contam / 1.05 + 0.015) * X_contam;
-        q_n_contam = (mu_contam / 5.2) * X_contam;
-      }
-
-      // Shear-stress biological lysis when impeller tip speed exceeds strain tolerance
-      const vTipCrit = Math.max(0.1, State.vTipCrit || 3.0);
-      const kdShear = hydro.v_tip > vTipCrit
-        ? (State.kShear || 0.045) * Math.pow((hydro.v_tip - vTipCrit) / vTipCrit, 2)
-        : 0.0;
-
-      const q_P = S > 1e-4 ? (State.alpha * mu + State.beta) : 0.0;
-      const q_O2 = S > 1e-4 ? ((mu / State.Yxo) + State.mo) : 0.0;
-      const q_N = N > 1e-4 ? (mu / State.Yxn) : 0.0;
-
-      const netMu = mu - (State.kd + kdShear) - kLysis;
-      const dX = netMu * X;
-      const dX_contam = (activeFault === 'contam_bacteria')
-        ? (mu_contam - 0.01) * X_contam
-        : -0.05 * X_contam;
-      const dS = S > 1e-4 ? -(((mu / State.Yxs) + State.ms + (q_P / State.Yps)) * X + q_s_contam) : 0.0;
-      const dN = N > 1e-4 ? -(q_N * X + q_n_contam) : 0.0;
-      const dP = q_P * X;
-      const totalOUR_g_L_h = q_O2 * X + q_o_contam;
-
-      return { mu, netMu, mu_contam, dX, dX_contam, dS, dN, dP, totalOUR_g_L_h };
+      return _computeHydrodynamics(State, {
+        static: t('regime_static'),
+        turbulent: t('regime_turbulent')
+      });
     }
 
     function stepKinetics(dt_hours) {
       if (!State.isRunning) return null;
-
-      if (State.activeFault === 'thermal_shock') {
-        State.temp_C = 42.0;
-      }
-
-      if (State.feedPulseActive) {
-        State.S += 5.0;
-        State.feedPulseActive = false;
-      }
-      if (State.feedNitrogenPulseActive) {
-        State.N += 2.0;
-        State.feedNitrogenPulseActive = false;
-      }
-
-      // Sub-stepped Heun (RK2) for slow states + exact exponential integration for stiff C_L
-      let hydro = computeHydrodynamics();
-      const maxSubDt = Math.min(0.005, 0.25 / Math.max(1.0, hydro.kla));
-      const nSteps = Math.max(1, Math.min(400, Math.ceil(dt_hours / maxSubDt)));
-      const subDt = dt_hours / nSteps;
-
-      let actuatorMode = 'standby';
-      let lastRates = null;
-
-      for (let stepIdx = 0; stepIdx < nSteps; stepIdx++) {
-        // Closed-Loop Auto-DO Controller (Cascade PID integrated smoothly per substep)
-        if (State.autoDOEnabled && State.reactorType !== 'static') {
-          const currentDOSat = (State.CL / State.C_star) * 100.0;
-          const doError = State.targetDOSat - currentDOSat;
-
-          if (doError > 2.0) {
-            if (State.rpm < 800) {
-              State.rpm = Math.min(800, State.rpm + 12.0 * subDt * 60.0);
-            } else if (State.vvm < 2.5) {
-              State.vvm = Math.min(2.5, State.vvm + 0.15 * subDt * 60.0);
-            }
-            actuatorMode = 'boosting';
-          } else if (doError < -5.0) {
-            if (State.vvm > 0.8) {
-              State.vvm = Math.max(0.8, State.vvm - 0.1 * subDt * 60.0);
-            } else if (State.rpm > 300) {
-              State.rpm = Math.max(300, State.rpm - 10.0 * subDt * 60.0);
-            }
-            actuatorMode = 'throttling';
-          } else {
-            actuatorMode = 'holding';
-          }
-          hydro = computeHydrodynamics();
-        }
-
-        let k_lysis = 0.0;
-        if (State.activeFault === 'contam_phage' && State.phage_titer > 0) {
-          State.phage_titer = Math.min(50.0, State.phage_titer + 1.5 * subDt);
-          k_lysis = 1.9 * (State.phage_titer / (1.0 + State.phage_titer));
-        }
-
-        const k1 = evaluateKineticsRates(State, hydro, k_lysis, State.activeFault);
-
-        // Exact exponential predictor for stiff dissolved oxygen O2 dynamics
-        const cEq1 = State.C_star - (k1.totalOUR_g_L_h / hydro.kla);
-        const expFactor = Math.exp(-hydro.kla * subDt);
-        const clPred = Math.max(1e-5, Math.min(State.C_star * 1.05, cEq1 + (State.CL - cEq1) * expFactor));
-
-        const snapPred = {
-          X: Math.max(0.01, State.X + k1.dX * subDt),
-          X_contam: Math.max(0.0, State.X_contam + k1.dX_contam * subDt),
-          S: Math.max(0.0, State.S + k1.dS * subDt),
-          N: Math.max(0.0, State.N + k1.dN * subDt),
-          CL: clPred,
-          P: Math.max(0.0, State.P + k1.dP * subDt)
-        };
-
-        const k2 = evaluateKineticsRates(snapPred, hydro, k_lysis, State.activeFault);
-
-        State.X = Math.max(0.01, State.X + 0.5 * (k1.dX + k2.dX) * subDt);
-        State.X_contam = Math.max(0.0, State.X_contam + 0.5 * (k1.dX_contam + k2.dX_contam) * subDt);
-        State.S = Math.max(0.0, State.S + 0.5 * (k1.dS + k2.dS) * subDt);
-        State.N = Math.max(0.0, State.N + 0.5 * (k1.dN + k2.dN) * subDt);
-        State.P = Math.max(0.0, State.P + 0.5 * (k1.dP + k2.dP) * subDt);
-
-        const qO2Avg = 0.5 * (k1.totalOUR_g_L_h + k2.totalOUR_g_L_h);
-        const cEqAvg = State.C_star - (qO2Avg / hydro.kla);
-        State.CL = Math.max(1e-5, Math.min(State.C_star * 1.05, cEqAvg + (State.CL - cEqAvg) * expFactor));
-
-        State.time_h += subDt;
-        State.peakX = Math.max(State.peakX || State.X, State.X);
-        lastRates = k2;
-      }
-
-      // Purity and C/N calculation (Pure physics state, no DOM side effects)
-      const totalBio = State.X + State.X_contam;
-      State.culture_purity = totalBio > 0.01 ? (State.X / totalBio) * 100.0 : 100.0;
-      State.cn_ratio = (State.S * 0.40) / Math.max(0.01, State.N);
-      State.mu = lastRates ? lastRates.mu : 0.0;
-      State.netMu = lastRates ? lastRates.netMu : 0.0;
-
-      return { mu: State.mu, kla: hydro.kla, hydro, mu_contam: lastRates ? lastRates.mu_contam : 0.0, actuatorMode };
+      return integrateBioprocessStep(State, dt_hours, {
+        static: t('regime_static'),
+        turbulent: t('regime_turbulent')
+      });
     }
 
     /* =========================================================================
@@ -3583,88 +2356,12 @@
     }
 
     /* =========================================================================
-       6. GROWTH PHASE CLASSIFICATION & TELEMETRY STREAMING CHART (Chart.js)
+       6. GROWTH PHASE CLASSIFICATION & TELEMETRY STREAMING CHART (Modular ./js/phases.js)
        ========================================================================= */
-    const GrowthPhaseMeta = {
-      lag: {
-        key: 'lag',
-        color: '#94a3b8',
-        bgLight: 'rgba(148, 163, 184, 0.12)',
-        bgDark: 'rgba(148, 163, 184, 0.08)',
-        dotClass: 'bg-slate-400',
-        badgeBg: 'bg-slate-100 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800/40',
-        short: 'LAG'
-      },
-      exponential: {
-        key: 'exponential',
-        color: '#10b981',
-        bgLight: 'rgba(16, 185, 129, 0.10)',
-        bgDark: 'rgba(16, 185, 129, 0.10)',
-        dotClass: 'bg-emerald-500 animate-pulse',
-        badgeBg: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/40',
-        short: 'LOG / EXP'
-      },
-      deceleration: {
-        key: 'deceleration',
-        color: '#f59e0b',
-        bgLight: 'rgba(245, 158, 11, 0.10)',
-        bgDark: 'rgba(245, 158, 11, 0.10)',
-        dotClass: 'bg-amber-500',
-        badgeBg: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/40',
-        short: 'DECEL'
-      },
-      stationary: {
-        key: 'stationary',
-        color: '#8b5cf6',
-        bgLight: 'rgba(139, 92, 246, 0.10)',
-        bgDark: 'rgba(139, 92, 246, 0.10)',
-        dotClass: 'bg-purple-500',
-        badgeBg: 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/40',
-        short: 'STAT'
-      },
-      death: {
-        key: 'death',
-        color: '#ef4444',
-        bgLight: 'rgba(239, 68, 68, 0.12)',
-        bgDark: 'rgba(239, 68, 68, 0.14)',
-        dotClass: 'bg-rose-500',
-        badgeBg: 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/40',
-        short: 'LYSIS / DEATH'
-      }
-    };
+    const growthPhaseBackgroundPlugin = createGrowthPhaseBackgroundPlugin(() => getEffectiveTheme() === 'dark');
 
     function classifyInstantaneousPhase(state) {
-      if (!state) return 'lag';
-      const X = state.X;
-      const S = state.S;
-      const N = state.N;
-      const mu = state.mu || 0;
-      const netMu = state.netMu !== undefined ? state.netMu : mu;
-      const strainObj = (typeof Strains !== 'undefined' && Strains[state.currentStrainKey]) ? Strains[state.currentStrainKey] : null;
-      const muMax = state.mu_max || (strainObj && strainObj.mu_max) || 0.65;
-      const x0 = state.initial_X || 0.8;
-      const peakX = Math.max(x0, state.peakX || X);
-      const purity = state.culture_purity !== undefined ? state.culture_purity : (state.purity_pct !== undefined ? state.purity_pct : 100.0);
-      const fault = state.activeFault || 'none';
-
-      // 1. Death / Lysis
-      if (fault === 'contam_phage' || fault === 'phage' || purity < 80.0 || (netMu < -0.015 && (peakX - X > 0.10 || netMu < -0.05))) {
-        return 'death';
-      }
-      // 2. Stationary (substrate depleted or carrying plateau reached)
-      if (S <= 0.8 || (X >= x0 + 1.2 && mu < 0.04 && S <= 2.0)) {
-        return 'stationary';
-      }
-      // 3. Lag (initial adaptation period)
-      if (state.time_h <= 2.2 || (X < x0 + 0.40 && mu < 0.22 * muMax)) {
-        return 'lag';
-      }
-      // 4. Deceleration (declining rate before plateau)
-      if (mu < 0.38 * muMax || S <= 4.0 || N <= 0.5) {
-        return 'deceleration';
-      }
-      // 5. Exponential
-      return 'exponential';
+      return _classifyInstantaneousPhase(state, Strains);
     }
 
     function updateGrowthPhaseUI(phaseKey) {
@@ -3680,182 +2377,9 @@
       }
     }
 
-    function analyzeBatchGrowthPhases(history, strainMuMax = 0.65) {
-      if (!history || history.length === 0) return { pointPhases: [], segments: [], currentPhase: 'lag' };
-      const pointPhases = [];
-      const xArr = history.map(h => h.X);
-      const xMax = Math.max(...xArr);
-      const x0 = history[0].X;
-      const deltaXTot = Math.max(0.1, xMax - x0);
-      const muArr = history.map(h => h.mu || 0);
-      const obsMuMax = Math.max(0.05, ...muArr);
-
-      let currentState = 'lag';
-
-      for (let i = 0; i < history.length; i++) {
-        const h = history[i];
-        const xi = h.X;
-        const si = h.S;
-        const mui = h.mu || 0;
-        const purity = h.culture_purity !== undefined ? h.culture_purity : (h.purity_pct !== undefined ? h.purity_pct : 100.0);
-        const ti = h.time_h;
-
-        if (currentState === 'lag') {
-          if ((purity < 80.0 && xi < xMax - 0.15) || (xi < xMax - 0.25 && mui < -0.015)) {
-            currentState = 'death';
-          } else if (si <= 0.8) {
-            currentState = 'stationary';
-          } else if ((xi >= x0 + 0.06 * deltaXTot && mui >= 0.20 * obsMuMax) || (ti >= 2.5 && mui >= 0.20 * obsMuMax)) {
-            currentState = 'exponential';
-          }
-        } else if (currentState === 'exponential') {
-          if ((purity < 80.0 && xi < xMax - 0.15) || (xi < xMax - 0.25 && mui < -0.015)) {
-            currentState = 'death';
-          } else if (si <= 0.8 || (xi >= xMax * 0.97 && mui < 0.04)) {
-            currentState = 'stationary';
-          } else if (si <= 4.0 || (xi >= x0 + 0.75 * deltaXTot && mui < 0.30 * obsMuMax)) {
-            currentState = 'deceleration';
-          }
-        } else if (currentState === 'deceleration') {
-          if ((purity < 80.0 && xi < xMax - 0.15) || (xi < xMax - 0.25 && mui < -0.015)) {
-            currentState = 'death';
-          } else if (si <= 0.8 || (xi >= xMax * 0.96 && mui < 0.05)) {
-            currentState = 'stationary';
-          } else if (si > 8.0 && mui >= 0.40 * obsMuMax && (i > 0 && history[i - 1].S <= 4.0)) {
-            currentState = 'exponential';
-          }
-        } else if (currentState === 'stationary') {
-          if ((purity < 80.0 && xi < xMax - 0.15) || (xi < xMax - 0.30 && mui < -0.015)) {
-            currentState = 'death';
-          } else if (si > 5.0 && mui >= 0.20 * obsMuMax) {
-            currentState = 'exponential';
-          }
-        }
-        pointPhases.push(currentState);
-      }
-
-      const segments = [];
-      if (history.length > 0) {
-        let curr = pointPhases[0];
-        let startIdx = 0;
-        for (let i = 1; i < history.length; i++) {
-          if (pointPhases[i] !== curr) {
-            segments.push({
-              phase: curr,
-              startIndex: startIdx,
-              endIndex: i - 1,
-              startTime: history[startIdx].time_h,
-              endTime: history[i - 1].time_h,
-              duration: Math.max(0.1, history[i - 1].time_h - history[startIdx].time_h),
-              deltaX: history[i - 1].X - history[startIdx].X,
-              startX: history[startIdx].X,
-              endX: history[i - 1].X,
-              maxMu: Math.max(...muArr.slice(startIdx, i))
-            });
-            curr = pointPhases[i];
-            startIdx = i;
-          }
-        }
-        segments.push({
-          phase: curr,
-          startIndex: startIdx,
-          endIndex: history.length - 1,
-          startTime: history[startIdx].time_h,
-          endTime: history[history.length - 1].time_h,
-          duration: Math.max(0.1, history[history.length - 1].time_h - history[startIdx].time_h),
-          deltaX: history[history.length - 1].X - history[startIdx].X,
-          startX: history[startIdx].X,
-          endX: history[history.length - 1].X,
-          maxMu: Math.max(...muArr.slice(startIdx))
-        });
-      }
-
-      return {
-        pointPhases,
-        segments,
-        currentPhase: pointPhases[pointPhases.length - 1] || 'lag'
-      };
-    }
-
     function renderGrowthPhaseBreakdown(phaseAnalysis, targetPrefix = 'dash-') {
-      const bar = document.getElementById(`${targetPrefix}growth-phase-bar`);
-      const legend = document.getElementById(`${targetPrefix}growth-phase-legend`);
-      if (!bar || !legend || !phaseAnalysis || !phaseAnalysis.segments) return;
-
-      const totalDuration = phaseAnalysis.segments.reduce((acc, s) => acc + s.duration, 0) || 1;
-      
-      bar.innerHTML = phaseAnalysis.segments.map(seg => {
-        const meta = GrowthPhaseMeta[seg.phase] || GrowthPhaseMeta.lag;
-        const pct = Math.max(3, (seg.duration / totalDuration) * 100);
-        return `<div style="width: ${pct}%; background-color: ${meta.color};" class="h-full transition-all" title="${t('phase_' + seg.phase)}: ${seg.startTime.toFixed(1)}h - ${seg.endTime.toFixed(1)}h (${seg.duration.toFixed(1)}h)"></div>`;
-      }).join('');
-
-      legend.innerHTML = phaseAnalysis.segments.map(seg => {
-        const meta = GrowthPhaseMeta[seg.phase] || GrowthPhaseMeta.lag;
-        return `
-          <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono border ${meta.badgeBg}">
-            <span class="w-1.5 h-1.5 rounded-full" style="background-color: ${meta.color}"></span>
-            <span>${t('phase_' + seg.phase)}:</span>
-            <b>${seg.startTime.toFixed(1)}-${seg.endTime.toFixed(1)}h</b>
-            <span class="text-gray-400">(&Delta;X: ${seg.deltaX >= 0 ? '+' : ''}${seg.deltaX.toFixed(2)})</span>
-          </span>
-        `;
-      }).join('');
+      return renderGrowthPhaseBreakdownDOM(phaseAnalysis, targetPrefix, t);
     }
-
-    const growthPhaseBackgroundPlugin = {
-      id: 'growthPhaseBackground',
-      beforeDraw(chart) {
-        const { ctx, chartArea, scales } = chart;
-        if (!chartArea || !scales.x) return;
-        const phases = chart.data.phases;
-        if (!phases || phases.length < 2) return;
-
-        const isDark = (typeof getEffectiveTheme === 'function' ? getEffectiveTheme() : 'dark') === 'dark';
-        ctx.save();
-        
-        let currPhase = phases[0];
-        let startIdx = 0;
-        
-        for (let i = 1; i <= phases.length; i++) {
-          if (i === phases.length || phases[i] !== currPhase) {
-            const xLeft = scales.x.getPixelForValue(startIdx);
-            const xRight = (i === phases.length) ? chartArea.right : scales.x.getPixelForValue(i - 1);
-            
-            const meta = GrowthPhaseMeta[currPhase] || GrowthPhaseMeta.lag;
-            ctx.fillStyle = isDark ? meta.bgDark : meta.bgLight;
-            const w = Math.max(0, xRight - xLeft);
-            ctx.fillRect(xLeft, chartArea.top, w, chartArea.bottom - chartArea.top);
-
-            if (chart.canvas && chart.canvas.id === 'dashChartGrowth') {
-              if (w > 28) {
-                ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.40)' : 'rgba(0, 0, 0, 0.40)';
-                ctx.font = '600 9px "JetBrains Mono", monospace';
-                ctx.textAlign = 'center';
-                ctx.fillText(meta.short, xLeft + w / 2, chartArea.top + 13);
-              }
-            }
-
-            if (i < phases.length) {
-              ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
-              ctx.lineWidth = 1;
-              ctx.setLineDash([3, 3]);
-              ctx.beginPath();
-              ctx.moveTo(xRight, chartArea.top);
-              ctx.lineTo(xRight, chartArea.bottom);
-              ctx.stroke();
-              ctx.setLineDash([]);
-            }
-
-            if (i < phases.length) {
-              currPhase = phases[i];
-              startIdx = i;
-            }
-          }
-        }
-        ctx.restore();
-      }
-    };
 
     const chartCtx = document.getElementById('telemetryChart').getContext('2d');
     const telemetryChart = new Chart(chartCtx, {
@@ -4441,7 +2965,6 @@
 
     function injectFeedPulse() {
       State.feedPulseActive = true;
-      State.s_fed_total = (State.s_fed_total || 0.0) + 5.0;
       const notif = document.getElementById('feed-notification');
       if (!notif) return;
       notif.innerText = '+ Glucose Feed Pulse (+5g/L) Injected';
@@ -4455,7 +2978,6 @@
 
     function injectNitrogenPulse() {
       State.feedNitrogenPulseActive = true;
-      State.n_fed_total = (State.n_fed_total || 0.0) + 2.0;
       const notif = document.getElementById('feed-notification');
       if (!notif) return;
       notif.innerText = '+ Nitrogen Nutrient Pulse (+2g/L) Injected';
@@ -4496,6 +3018,175 @@
       saveBatchRunToStorage();
     }
 
+    let simWorker = null;
+    let isWorkerRunning = false;
+
+    function runFastForwardInline(stateSnapshot, existingHistory, durationHours, sampleIntervalHours, mode, labels) {
+      const t0 = performance.now();
+      const simState = Object.assign({}, stateSnapshot);
+      let history = [];
+
+      if (mode === 'restart') {
+        simState.time_h = 0.0;
+        simState.X = simState.initial_X || 0.80;
+        simState.peakX = simState.X;
+        simState.netMu = 0.0;
+        simState.mu = 0.0;
+        simState.X_contam = simState.activeFault === 'contam_bacteria' ? 0.05 : 0.0;
+        simState.phage_titer = simState.activeFault === 'contam_phage' ? 0.5 : 0.0;
+        simState.culture_purity = 100.0;
+        simState.S = simState.initial_S || 35.0;
+        simState.N = simState.initial_N || 5.0;
+        simState.CL = simState.C_star || 0.0078;
+        simState.P = 0.0;
+        simState.s_fed_total = 0.0;
+        simState.n_fed_total = 0.0;
+        history.push(buildHistoryPoint(simState, null));
+      } else {
+        history = Array.isArray(existingHistory) ? existingHistory.slice() : [];
+        if (history.length === 0) history.push(buildHistoryPoint(simState, null));
+      }
+
+      const dt = Math.max(0.05, sampleIntervalHours);
+      const totalSteps = Math.max(1, Math.round(durationHours / dt));
+      for (let i = 0; i < totalSteps; i++) {
+        const stepDt = (i === totalSteps - 1) ? Math.max(1e-4, durationHours - i * dt) : dt;
+        const simStep = integrateBioprocessStep(simState, stepDt, labels);
+        const satPct = Math.min(105.0, Math.max(0.0, (simState.CL / Math.max(1e-6, simState.C_star)) * 100.0));
+        const dispDO = simState.activeFault === 'sensor_drift' ? Math.min(130.0, satPct + 25.0) : satPct;
+        history.push(buildHistoryPoint(simState, simStep, dispDO));
+        if (history.length > MAX_HISTORY_POINTS) {
+          history = compactHistoryArray(history, MAX_HISTORY_POINTS, RECENT_HIGH_RES_COUNT);
+        }
+      }
+      return { mode, durationHours, elapsedMs: performance.now() - t0, finalState: simState, history };
+    }
+
+    function applyFastForwardResult(result) {
+      const { finalState, history } = result;
+      Object.assign(State, finalState, { batchHistory: history });
+
+      const tail = history.slice(-70);
+      telemetryChart.data.labels = tail.map(pt => pt.time_h.toFixed(1));
+      telemetryChart.data.phases = tail.map(pt => classifyInstantaneousPhase({
+        ...State,
+        time_h: pt.time_h,
+        X: pt.X,
+        S: pt.S,
+        N: pt.N,
+        mu: pt.mu,
+        culture_purity: pt.culture_purity
+      }));
+      telemetryChart.data.datasets[0].data = tail.map(pt => pt.X);
+      telemetryChart.data.datasets[1].data = tail.map(pt => pt.S);
+      telemetryChart.data.datasets[2].data = tail.map(pt => pt.DO_pct);
+      telemetryChart.data.datasets[3].data = tail.map(pt => pt.P);
+      telemetryChart.update('none');
+
+      const curPhase = telemetryChart.data.phases[telemetryChart.data.phases.length - 1] || 'lag';
+      lastUI.phaseKey = curPhase;
+      updateGrowthPhaseUI(curPhase);
+
+      const ptCount = history.length;
+      const badge = getEl('badge-history-count');
+      if (badge) badge.innerText = `${ptCount} pts`;
+      const badgePts = getEl('dash-badge-pts');
+      if (badgePts) badgePts.innerText = ptCount;
+
+      const hydro = computeHydrodynamics();
+      const simStep = { mu: State.mu, kla: hydro.kla, hydro, actuatorMode: State.autoDOEnabled ? 'holding' : 'standby' };
+      const satPct = Math.min(105.0, Math.max(0.0, (State.CL / Math.max(1e-6, State.C_star)) * 100.0));
+      const dispDO = State.activeFault === 'sensor_drift' ? Math.min(130.0, satPct + 25.0) : satPct;
+
+      resetUIDirtyFlags();
+      updateTelemetryDOM(simStep, dispDO, satPct);
+      markSceneDirty();
+      saveBatchRunToStorage();
+      if (State.activeView === 'dash') {
+        renderDashboard();
+      }
+    }
+
+    function setWorkerButtonsBusy(busy) {
+      ['btn-ff-48h', 'btn-ff-24h', 'mob-btn-ff-48h', 'mob-btn-ff-24h'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.classList.toggle('opacity-50', busy);
+          el.classList.toggle('pointer-events-none', busy);
+        }
+      });
+    }
+
+    function runFastForwardWorker(durationHours = 48, mode = 'restart') {
+      if (isWorkerRunning) return Promise.resolve(null);
+      isWorkerRunning = true;
+      setWorkerButtonsBusy(true);
+
+      const { batchHistory, ...stateSnapshot } = State;
+      const existingHistory = mode === 'continue' && Array.isArray(batchHistory) ? batchHistory.slice() : [];
+      const labels = { static: t('regime_static'), turbulent: t('regime_turbulent') };
+
+      const finish = (result, usedWorker) => {
+        applyFastForwardResult(result);
+        window.lastWorkerRun = {
+          usedWorker,
+          elapsedMs: result.elapsedMs,
+          durationHours,
+          mode,
+          finalTime_h: State.time_h,
+          snapshotCount: State.batchHistory.length
+        };
+        isWorkerRunning = false;
+        setWorkerButtonsBusy(false);
+        return window.lastWorkerRun;
+      };
+
+      const canUseModuleWorker = (typeof Worker !== 'undefined') && window.location.protocol.startsWith('http');
+      if (!canUseModuleWorker) {
+        const res = runFastForwardInline(stateSnapshot, existingHistory, durationHours, 0.25, mode, labels);
+        return Promise.resolve(finish(res, false));
+      }
+
+      return new Promise((resolve) => {
+        try {
+          if (!simWorker) {
+            simWorker = new Worker('./js/sim-worker.js', { type: 'module' });
+          }
+          const onMsg = (ev) => {
+            if (ev.data && ev.data.type === 'FAST_FORWARD_DONE') {
+              cleanup();
+              resolve(finish(ev.data.payload, true));
+            }
+          };
+          const onErr = () => {
+            cleanup();
+            const res = runFastForwardInline(stateSnapshot, existingHistory, durationHours, 0.25, mode, labels);
+            resolve(finish(res, false));
+          };
+          const cleanup = () => {
+            simWorker.removeEventListener('message', onMsg);
+            simWorker.removeEventListener('error', onErr);
+          };
+          simWorker.addEventListener('message', onMsg);
+          simWorker.addEventListener('error', onErr);
+          simWorker.postMessage({
+            type: 'RUN_FAST_FORWARD',
+            payload: {
+              state: stateSnapshot,
+              existingHistory,
+              durationHours,
+              sampleIntervalHours: 0.25,
+              mode,
+              labels
+            }
+          });
+        } catch (e) {
+          const res = runFastForwardInline(stateSnapshot, existingHistory, durationHours, 0.25, mode, labels);
+          resolve(finish(res, false));
+        }
+      });
+    }
+
     function downloadBlobFile(content, mimeType, filename) {
       const blob = new Blob([content], { type: mimeType });
       const url = URL.createObjectURL(blob);
@@ -4527,36 +3218,26 @@
         csv += `${Number(h.time_h).toFixed(2)},${Number(h.X).toFixed(3)},${Number(h.S).toFixed(2)},${Number(h.N).toFixed(2)},${Number(h.DO_pct).toFixed(1)},${Number(h.P).toFixed(3)},${Number(pur).toFixed(1)}\n`;
       }
 
-      downloadBlobFile(csv, 'text/csv;charset=utf-8;', `bioprocess_v2_5_run_${State.reactorType}.csv`);
+      downloadBlobFile(csv, 'text/csv;charset=utf-8;', `bioprocess_v2_6_run_${State.reactorType}.csv`);
     }
 
     /* =========================================================================
-       9. BATCH ANALYTICS & RESULTS DASHBOARD ENGINE (v2.5 Bounded + Idle Persist)
+       9. BATCH ANALYTICS, A/B BENCHMARKING & RESULTS DASHBOARD (v2.6.0)
        ========================================================================= */
     let chartDashGrowth = null;
     let chartDashOxygen = null;
     let chartDashRates = null;
     let chartDashEnv = null;
     let telemetryFilterQuery = '';
+    let baselineData = loadBaselinePayload();
+    let compareEnabled = !!(baselineData && Array.isArray(baselineData.history) && baselineData.history.length > 0);
 
-    const MAX_HISTORY_POINTS = 1500;
-    const RECENT_HIGH_RES_COUNT = 300;
     let batchStorageDirty = false;
     let storageSaveTimer = null;
     let lastStorageSaveMs = 0;
 
     function compactBatchHistory() {
-      const len = State.batchHistory.length;
-      if (len <= MAX_HISTORY_POINTS) return;
-      const olderEnd = Math.max(1, len - RECENT_HIGH_RES_COUNT);
-      const compacted = [State.batchHistory[0]];
-      for (let i = 1; i < olderEnd; i += 2) {
-        compacted.push(State.batchHistory[i]);
-      }
-      for (let i = olderEnd; i < len; i++) {
-        compacted.push(State.batchHistory[i]);
-      }
-      State.batchHistory = compacted;
+      State.batchHistory = compactHistoryArray(State.batchHistory, MAX_HISTORY_POINTS, RECENT_HIGH_RES_COUNT);
     }
 
     function flushBatchStorageIfDirty() {
@@ -4597,32 +3278,7 @@
     }
 
     function recordHistoryPoint(simStep, displayedDO) {
-      const doPct = displayedDO !== undefined ? displayedDO : ((State.CL / State.C_star) * 100);
-      const muVal = simStep ? simStep.mu : 0.0;
-      const klaVal = simStep ? simStep.kla : 0.0;
-      const ourVal = simStep ? Math.max(0, klaVal * (State.C_star - State.CL) * 1000 / 32) : 0.0;
-      const qsVal = simStep ? (muVal / (State.Yxs || 0.48) + (State.ms || 0.02)) : 0.0;
-      const qpVal = simStep ? (State.alpha * muVal + State.beta) : 0.0;
-
-      const point = {
-        time_h: parseFloat(State.time_h.toFixed(2)),
-        X: parseFloat(State.X.toFixed(3)),
-        S: parseFloat(State.S.toFixed(2)),
-        N: parseFloat(State.N.toFixed(2)),
-        DO_pct: parseFloat(doPct.toFixed(1)),
-        P: parseFloat(State.P.toFixed(3)),
-        mu: parseFloat(muVal.toFixed(3)),
-        kla: parseFloat(klaVal.toFixed(1)),
-        our: parseFloat(ourVal.toFixed(2)),
-        qs: parseFloat(qsVal.toFixed(3)),
-        qp: parseFloat(qpVal.toFixed(3)),
-        temp: parseFloat(State.temp_C.toFixed(1)),
-        ph: parseFloat(State.ph.toFixed(2)),
-        culture_purity: parseFloat(State.culture_purity.toFixed(1)),
-        osmolarity: Math.round(State.osmolarity_mOsm),
-        cn_ratio: parseFloat(State.cn_ratio.toFixed(2)),
-        p_density: simStep ? parseFloat(simStep.hydro.P_density_kW_m3.toFixed(3)) : 0.0
-      };
+      const point = buildHistoryPoint(State, simStep, displayedDO);
 
       State.batchHistory.push(point);
       if (State.batchHistory.length > MAX_HISTORY_POINTS) {
@@ -4644,29 +3300,91 @@
       }
     }
 
+    function buildCurrentBatchPayload(forExport = false) {
+      const st = Strains[State.currentStrainKey];
+      const history = (State.batchHistory && State.batchHistory.length > 0) ? State.batchHistory : [];
+      const meta = {
+        software: "bioprocess-visual-twin",
+        version: "2.6.0",
+        strain: State.currentStrainKey || 'ecoli',
+        strainKey: State.currentStrainKey || 'ecoli',
+        strainName: st ? st.name : 'Escherichia coli BL21(DE3)',
+        mu_max: State.mu_max || 0.65,
+        reactorType: State.reactorType,
+        volume_L: State.volume_L || 20.0,
+        total_time_h: State.time_h,
+        initial_X: State.initial_X || 0.8,
+        initial_S: State.initial_S || 35.0,
+        initial_N: State.initial_N || 5.0,
+        s_fed_total: State.s_fed_total || 0.0,
+        n_fed_total: State.n_fed_total || 0.0
+      };
+      if (forExport) {
+        meta.author = "Ing. Juan José Álvarez Morales";
+        meta.workingVolume_L = meta.volume_L;
+        meta.totalDuration_h = meta.total_time_h;
+        meta.totalSnapshots = history.length;
+        meta.exportedAt = new Date().toISOString();
+        return { metadata: meta, telemetry: history };
+      }
+      meta.timestamp = new Date().toISOString();
+      return { metadata: meta, history };
+    }
+
     function saveBatchRunToStorage() {
       try {
-        const payload = {
-          metadata: {
-            strain: State.currentStrainKey || 'ecoli',
-            strainName: Strains[State.currentStrainKey] ? Strains[State.currentStrainKey].name : 'Escherichia coli BL21(DE3)',
-            mu_max: State.mu_max || 0.65,
-            reactorType: State.reactorType,
-            volume_L: State.volume_L || 20.0,
-            total_time_h: State.time_h,
-            initial_X: State.initial_X || 0.8,
-            initial_S: State.initial_S || 35.0,
-            initial_N: State.initial_N || 5.0,
-            s_fed_total: State.s_fed_total || 0.0,
-            n_fed_total: State.n_fed_total || 0.0,
-            timestamp: new Date().toISOString()
-          },
-          history: State.batchHistory
-        };
+        const payload = buildCurrentBatchPayload(false);
         localStorage.setItem('bioprocess_batch_run', JSON.stringify(payload));
         batchStorageDirty = false;
         lastStorageSaveMs = performance.now();
       } catch (e) {}
+    }
+
+    function updateCompareButtonsUI() {
+      const hasBase = !!(baselineData && Array.isArray(baselineData.history) && baselineData.history.length > 0);
+      const btnCmp = getEl('btn-toggle-compare');
+      const btnClr = getEl('btn-clear-baseline');
+      if (btnCmp) {
+        if (compareEnabled && hasBase) {
+          btnCmp.className = 'px-3 py-1.5 rounded-xl bg-indigo-600 text-white border border-indigo-600 text-xs font-mono transition inline-flex items-center gap-1.5 shadow-sm';
+        } else {
+          btnCmp.className = 'px-3 py-1.5 rounded-xl bg-white dark:bg-[#212226] hover:bg-gray-50 dark:hover:bg-[#282a2e] text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#35373c] text-xs font-mono transition inline-flex items-center gap-1.5 shadow-sm';
+        }
+        btnCmp.disabled = !hasBase;
+        btnCmp.classList.toggle('opacity-50', !hasBase);
+      }
+      if (btnClr) {
+        btnClr.classList.toggle('hidden', !hasBase);
+      }
+    }
+
+    function pinCurrentAsBaseline() {
+      flushBatchStorageIfDirty();
+      const payload = buildCurrentBatchPayload(false);
+      if (!payload.history || payload.history.length === 0) return;
+      saveBaselinePayload(payload);
+      baselineData = payload;
+      compareEnabled = true;
+      updateCompareButtonsUI();
+      renderDashboard();
+    }
+
+    function toggleCompareMode() {
+      if (!baselineData || !Array.isArray(baselineData.history) || baselineData.history.length === 0) {
+        baselineData = loadBaselinePayload();
+      }
+      if (!baselineData || !baselineData.history || baselineData.history.length === 0) return;
+      compareEnabled = !compareEnabled;
+      updateCompareButtonsUI();
+      renderDashboard();
+    }
+
+    function clearBaselineRun() {
+      clearBaselinePayload();
+      baselineData = null;
+      compareEnabled = false;
+      updateCompareButtonsUI();
+      renderDashboard();
     }
 
     function openStandaloneDashboard() {
@@ -4686,22 +3404,24 @@
         if (simView) simView.classList.add('hidden');
         if (dashView) dashView.classList.remove('hidden');
         if (tabSim) {
-          tabSim.className = 'px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-transparent inline-flex items-center gap-1.5';
+          tabSim.className = 'px-2 sm:px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-transparent inline-flex items-center gap-1 sm:gap-1.5';
         }
         if (tabDash) {
-          tabDash.className = 'px-2.5 py-1 rounded-lg text-xs font-medium transition-all bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42] inline-flex items-center gap-1.5';
+          tabDash.className = 'px-2 sm:px-2.5 py-1 rounded-lg text-xs font-medium transition-all bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42] inline-flex items-center gap-1 sm:gap-1.5';
         }
         flushBatchStorageIfDirty();
+        baselineData = loadBaselinePayload();
+        updateCompareButtonsUI();
         renderDashboard();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         if (dashView) dashView.classList.add('hidden');
         if (simView) simView.classList.remove('hidden');
         if (tabDash) {
-          tabDash.className = 'px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-transparent inline-flex items-center gap-1.5';
+          tabDash.className = 'px-2 sm:px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-transparent inline-flex items-center gap-1 sm:gap-1.5';
         }
         if (tabSim) {
-          tabSim.className = 'px-2.5 py-1 rounded-lg text-xs font-medium transition-all bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42] inline-flex items-center gap-1.5';
+          tabSim.className = 'px-2 sm:px-2.5 py-1 rounded-lg text-xs font-medium transition-all bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42] inline-flex items-center gap-1 sm:gap-1.5';
         }
         if (renderer && camera) {
           onWindowResize();
@@ -4711,64 +3431,7 @@
     }
 
     function getDashboardChartOptions(yTitle, y1Title) {
-      const isDark = getEffectiveTheme() === 'dark';
-      const textColor = isDark ? '#9aa0a6' : '#5f6368';
-      const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
-
-      const scales = {
-        x: {
-          title: { display: true, text: 'Time (h)', color: textColor, font: { family: 'JetBrains Mono', size: 10 } },
-          ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 9 }, maxTicksLimit: 12 },
-          grid: { color: gridColor }
-        },
-        y: {
-          title: { display: !!yTitle, text: yTitle || '', color: textColor, font: { family: 'JetBrains Mono', size: 10 } },
-          ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 9 } },
-          grid: { color: gridColor }
-        }
-      };
-
-      if (y1Title) {
-        scales.y1 = {
-          position: 'right',
-          title: { display: true, text: y1Title, color: textColor, font: { family: 'JetBrains Mono', size: 10 } },
-          ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 9 } },
-          grid: { drawOnChartArea: false }
-        };
-      }
-
-      return {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: { duration: 300 },
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: isDark ? 'rgba(27, 28, 32, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-            titleColor: isDark ? '#f1f3f4' : '#202124',
-            bodyColor: isDark ? '#dadce0' : '#3c4043',
-            borderColor: isDark ? '#383b42' : '#dadce0',
-            borderWidth: 1,
-            titleFont: { family: 'JetBrains Mono', size: 11 },
-            bodyFont: { family: 'JetBrains Mono', size: 10 },
-            callbacks: {
-              afterTitle: function(context) {
-                if (context && context[0]) {
-                  const idx = context[0].dataIndex;
-                  const phases = context[0].chart.data.phases;
-                  if (phases && phases[idx]) {
-                    const pKey = phases[idx];
-                    return `[ ${t('phase_' + pKey) || pKey.toUpperCase()} ]`;
-                  }
-                }
-                return '';
-              }
-            }
-          }
-        },
-        scales: scales
-      };
+      return _getDashboardChartOptions(yTitle, y1Title, getEffectiveTheme() === 'dark', t);
     }
 
     function renderDashboard() {
@@ -4793,57 +3456,19 @@
             cn_ratio: State.cn_ratio
           }];
 
-      const first = history[0];
       const last = history[history.length - 1];
-      const tEnd = last.time_h;
-      const vol = State.volume_L || 20.0;
+      const k = computeBatchKpis(history, {
+        volume_L: State.volume_L || 20.0,
+        s_fed_total: State.s_fed_total || 0.0,
+        n_fed_total: State.n_fed_total || 0.0
+      });
 
-      // 1. Calculations
-      const deltaX = Math.max(0.0, last.X - first.X);
-      const totalDCW = last.X * vol;
-      const muMaxObs = Math.max(...history.map(h => h.mu || 0), 0.0);
-      const doublingTime = muMaxObs > 0.005 ? (Math.LN2 / muMaxObs) : 0.0;
-
-      const sFed = State.s_fed_total || 0.0;
-      const deltaS = Math.max(0.0, (first.S + sFed) - last.S);
-      const sConversion = (deltaS / Math.max(0.01, first.S + sFed)) * 100.0;
-      const yxs = deltaS > 0.005 ? (deltaX / deltaS) : 0.0;
-
-      const nFed = State.n_fed_total || 0.0;
-      const deltaN = Math.max(0.0, (first.N + nFed) - last.N);
-      const yxn = deltaN > 0.005 ? (deltaX / deltaN) : 0.0;
-
-      const deltaP = Math.max(0.0, last.P - first.P);
-      const totalP = last.P * vol;
-      const qp = tEnd > 0.01 ? (deltaP / tEnd) : 0.0;
-      const yps = deltaS > 0.005 ? (deltaP / deltaS) : 0.0;
-
-      const cIn = deltaS * 0.40;
-      const cFixed = (deltaX * 0.48) + (deltaP * 0.45);
-      const cCO2 = Math.max(0.0, cIn - cFixed);
-      const cRecovery = cIn > 0.01 ? (((cFixed + cCO2) / cIn) * 100.0) : 100.0;
-
-      const minDO = Math.min(...history.map(h => h.DO_pct));
-      const avgKla = history.reduce((sum, h) => sum + (h.kla || 0), 0) / history.length;
-      let totalOUR = 0.0;
-      let hypoxiaHours = 0.0;
-      for (let i = 1; i < history.length; i++) {
-        const dt = Math.max(0.0, (history[i].time_h || 0) - (history[i - 1].time_h || 0));
-        totalOUR += 0.5 * ((history[i - 1].our || 0) + (history[i].our || 0)) * dt;
-        const h0 = history[i - 1].DO_pct < 15.0 ? 1.0 : 0.0;
-        const h1 = history[i].DO_pct < 15.0 ? 1.0 : 0.0;
-        hypoxiaHours += 0.5 * (h0 + h1) * dt;
-      }
-
-      const finalPurity = last.culture_purity !== undefined ? last.culture_purity : 100.0;
-      const minPurity = Math.min(...history.map(h => h.culture_purity !== undefined ? h.culture_purity : 100.0));
-
-      // 2. Update Header Badges
+      // 1. Update Header Badges
       const st = Strains[State.currentStrainKey] || Strains['ecoli'];
-      const badgeStrain = document.getElementById('dash-badge-strain');
+      const badgeStrain = getEl('dash-badge-strain');
       if (badgeStrain) badgeStrain.innerText = st.name;
 
-      const badgeVessel = document.getElementById('dash-badge-vessel');
+      const badgeVessel = getEl('dash-badge-vessel');
       if (badgeVessel) {
         const titles = {
           'str_rushton': t('vessel_str_rushton'),
@@ -4855,80 +3480,80 @@
         badgeVessel.innerText = titles[State.reactorType] || titles['str_rushton'];
       }
 
-      const badgeTime = document.getElementById('dash-badge-time');
-      if (badgeTime) badgeTime.innerText = `${tEnd.toFixed(2)} h (Day ${(tEnd / 24.0).toFixed(1)})`;
+      const badgeTime = getEl('dash-badge-time');
+      if (badgeTime) badgeTime.innerText = `${k.tEnd.toFixed(2)} h (Day ${(k.tEnd / 24.0).toFixed(1)})`;
 
-      const badgePurity = document.getElementById('dash-badge-purity');
+      const badgePurity = getEl('dash-badge-purity');
       if (badgePurity) {
-        if (finalPurity >= 95.0) {
+        if (k.finalPurity >= 95.0) {
           badgePurity.className = 'px-2.5 py-1 rounded-lg border font-medium inline-flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/40';
-          badgePurity.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>Axenic (${finalPurity.toFixed(1)}%)</span>`;
-        } else if (finalPurity >= 70.0) {
+          badgePurity.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>Axenic (${k.finalPurity.toFixed(1)}%)</span>`;
+        } else if (k.finalPurity >= 70.0) {
           badgePurity.className = 'px-2.5 py-1 rounded-lg border font-medium inline-flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/40';
-          badgePurity.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400"></span><span>Contaminated (${finalPurity.toFixed(1)}%)</span>`;
+          badgePurity.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400"></span><span>Contaminated (${k.finalPurity.toFixed(1)}%)</span>`;
         } else {
           badgePurity.className = 'px-2.5 py-1 rounded-lg border font-medium inline-flex items-center gap-1.5 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/40';
-          badgePurity.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400"></span><span>Critical (${finalPurity.toFixed(1)}%)</span>`;
+          badgePurity.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400"></span><span>Critical (${k.finalPurity.toFixed(1)}%)</span>`;
         }
       }
 
-      const badgePts = document.getElementById('dash-badge-pts');
+      const badgePts = getEl('dash-badge-pts');
       if (badgePts) badgePts.innerText = history.length;
 
-      // 3. Update 6 KPI Cards
-      const elDeltaX = document.getElementById('kpi-dash-deltax');
-      if (elDeltaX) elDeltaX.innerText = `+${deltaX.toFixed(2)} g/L`;
-      const elFinalX = document.getElementById('kpi-dash-finalx');
-      if (elFinalX) elFinalX.innerText = `Final: ${last.X.toFixed(2)} g/L (${totalDCW.toFixed(1)} g)`;
-      const elMuMax = document.getElementById('kpi-dash-mumax');
-      if (elMuMax) elMuMax.innerText = `${muMaxObs.toFixed(2)} h⁻¹`;
-      const elTd = document.getElementById('kpi-dash-td');
-      if (elTd) elTd.innerText = `${doublingTime.toFixed(2)} h`;
+      // 2. Update 6 KPI Cards
+      const elDeltaX = getEl('kpi-dash-deltax');
+      if (elDeltaX) elDeltaX.innerText = `+${k.deltaX.toFixed(2)} g/L`;
+      const elFinalX = getEl('kpi-dash-finalx');
+      if (elFinalX) elFinalX.innerText = `Final: ${k.finalX.toFixed(2)} g/L (${k.totalDCW.toFixed(1)} g)`;
+      const elMuMax = getEl('kpi-dash-mumax');
+      if (elMuMax) elMuMax.innerText = `${k.muMaxObs.toFixed(2)} h⁻¹`;
+      const elTd = getEl('kpi-dash-td');
+      if (elTd) elTd.innerText = `${k.doublingTime.toFixed(2)} h`;
 
-      const elYxs = document.getElementById('kpi-dash-yxs');
-      if (elYxs) elYxs.innerText = `${yxs.toFixed(3)} g/g`;
-      const elSConsumed = document.getElementById('kpi-dash-sconsumed');
-      if (elSConsumed) elSConsumed.innerText = `Consumed: ${deltaS.toFixed(1)} g/L`;
-      const elSConv = document.getElementById('kpi-dash-sconv');
-      if (elSConv) elSConv.innerText = `${sConversion.toFixed(1)}%`;
-      const elYxn = document.getElementById('kpi-dash-yxn');
-      if (elYxn) elYxn.innerText = `${yxn.toFixed(2)} g/g`;
+      const elYxs = getEl('kpi-dash-yxs');
+      if (elYxs) elYxs.innerText = `${k.yxs.toFixed(3)} g/g`;
+      const elSConsumed = getEl('kpi-dash-sconsumed');
+      if (elSConsumed) elSConsumed.innerText = `Consumed: ${k.deltaS.toFixed(1)} g/L`;
+      const elSConv = getEl('kpi-dash-sconv');
+      if (elSConv) elSConv.innerText = `${k.sConversion.toFixed(1)}%`;
+      const elYxn = getEl('kpi-dash-yxn');
+      if (elYxn) elYxn.innerText = `${k.yxn.toFixed(2)} g/g`;
 
-      const elQp = document.getElementById('kpi-dash-qp');
-      if (elQp) elQp.innerText = `${qp.toFixed(3)} g/L/h`;
-      const elFinalP = document.getElementById('kpi-dash-finalp');
-      if (elFinalP) elFinalP.innerText = `Product: ${last.P.toFixed(2)} g/L`;
-      const elYps = document.getElementById('kpi-dash-yps');
-      if (elYps) elYps.innerText = `${yps.toFixed(3)} g/g`;
-      const elTotalP = document.getElementById('kpi-dash-totalp');
-      if (elTotalP) elTotalP.innerText = `${totalP.toFixed(1)} g`;
+      const elQp = getEl('kpi-dash-qp');
+      if (elQp) elQp.innerText = `${k.qp.toFixed(3)} g/L/h`;
+      const elFinalP = getEl('kpi-dash-finalp');
+      if (elFinalP) elFinalP.innerText = `Product: ${k.finalP.toFixed(2)} g/L`;
+      const elYps = getEl('kpi-dash-yps');
+      if (elYps) elYps.innerText = `${k.yps.toFixed(3)} g/g`;
+      const elTotalP = getEl('kpi-dash-totalp');
+      if (elTotalP) elTotalP.innerText = `${k.totalP.toFixed(1)} g`;
 
-      const elCarbon = document.getElementById('kpi-dash-carbon');
-      if (elCarbon) elCarbon.innerText = `${cRecovery.toFixed(1)}%`;
-      const elCIn = document.getElementById('kpi-dash-cin');
-      if (elCIn) elCIn.innerText = `C-In: ${cIn.toFixed(1)} g C/L`;
-      const elCFixed = document.getElementById('kpi-dash-cfixed');
-      if (elCFixed) elCFixed.innerText = `${cFixed.toFixed(1)} g C/L`;
-      const elCCO2 = document.getElementById('kpi-dash-cco2');
-      if (elCCO2) elCCO2.innerText = `${cCO2.toFixed(1)} g C/L`;
+      const elCarbon = getEl('kpi-dash-carbon');
+      if (elCarbon) elCarbon.innerText = `${k.cRecovery.toFixed(1)}%`;
+      const elCIn = getEl('kpi-dash-cin');
+      if (elCIn) elCIn.innerText = `C-In: ${k.cIn.toFixed(1)} g C/L`;
+      const elCFixed = getEl('kpi-dash-cfixed');
+      if (elCFixed) elCFixed.innerText = `${k.cFixed.toFixed(1)} g C/L`;
+      const elCCO2 = getEl('kpi-dash-cco2');
+      if (elCCO2) elCCO2.innerText = `${k.cCO2.toFixed(1)} g C/L`;
 
-      const elKla = document.getElementById('kpi-dash-kla');
-      if (elKla) elKla.innerText = `${avgKla.toFixed(1)} h⁻¹`;
-      const elMinDO = document.getElementById('kpi-dash-mindo');
-      if (elMinDO) elMinDO.innerText = `Min DO: ${minDO.toFixed(1)}%`;
-      const elTotalOUR = document.getElementById('kpi-dash-totalour');
-      if (elTotalOUR) elTotalOUR.innerText = `${totalOUR.toFixed(1)} mmol/L`;
-      const elHypoxia = document.getElementById('kpi-dash-hypoxia');
+      const elKla = getEl('kpi-dash-kla');
+      if (elKla) elKla.innerText = `${k.avgKla.toFixed(1)} h⁻¹`;
+      const elMinDO = getEl('kpi-dash-mindo');
+      if (elMinDO) elMinDO.innerText = `Min DO: ${k.minDO.toFixed(1)}%`;
+      const elTotalOUR = getEl('kpi-dash-totalour');
+      if (elTotalOUR) elTotalOUR.innerText = `${k.totalOUR.toFixed(1)} mmol/L`;
+      const elHypoxia = getEl('kpi-dash-hypoxia');
       if (elHypoxia) {
-        elHypoxia.innerText = `${hypoxiaHours.toFixed(2)} h`;
-        elHypoxia.className = hypoxiaHours > 0 ? 'font-semibold text-red-600 dark:text-red-400 tabular-nums' : 'font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums';
+        elHypoxia.innerText = `${k.hypoxiaHours.toFixed(2)} h`;
+        elHypoxia.className = k.hypoxiaHours > 0 ? 'font-semibold text-red-600 dark:text-red-400 tabular-nums' : 'font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums';
       }
 
-      const elPurity = document.getElementById('kpi-dash-purity');
-      if (elPurity) elPurity.innerText = `${finalPurity.toFixed(1)}%`;
-      const elStatus = document.getElementById('kpi-dash-status');
+      const elPurity = getEl('kpi-dash-purity');
+      if (elPurity) elPurity.innerText = `${k.finalPurity.toFixed(1)}%`;
+      const elStatus = getEl('kpi-dash-status');
       if (elStatus) {
-        if (finalPurity >= 95.0) {
+        if (k.finalPurity >= 95.0) {
           elStatus.innerText = 'Status: Axenic Culture';
           elStatus.className = 'text-[11px] text-emerald-600 dark:text-emerald-400 mt-0.5';
         } else {
@@ -4936,34 +3561,67 @@
           elStatus.className = 'text-[11px] text-red-600 dark:text-red-400 font-semibold mt-0.5';
         }
       }
-      const elMinPurity = document.getElementById('kpi-dash-minpurity');
-      if (elMinPurity) elMinPurity.innerText = `${minPurity.toFixed(1)}%`;
-      const elOsmo = document.getElementById('kpi-dash-osmo');
+      const elMinPurity = getEl('kpi-dash-minpurity');
+      if (elMinPurity) elMinPurity.innerText = `${k.minPurity.toFixed(1)}%`;
+      const elOsmo = getEl('kpi-dash-osmo');
       if (elOsmo) elOsmo.innerText = `${last.osmolarity || 290} mOsm`;
+
+      // 3. Update A/B Comparison Panel
+      const abActive = compareEnabled && baselineData && Array.isArray(baselineData.history) && baselineData.history.length > 0;
+      renderComparisonPanelDOM(
+        getEl('dash-ab-panel'),
+        getEl('dash-ab-summary'),
+        getEl('dash-ab-deltas'),
+        k,
+        abActive ? baselineData : null,
+        t
+      );
+      updateCompareButtonsUI();
 
       // 4. Update the 4 Chart.js Charts
       const labels = history.map(h => h.time_h.toFixed(1));
       const isDark = getEffectiveTheme() === 'dark';
 
-      // Analyze Growth Phases (v2.3)
+      // Analyze Growth Phases
       const phaseAnalysis = analyzeBatchGrowthPhases(history, (st && st.mu_max) || 0.65);
       renderGrowthPhaseBreakdown(phaseAnalysis, 'dash-');
 
-      // Chart 1: Growth, Nutrients & Product with Automatic Phase Differentiation
-      const ctxGrowth = document.getElementById('dashChartGrowth');
+      // Chart 1: Growth, Nutrients & Product with Automatic Phase Differentiation + Optional Run A Overlay
+      const ctxGrowth = getEl('dashChartGrowth');
       if (ctxGrowth) {
-        const dataX = history.map(h => h.X);
-        const dataS = history.map(h => h.S);
-        const dataN = history.map(h => h.N);
-        const dataP = history.map(h => h.P);
+        const growthDatasets = [
+          { label: 'Biomass X (g/L)', data: history.map(h => h.X), borderColor: isDark ? '#81c995' : '#1e7e44', borderWidth: 2, pointRadius: 0, tension: 0.2 },
+          { label: 'Substrate S (g/L)', data: history.map(h => h.S), borderColor: isDark ? '#fdd663' : '#b06000', borderWidth: 2, pointRadius: 0, tension: 0.2, yAxisID: 'y1' },
+          { label: 'Nitrogen N (g/L)', data: history.map(h => h.N), borderColor: isDark ? '#8ab4f8' : '#1a73e8', borderWidth: 1.5, pointRadius: 0, tension: 0.2 },
+          { label: 'Product P (g/L)', data: history.map(h => h.P), borderColor: isDark ? '#c58af9' : '#7627bb', borderWidth: 2, pointRadius: 0, tension: 0.2 }
+        ];
+        if (abActive) {
+          growthDatasets.push(
+            {
+              label: 'Biomass A (g/L)',
+              data: interpolateSeriesAtTimes(history, baselineData.history, 'X'),
+              borderColor: isDark ? 'rgba(129, 201, 149, 0.55)' : 'rgba(30, 126, 68, 0.55)',
+              borderDash: [5, 4],
+              borderWidth: 1.6,
+              pointRadius: 0,
+              tension: 0.2
+            },
+            {
+              label: 'Product A (g/L)',
+              data: interpolateSeriesAtTimes(history, baselineData.history, 'P'),
+              borderColor: isDark ? 'rgba(197, 138, 249, 0.55)' : 'rgba(118, 39, 187, 0.55)',
+              borderDash: [5, 4],
+              borderWidth: 1.6,
+              pointRadius: 0,
+              tension: 0.2
+            }
+          );
+        }
 
         if (chartDashGrowth) {
           chartDashGrowth.data.labels = labels;
           chartDashGrowth.data.phases = phaseAnalysis.pointPhases;
-          chartDashGrowth.data.datasets[0].data = dataX;
-          chartDashGrowth.data.datasets[1].data = dataS;
-          chartDashGrowth.data.datasets[2].data = dataN;
-          chartDashGrowth.data.datasets[3].data = dataP;
+          chartDashGrowth.data.datasets = growthDatasets;
           chartDashGrowth.update('none');
         } else {
           chartDashGrowth = new Chart(ctxGrowth.getContext('2d'), {
@@ -4971,12 +3629,7 @@
             data: {
               labels: labels,
               phases: phaseAnalysis.pointPhases,
-              datasets: [
-                { label: 'Biomass X (g/L)', data: dataX, borderColor: isDark ? '#81c995' : '#1e7e44', borderWidth: 2, pointRadius: 0, tension: 0.2 },
-                { label: 'Substrate S (g/L)', data: dataS, borderColor: isDark ? '#fdd663' : '#b06000', borderWidth: 2, pointRadius: 0, tension: 0.2, yAxisID: 'y1' },
-                { label: 'Nitrogen N (g/L)', data: dataN, borderColor: isDark ? '#8ab4f8' : '#1a73e8', borderWidth: 1.5, pointRadius: 0, tension: 0.2 },
-                { label: 'Product P (g/L)', data: dataP, borderColor: isDark ? '#c58af9' : '#7627bb', borderWidth: 2, pointRadius: 0, tension: 0.2 }
-              ]
+              datasets: growthDatasets
             },
             plugins: [growthPhaseBackgroundPlugin],
             options: getDashboardChartOptions('Biomass & Product (g/L)', 'Substrate S (g/L)')
@@ -4984,284 +3637,130 @@
         }
       }
 
-      // Chart 2: Dissolved Oxygen & Mass Transfer
-      const ctxOxygen = document.getElementById('dashChartOxygen');
+      // Chart 2: Dissolved Oxygen & Mass Transfer + Optional Run A DO Overlay
+      const ctxOxygen = getEl('dashChartOxygen');
       if (ctxOxygen) {
-        const dataDO = history.map(h => h.DO_pct);
-        const dataOUR = history.map(h => h.our);
-        const datakLa = history.map(h => h.kla);
+        const oxygenDatasets = [
+          { label: 'DO (% Sat)', data: history.map(h => h.DO_pct), borderColor: isDark ? '#8ab4f8' : '#1a73e8', borderWidth: 2, pointRadius: 0, tension: 0.2 },
+          { label: 'OUR (mmol/L/h)', data: history.map(h => h.our), borderColor: isDark ? '#f28b82' : '#d93025', borderWidth: 1.5, pointRadius: 0, tension: 0.2, yAxisID: 'y1' },
+          { label: 'kLa (h⁻¹)', data: history.map(h => h.kla), borderColor: isDark ? '#9aa0a6' : '#5f6368', borderWidth: 1.5, borderDash: [4, 4], pointRadius: 0, tension: 0.2, yAxisID: 'y1' }
+        ];
+        if (abActive) {
+          oxygenDatasets.push({
+            label: 'DO A (% Sat)',
+            data: interpolateSeriesAtTimes(history, baselineData.history, 'DO_pct'),
+            borderColor: isDark ? 'rgba(138, 180, 248, 0.55)' : 'rgba(26, 115, 232, 0.55)',
+            borderDash: [5, 4],
+            borderWidth: 1.6,
+            pointRadius: 0,
+            tension: 0.2
+          });
+        }
 
         if (chartDashOxygen) {
           chartDashOxygen.data.labels = labels;
-          chartDashOxygen.data.datasets[0].data = dataDO;
-          chartDashOxygen.data.datasets[1].data = dataOUR;
-          chartDashOxygen.data.datasets[2].data = datakLa;
+          chartDashOxygen.data.datasets = oxygenDatasets;
           chartDashOxygen.update('none');
         } else {
           chartDashOxygen = new Chart(ctxOxygen.getContext('2d'), {
             type: 'line',
-            data: {
-              labels: labels,
-              datasets: [
-                { label: 'DO (% Sat)', data: dataDO, borderColor: isDark ? '#8ab4f8' : '#1a73e8', borderWidth: 2, pointRadius: 0, tension: 0.2 },
-                { label: 'OUR (mmol/L/h)', data: dataOUR, borderColor: isDark ? '#f28b82' : '#d93025', borderWidth: 1.5, pointRadius: 0, tension: 0.2, yAxisID: 'y1' },
-                { label: 'kLa (h⁻¹)', data: datakLa, borderColor: isDark ? '#9aa0a6' : '#5f6368', borderWidth: 1.5, borderDash: [4, 4], pointRadius: 0, tension: 0.2, yAxisID: 'y1' }
-              ]
-            },
+            data: { labels, datasets: oxygenDatasets },
             options: getDashboardChartOptions('DO (% Sat)', 'OUR & kLa (h⁻¹)')
           });
         }
       }
 
       // Chart 3: Specific Kinetic Rates
-      const ctxRates = document.getElementById('dashChartRates');
+      const ctxRates = getEl('dashChartRates');
       if (ctxRates) {
-        const dataMu = history.map(h => h.mu);
-        const dataQS = history.map(h => h.qs);
-        const dataQP = history.map(h => h.qp);
+        const rateDatasets = [
+          { label: 'μ (h⁻¹)', data: history.map(h => h.mu), borderColor: isDark ? '#81c995' : '#1e7e44', borderWidth: 2, pointRadius: 0, tension: 0.2 },
+          { label: 'q_S (g/g/h)', data: history.map(h => h.qs), borderColor: isDark ? '#fdd663' : '#b06000', borderWidth: 1.5, pointRadius: 0, tension: 0.2 },
+          { label: 'q_P (g/g/h)', data: history.map(h => h.qp), borderColor: isDark ? '#c58af9' : '#7627bb', borderWidth: 1.5, pointRadius: 0, tension: 0.2 }
+        ];
 
         if (chartDashRates) {
           chartDashRates.data.labels = labels;
-          chartDashRates.data.datasets[0].data = dataMu;
-          chartDashRates.data.datasets[1].data = dataQS;
-          chartDashRates.data.datasets[2].data = dataQP;
+          chartDashRates.data.datasets = rateDatasets;
           chartDashRates.update('none');
         } else {
           chartDashRates = new Chart(ctxRates.getContext('2d'), {
             type: 'line',
-            data: {
-              labels: labels,
-              datasets: [
-                { label: 'μ (h⁻¹)', data: dataMu, borderColor: isDark ? '#81c995' : '#1e7e44', borderWidth: 2, pointRadius: 0, tension: 0.2 },
-                { label: 'q_S (g/g/h)', data: dataQS, borderColor: isDark ? '#fdd663' : '#b06000', borderWidth: 1.5, pointRadius: 0, tension: 0.2 },
-                { label: 'q_P (g/g/h)', data: dataQP, borderColor: isDark ? '#c58af9' : '#7627bb', borderWidth: 1.5, pointRadius: 0, tension: 0.2 }
-              ]
-            },
+            data: { labels, datasets: rateDatasets },
             options: getDashboardChartOptions('Specific Rate (h⁻¹ / g/g/h)')
           });
         }
       }
 
       // Chart 4: Culture Purity & Environment
-      const ctxEnv = document.getElementById('dashChartEnv');
+      const ctxEnv = getEl('dashChartEnv');
       if (ctxEnv) {
-        const dataPurity = history.map(h => h.culture_purity);
-        const dataTemp = history.map(h => h.temp);
-        const dataPh = history.map(h => h.ph);
-        const dataOsmo = history.map(h => h.osmolarity);
+        const envDatasets = [
+          { label: 'Purity (%)', data: history.map(h => h.culture_purity), borderColor: isDark ? '#4db6ac' : '#00897b', borderWidth: 2, pointRadius: 0, tension: 0.2 },
+          { label: 'Temp (°C)', data: history.map(h => h.temp), borderColor: isDark ? '#f28b82' : '#d93025', borderWidth: 1.5, pointRadius: 0, tension: 0.2, yAxisID: 'y1' },
+          { label: 'pH', data: history.map(h => h.ph), borderColor: isDark ? '#8ab4f8' : '#1a73e8', borderWidth: 1.5, pointRadius: 0, tension: 0.2, yAxisID: 'y1' },
+          { label: 'Osmolarity (mOsm)', data: history.map(h => h.osmolarity), borderColor: isDark ? '#c58af9' : '#7627bb', borderWidth: 1, borderDash: [3, 3], pointRadius: 0, tension: 0.2, yAxisID: 'y1' }
+        ];
 
         if (chartDashEnv) {
           chartDashEnv.data.labels = labels;
-          chartDashEnv.data.datasets[0].data = dataPurity;
-          chartDashEnv.data.datasets[1].data = dataTemp;
-          chartDashEnv.data.datasets[2].data = dataPh;
-          chartDashEnv.data.datasets[3].data = dataOsmo;
+          chartDashEnv.data.datasets = envDatasets;
           chartDashEnv.update('none');
         } else {
           chartDashEnv = new Chart(ctxEnv.getContext('2d'), {
             type: 'line',
-            data: {
-              labels: labels,
-              datasets: [
-                { label: 'Purity (%)', data: dataPurity, borderColor: isDark ? '#4db6ac' : '#00897b', borderWidth: 2, pointRadius: 0, tension: 0.2 },
-                { label: 'Temp (°C)', data: dataTemp, borderColor: isDark ? '#f28b82' : '#d93025', borderWidth: 1.5, pointRadius: 0, tension: 0.2, yAxisID: 'y1' },
-                { label: 'pH', data: dataPh, borderColor: isDark ? '#8ab4f8' : '#1a73e8', borderWidth: 1.5, pointRadius: 0, tension: 0.2, yAxisID: 'y1' },
-                { label: 'Osmolarity (mOsm)', data: dataOsmo, borderColor: isDark ? '#c58af9' : '#7627bb', borderWidth: 1, borderDash: [3, 3], pointRadius: 0, tension: 0.2, yAxisID: 'y1' }
-              ]
-            },
+            data: { labels, datasets: envDatasets },
             options: getDashboardChartOptions('Culture Purity (%)', 'Temp (°C), pH, mOsm')
           });
         }
       }
 
       // 5. Populate Stoichiometric Audit Table
-      populateStoichTable({
-        yxs, yxn, yps, muMaxObs, doublingTime, qp, cRecovery, avgKla, minDO, hypoxiaHours, finalPurity
-      });
+      populateStoichTable(k);
 
       // 6. Populate Telemetry Data Table
       renderTelemetryTable();
     }
 
     function populateStoichTable(k) {
-      const tbody = document.getElementById('stoich-table-tbody');
-      if (!tbody) return;
-
-      const rows = [
-        {
-          name: { en: 'Biomass Yield on Substrate', es: 'Rendimiento de Biomasa en Sustrato', de: 'Biomasseausbeute auf Substrat' },
-          sym: 'Y_X/S', val: `${k.yxs.toFixed(3)}`, unit: 'g_X / g_S', ref: '0.40 - 0.55', ok: k.yxs >= 0.35 && k.yxs <= 0.60
-        },
-        {
-          name: { en: 'Biomass Yield on Nitrogen', es: 'Rendimiento de Biomasa en Nitrógeno', de: 'Biomasseausbeute auf Stickstoff' },
-          sym: 'Y_X/N', val: `${k.yxn.toFixed(2)}`, unit: 'g_X / g_N', ref: '4.5 - 6.5', ok: k.yxn >= 4.0
-        },
-        {
-          name: { en: 'Product Yield on Substrate', es: 'Rendimiento de Producto en Sustrato', de: 'Produktausbeute auf Substrat' },
-          sym: 'Y_P/S', val: `${k.yps.toFixed(3)}`, unit: 'g_P / g_S', ref: '0.05 - 0.40', ok: true
-        },
-        {
-          name: { en: 'Max Specific Growth Rate', es: 'Tasa Máxima de Crecimiento Específico', de: 'Max. spezifische Wachstumsrate' },
-          sym: 'μ_max', val: `${k.muMaxObs.toFixed(3)}`, unit: 'h⁻¹', ref: '0.05 - 0.85', ok: k.muMaxObs > 0.02
-        },
-        {
-          name: { en: 'Apparent Doubling Time', es: 'Tiempo Aparente de Duplicación', de: 'Scheinbare Verdopplungszeit' },
-          sym: 't_d', val: `${k.doublingTime.toFixed(2)}`, unit: 'h', ref: '0.8 - 18.0', ok: k.doublingTime > 0
-        },
-        {
-          name: { en: 'Volumetric Productivity', es: 'Productividad Volumétrica', de: 'Volumetrische Produktivität' },
-          sym: 'Q_P', val: `${k.qp.toFixed(3)}`, unit: 'g_P / L / h', ref: '0.05 - 0.50', ok: true
-        },
-        {
-          name: { en: 'Carbon Balance Closure', es: 'Cierre del Balance de Carbono', de: 'Kohlenstoffbilanz-Schluss' },
-          sym: '% C_Rec', val: `${k.cRecovery.toFixed(1)}%`, unit: '%', ref: '95.0% - 105.0%', ok: k.cRecovery >= 92.0 && k.cRecovery <= 108.0
-        },
-        {
-          name: { en: 'Mean Mass Transfer Coeff', es: 'Coeficiente Medio de Transferencia', de: 'Mittlerer Stoffübergangskoeffizient' },
-          sym: 'kLa', val: `${k.avgKla.toFixed(1)}`, unit: 'h⁻¹', ref: '10.0 - 250.0', ok: k.avgKla > 0
-        },
-        {
-          name: { en: 'Minimum Dissolved Oxygen', es: 'Oxígeno Disuelto Mínimo', de: 'Minimaler gelöster Sauerstoff' },
-          sym: 'DO_min', val: `${k.minDO.toFixed(1)}%`, unit: '%', ref: '> 20.0%', ok: k.minDO >= 20.0
-        },
-        {
-          name: { en: 'Hypoxia Duration (DO < 15%)', es: 'Duración de Hipoxia (OD < 15%)', de: 'Hypoxiedauer (DO < 15%)' },
-          sym: 't_hypox', val: `${k.hypoxiaHours.toFixed(2)}`, unit: 'h', ref: '0.00 h (Target)', ok: k.hypoxiaHours === 0
-        },
-        {
-          name: { en: 'Culture Sterility & Quality', es: 'Esterilidad y Calidad del Cultivo', de: 'Kultursterilität & Qualität' },
-          sym: 'Purity', val: `${k.finalPurity.toFixed(1)}%`, unit: '%', ref: '100.0% (Axenic)', ok: k.finalPurity >= 95.0
-        }
-      ];
-
-      tbody.innerHTML = rows.map(r => {
-        const label = (typeof r.name === 'object') ? (r.name[currentLang] || r.name['en']) : r.name;
-        const badge = r.ok
-          ? '<span class="px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 text-[10px] font-semibold">PASS</span>'
-          : '<span class="px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40 text-[10px] font-semibold">ALERT</span>';
-        return `
-          <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition">
-            <td class="py-2.5 px-3 font-medium">${label}</td>
-            <td class="py-2.5 px-3 text-gray-500 dark:text-gray-400 font-bold">${r.sym}</td>
-            <td class="py-2.5 px-3 tabular-nums font-semibold text-gray-900 dark:text-gray-100">${r.val}</td>
-            <td class="py-2.5 px-3 text-gray-500 dark:text-gray-400">${r.unit}</td>
-            <td class="py-2.5 px-3 text-gray-500 dark:text-gray-400">${r.ref}</td>
-            <td class="py-2.5 px-3">${badge}</td>
-          </tr>
-        `;
-      }).join('');
+      renderStoichTableDOM(getEl('stoich-table-tbody'), k, currentLang);
     }
 
     function filterTelemetryTable() {
-      const input = document.getElementById('telemetry-filter-input');
+      const input = getEl('telemetry-filter-input');
       telemetryFilterQuery = input ? input.value.trim().toLowerCase() : '';
       renderTelemetryTable();
     }
 
     function renderTelemetryTable() {
-      const tbody = document.getElementById('telemetry-log-tbody');
-      if (!tbody) return;
-
       const history = (State.batchHistory && State.batchHistory.length > 0) ? State.batchHistory : [];
-      const limitSelect = document.getElementById('telemetry-limit-select');
+      const limitSelect = getEl('telemetry-limit-select');
       const limit = limitSelect ? limitSelect.value : '50';
-
-      let filtered = history;
-      if (telemetryFilterQuery) {
-        filtered = history.filter(h =>
-          h.time_h.toString().includes(telemetryFilterQuery) ||
-          h.X.toString().includes(telemetryFilterQuery) ||
-          h.S.toString().includes(telemetryFilterQuery) ||
-          h.DO_pct.toString().includes(telemetryFilterQuery)
-        );
-      }
-
-      const rowsToRender = (limit === 'all') ? filtered : filtered.slice(-parseInt(limit, 10));
-
-      if (rowsToRender.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="12" class="py-6 text-center text-gray-400 dark:text-gray-500">No telemetry records logged yet. Run simulation to collect data points.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = rowsToRender.map(h => `
-        <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition">
-          <td class="py-1.5 px-3 tabular-nums font-bold text-gray-900 dark:text-gray-100">${h.time_h.toFixed(2)}</td>
-          <td class="py-1.5 px-3 tabular-nums text-emerald-600 dark:text-emerald-400 font-semibold">${h.X.toFixed(2)}</td>
-          <td class="py-1.5 px-3 tabular-nums text-amber-600 dark:text-amber-400 font-semibold">${h.S.toFixed(1)}</td>
-          <td class="py-1.5 px-3 tabular-nums text-blue-600 dark:text-blue-400">${h.N.toFixed(2)}</td>
-          <td class="py-1.5 px-3 tabular-nums ${h.DO_pct < 20 ? 'text-red-600 dark:text-red-400 font-bold' : 'text-sky-600 dark:text-sky-400'}">${h.DO_pct.toFixed(1)}%</td>
-          <td class="py-1.5 px-3 tabular-nums text-purple-600 dark:text-purple-400 font-semibold">${h.P.toFixed(2)}</td>
-          <td class="py-1.5 px-3 tabular-nums text-gray-600 dark:text-gray-400">${h.mu.toFixed(2)}</td>
-          <td class="py-1.5 px-3 tabular-nums text-gray-600 dark:text-gray-400">${h.kla.toFixed(1)}</td>
-          <td class="py-1.5 px-3 tabular-nums text-gray-600 dark:text-gray-400">${h.our.toFixed(1)}</td>
-          <td class="py-1.5 px-3 tabular-nums text-gray-600 dark:text-gray-400">${h.temp.toFixed(1)}</td>
-          <td class="py-1.5 px-3 tabular-nums text-gray-600 dark:text-gray-400">${h.ph.toFixed(2)}</td>
-          <td class="py-1.5 px-3 tabular-nums ${h.culture_purity < 80 ? 'text-red-600 dark:text-red-400 font-bold' : 'text-emerald-600 dark:text-emerald-400'}">${h.culture_purity.toFixed(1)}%</td>
-        </tr>
-      `).join('');
+      renderTelemetryTableDOM(getEl('telemetry-log-tbody'), history, limit, telemetryFilterQuery);
     }
 
     function exportFullBatchCSV() {
       const history = (State.batchHistory && State.batchHistory.length > 0) ? State.batchHistory : [];
-      let csv = "Time_h,Biomass_g_L,Substrate_g_L,Nitrogen_g_L,DO_pct,Product_g_L,Mu_h1,kLa_h1,OUR_mmol_L_h,qS_g_g_h,qP_g_g_h,Temp_C,pH,CulturePurity_pct,Osmolarity_mOsm,CN_Ratio\n";
-
-      for (const h of history) {
-        csv += `${h.time_h},${h.X},${h.S},${h.N},${h.DO_pct},${h.P},${h.mu},${h.kla},${h.our},${h.qs},${h.qp},${h.temp},${h.ph},${h.culture_purity},${h.osmolarity},${h.cn_ratio}\n`;
-      }
-
-      downloadBlobFile(csv, 'text/csv;charset=utf-8;', `bioprocess_v2_5_full_batch_${State.reactorType}.csv`);
+      const csv = buildFullBatchCSV(history);
+      downloadBlobFile(csv, 'text/csv;charset=utf-8;', `bioprocess_v2_6_full_batch_${State.reactorType}.csv`);
     }
 
     function exportBatchJSON() {
-      const history = (State.batchHistory && State.batchHistory.length > 0) ? State.batchHistory : [];
-      const payload = {
-        metadata: {
-          software: "bioprocess-visual-twin",
-          version: "2.5.0",
-          author: "Ing. Juan José Álvarez Morales",
-          strainKey: State.currentStrainKey || 'ecoli',
-          strainName: Strains[State.currentStrainKey] ? Strains[State.currentStrainKey].name : 'Escherichia coli BL21(DE3)',
-          mu_max: State.mu_max || 0.65,
-          reactorType: State.reactorType,
-          workingVolume_L: State.volume_L || 20.0,
-          totalDuration_h: State.time_h,
-          totalSnapshots: history.length,
-          initial_X: State.initial_X || 0.8,
-          initial_S: State.initial_S || 35.0,
-          initial_N: State.initial_N || 5.0,
-          s_fed_total: State.s_fed_total || 0.0,
-          n_fed_total: State.n_fed_total || 0.0,
-          exportedAt: new Date().toISOString()
-        },
-        telemetry: history
-      };
-
-      downloadBlobFile(JSON.stringify(payload, null, 2), 'application/json;charset=utf-8;', `bioprocess_v2_5_manifest_${State.reactorType}.json`);
+      const payload = buildCurrentBatchPayload(true);
+      downloadBlobFile(JSON.stringify(payload, null, 2), 'application/json;charset=utf-8;', `bioprocess_v2_6_manifest_${State.reactorType}.json`);
     }
 
     // Initialize on DOM load
     window.addEventListener('DOMContentLoaded', () => {
-      // 1. Language init
-      try {
-        const savedLang = localStorage.getItem('bioprocess-lang');
-        if (savedLang && ['en', 'es', 'de'].includes(savedLang)) {
-          currentLang = savedLang;
-        }
-      } catch (e) {}
-
-      // 2. Theme init
-      try {
-        const savedTheme = localStorage.getItem('bioprocess-theme');
-        if (savedTheme && ['system', 'light', 'dark'].includes(savedTheme)) {
-          currentThemeMode = savedTheme;
-        }
-      } catch (e) {}
+      currentLang = loadSavedLang();
+      currentThemeMode = loadSavedTheme();
 
       initThreeScene();
       applyTheme();
       applyLanguage();
       setMobileSubTab('telemetry');
       updateTouchModeUI();
+      updateCompareButtonsUI();
 
       // Show onboarding modal on first load if not dismissed
       try {
@@ -5271,8 +3770,63 @@
         }
       } catch (e) {}
 
+      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      }
+
       window.addEventListener('beforeunload', flushBatchStorageIfDirty);
       requestAnimationFrame(mainLoop);
+    });
+
+    Object.assign(window, {
+      applySetupAndLaunch,
+      clearBaselineRun,
+      closeSetupModal,
+      exportBatchJSON,
+      exportCSV,
+      exportFullBatchCSV,
+      filterTelemetryTable,
+      injectFeedPulse,
+      injectNitrogenPulse,
+      openSetupModal,
+      openStandaloneDashboard,
+      pinCurrentAsBaseline,
+      renderTelemetryTable,
+      resetCameraView,
+      resetSimulation,
+      selectStrain,
+      setCameraView,
+      setFault,
+      setLanguage,
+      setMobileSubTab,
+      setReactorType,
+      setSpeed,
+      setTheme,
+      sterilizeAndResetCulture,
+      switchView,
+      toggleAutoDO,
+      toggleCompareMode,
+      toggleMobileDrawer,
+      togglePlayPause,
+      toggleTouchMode,
+      updateControls,
+      runFastForwardWorker,
+      Strains,
+      State,
+      stepKinetics,
+      compactBatchHistory,
+      flushBatchStorageIfDirty,
+      saveBatchRunToStorage,
+      updateTelemetryDOM,
+      MAX_HISTORY_POINTS
+    });
+
+    Object.defineProperties(window, {
+      renderFrameCount: { get: () => renderFrameCount },
+      chartDashGrowth: { get: () => chartDashGrowth },
+      chartDashOxygen: { get: () => chartDashOxygen },
+      chartDashRates: { get: () => chartDashRates },
+      chartDashEnv: { get: () => chartDashEnv }
     });
   </script>
 </body>

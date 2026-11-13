@@ -1,0 +1,19 @@
+{
+  "name": "Bioprocess Visual Twin 3D",
+  "short_name": "BioTwin 3D",
+  "description": "Physics-based 3D bioreactor digital twin with real-time SCADA telemetry, adaptive Heun/exponential ODE solver, Web Worker fast-forward, and batch analytics.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#16171a",
+  "theme_color": "#1a73e8",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -3,13 +3,64 @@ Command-Line Interface for Bioprocess Visual Twin.
 """
 
 import argparse
+import functools
+import http.server
 import sys
 import webbrowser
+from http.server import ThreadingHTTPServer
 from pathlib import Path
-import numpy as np
 
 from bioprocess_twin.kinetics import ReactorConfig
 from bioprocess_twin.simulator import BioreactorSimulator
+
+
+class _BioprocessHTTPHandler(http.server.SimpleHTTPRequestHandler):
+    """Static HTTP handler with explicit MIME types for ES modules and PWA assets."""
+
+    extensions_map = {
+        **http.server.SimpleHTTPRequestHandler.extensions_map,
+        ".js": "application/javascript; charset=utf-8",
+        ".mjs": "application/javascript; charset=utf-8",
+        ".css": "text/css; charset=utf-8",
+        ".html": "text/html; charset=utf-8",
+        ".json": "application/json; charset=utf-8",
+        ".webmanifest": "application/manifest+json; charset=utf-8",
+        ".svg": "image/svg+xml",
+    }
+
+    quiet: bool = False
+
+    def log_message(self, format: str, *args: object) -> None:
+        if not self.quiet:
+            super().log_message(format, *args)
+
+
+class _ReusableThreadingHTTPServer(ThreadingHTTPServer):
+    allow_reuse_address = True
+    daemon_threads = True
+
+
+def create_ui_server(
+    host: str = "127.0.0.1",
+    port: int = 8765,
+    web_root: Path | None = None,
+    quiet: bool = False,
+) -> tuple[ThreadingHTTPServer, str]:
+    """Create a local HTTP server for the ES-module and Web Worker web UI."""
+    root = (web_root or Path(__file__).resolve().parent.parent.parent).resolve()
+    if not (root / "index.html").exists():
+        raise FileNotFoundError(f"Could not locate index.html under {root}")
+
+    handler_cls = type(
+        "_ConfiguredBioprocessHTTPHandler",
+        (_BioprocessHTTPHandler,),
+        {"quiet": quiet},
+    )
+    handler = functools.partial(handler_cls, directory=str(root))
+    server = _ReusableThreadingHTTPServer((host, port), handler)
+    actual_port = server.server_address[1]
+    url = f"http://{host}:{actual_port}/index.html"
+    return server, url
 
 
 def run_simulate(args: argparse.Namespace) -> None:
@@ -43,12 +94,22 @@ def run_simulate(args: argparse.Namespace) -> None:
 
 
 def run_ui(args: argparse.Namespace) -> None:
-    html_path = Path(__file__).resolve().parent.parent.parent / "index.html"
-    if html_path.exists():
-        print(f"🚀 Opening Bioprocess Visual Twin in browser: {html_path.as_uri()}")
-        webbrowser.open(html_path.as_uri())
-    else:
-        print("❌ Could not locate index.html")
+    try:
+        server, url = create_ui_server(host=args.host, port=args.port)
+    except FileNotFoundError as exc:
+        print(f"❌ {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"🚀 Bioprocess Visual Twin server listening at: {url}")
+    print("   Press Ctrl+C to stop.")
+    if not args.no_browser:
+        webbrowser.open(url)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n🛑 Stopping Bioprocess Visual Twin UI server.")
+    finally:
+        server.server_close()
 
 
 def main() -> None:
@@ -70,7 +131,10 @@ def main() -> None:
     sim_p.add_argument("--output", type=str, default="results/batch_run.csv")
 
     # UI
-    ui_p = subparsers.add_parser("ui", help="Launch interactive web simulator in browser")
+    ui_p = subparsers.add_parser("ui", help="Serve interactive web simulator over local HTTP")
+    ui_p.add_argument("--host", type=str, default="127.0.0.1", help="Bind host address")
+    ui_p.add_argument("--port", type=int, default=8765, help="HTTP server port (0 for auto)")
+    ui_p.add_argument("--no-browser", action="store_true", help="Do not open browser automatically")
 
     args = parser.parse_args()
     if args.command == "simulate":

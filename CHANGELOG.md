@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.6.0] - 2026-11-13
+
+### Added & Refactored
+- **Modular ES6 Architecture (`js/`)**:
+  - Extracted duplicated physics, strains, i18n, theming, growth-phase, and dashboard logic out of `index.html` and `dashboard.html` into shared native ES modules (`js/i18n.js`, `js/theme.js`, `js/strains.js`, `js/phases.js`, `js/kinetics.js`, `js/dashboard-shared.js`, `js/sim-worker.js`).
+- **Precompiled Static Tailwind CSS (`css/styles.css`)**:
+  - Removed the runtime `cdn.tailwindcss.com` JIT compiler from `index.html` and `dashboard.html` and replaced it with a minified build of Tailwind + custom studio CSS (`css/styles.css`).
+- **Off-Thread Web Worker Batch Acceleration & A/B Run Comparison**:
+  - Added dedicated module worker (`js/sim-worker.js`) with inline fallback and `48h Batch` / `+24h Worker` fast-forward actions across desktop and mobile views.
+  - Added Run A / Run B benchmarking (`Pin Run A`, `Compare vs A`, `Clear A`) with piecewise-linear timestamp interpolation, KPI delta badges, and dashed Run A curves overlaid on `dashChartGrowth` and `dashChartOxygen`.
+- **Local HTTP Server in CLI (`src/bioprocess_twin/cli.py`, `tests/test_cli.py`)**:
+  - Replaced `file://` launching in `bioprocess-twin ui` with a stdlib `ThreadingHTTPServer` serving ES modules, Web Workers, and PWA assets with proper MIME types (`--host`, `--port`, `--no-browser`).
+- **PWA Offline Support (`manifest.webmanifest`, `sw.js`, `assets/icon.svg`)**:
+  - Added installable web manifest, vector bioreactor icon, and service worker registered on HTTP/HTTPS origins.
+
 ## [2.5.0] - 2026-11-13
 
 ### Changed & Optimized
