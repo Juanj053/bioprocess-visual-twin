@@ -244,7 +244,7 @@
             <h1 id="app-title" class="text-xs sm:text-sm font-semibold tracking-tight text-gray-900 dark:text-gray-100 truncate max-w-[130px] sm:max-w-none">
               Bioprocess Visual Twin
             </h1>
-            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 font-mono font-medium">v2.4.0</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 font-mono font-medium">v2.5.0</span>
             <span class="hidden md:inline-block text-[10px] px-1.5 py-0.2 rounded-full bg-gray-100 dark:bg-[#282a2e] text-gray-600 dark:text-gray-300 font-mono border border-gray-200 dark:border-[#35373c]">3D-WEBGL</span>
           </div>
           <p id="app-subtitle" class="hidden sm:block text-[11px] text-gray-500 dark:text-gray-400">Physics-Informed Real-Time Digital Twin &bull; <a href="https://www.linkedin.com/in/juanj-alva" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">Ing. Juan José Álvarez Morales</a></p>
@@ -876,7 +876,7 @@
           <h2 class="text-base sm:text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100" data-i18n="dash_title">
             Bioprocess Batch Analytics &amp; Results Dashboard
           </h2>
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 font-mono font-medium">v2.4.0</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 font-mono font-medium">v2.5.0</span>
         </div>
         <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="dash_subtitle">
           High-resolution time-course telemetry, yield calculations, stoichiometric verification, and respirometry.
@@ -1959,6 +1959,9 @@
       // Update vessel title in left box
       updateVesselTitle();
 
+      // Force localized alarms/badges to refresh cleanly
+      if (typeof resetUIDirtyFlags === 'function') resetUIDirtyFlags();
+
       // If results dashboard is active, re-render it
       if (State.activeView === 'dash') {
         renderDashboard();
@@ -2029,13 +2032,19 @@
         }
       });
 
-      // Update Three.js scene background and fog
+      // Update Three.js scene background and fog (zero new allocations)
       if (scene && renderer) {
         const isDark = (effective === 'dark');
         const bgColor = isDark ? 0x191a1d : 0xf1f3f4;
         renderer.setClearColor(bgColor, 1);
-        scene.background = new THREE.Color(bgColor);
-        if (scene.fog) scene.fog.color = new THREE.Color(bgColor);
+        _colThemeBg.setHex(bgColor);
+        if (scene.background && scene.background.isColor) {
+          scene.background.copy(_colThemeBg);
+        } else {
+          scene.background = _colThemeBg.clone();
+        }
+        if (scene.fog && scene.fog.color) scene.fog.color.copy(_colThemeBg);
+        markSceneDirty();
       }
 
       // Update Chart.js colors to match theme
@@ -2708,6 +2717,9 @@
         localStorage.setItem('bioprocess-onboarded', 'true');
       } catch (e) {}
 
+      if (typeof resetUIDirtyFlags === 'function') resetUIDirtyFlags();
+      if (typeof markSceneDirty === 'function') markSceneDirty();
+      if (typeof saveBatchRunToStorage === 'function') saveBatchRunToStorage();
       closeSetupModal();
     }
 
@@ -2987,48 +2999,43 @@
         lastRates = k2;
       }
 
-      if (State.autoDOEnabled && State.reactorType !== 'static') {
-        const act = document.getElementById('status-actuator');
-        if (act) {
-          if (actuatorMode === 'boosting') {
-            act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse"></span><span>${t('actuator_boosting')}</span>`;
-            act.className = 'text-blue-700 dark:text-blue-400 font-semibold inline-flex items-center gap-1.5';
-          } else if (actuatorMode === 'throttling') {
-            act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span><span>${t('actuator_throttling')}</span>`;
-            act.className = 'text-gray-500 dark:text-gray-400 font-semibold inline-flex items-center gap-1.5';
-          } else {
-            act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('actuator_holding')}</span>`;
-            act.className = 'text-emerald-700 dark:text-emerald-400 font-semibold inline-flex items-center gap-1.5';
-          }
-        }
-        const inRpm = document.getElementById('input-rpm');
-        if (inRpm) inRpm.value = Math.round(State.rpm);
-        const valRpm = document.getElementById('val-rpm');
-        if (valRpm) valRpm.innerText = `${Math.round(State.rpm)} RPM`;
-        const inVvm = document.getElementById('input-vvm');
-        if (inVvm) inVvm.value = State.vvm.toFixed(1);
-        const valVvm = document.getElementById('val-vvm');
-        if (valVvm) valVvm.innerText = `${State.vvm.toFixed(1)} vvm`;
-      }
-
-      // Purity and C/N calculation
+      // Purity and C/N calculation (Pure physics state, no DOM side effects)
       const totalBio = State.X + State.X_contam;
       State.culture_purity = totalBio > 0.01 ? (State.X / totalBio) * 100.0 : 100.0;
       State.cn_ratio = (State.S * 0.40) / Math.max(0.01, State.N);
       State.mu = lastRates ? lastRates.mu : 0.0;
       State.netMu = lastRates ? lastRates.netMu : 0.0;
 
-      return { mu: State.mu, kla: hydro.kla, hydro, mu_contam: lastRates ? lastRates.mu_contam : 0.0 };
+      return { mu: State.mu, kla: hydro.kla, hydro, mu_contam: lastRates ? lastRates.mu_contam : 0.0, actuatorMode };
     }
 
     /* =========================================================================
-       5. THREE.JS 3D BIOREACTOR ENGINE
+       5. THREE.JS 3D BIOREACTOR ENGINE (Zero-GC & Conditional Render v2.5)
        ========================================================================= */
     let scene, camera, renderer, controls;
     let vesselGroup, impellerShaftGroup, rushtonGroup, marineGroup, airliftGroup, pbrGroup, staticGroup;
     let liquidMesh, liquidSurfaceMesh, glassVesselMesh, thermalJacketMesh;
     let bubbleParticles = [];
     const NUM_BUBBLES = 180;
+
+    // Pre-allocated color objects to eliminate GC pressure at 60 FPS
+    const _colBaseLight = new THREE.Color(0xdbeafe);
+    const _colBaseDark = new THREE.Color(0x223548);
+    const _colMature = new THREE.Color(0xb45309);
+    const _colContam = new THREE.Color(0x524816);
+    const _colTarget = new THREE.Color();
+    const _colThemeBg = new THREE.Color(0x191a1d);
+
+    let renderDirty = true;
+    let isOrbitInteracting = false;
+    let isPageHidden = typeof document !== 'undefined' ? document.hidden : false;
+    let lastJacketState = '';
+    let lastAerationCut = null;
+    let renderFrameCount = 0;
+
+    function markSceneDirty() {
+      renderDirty = true;
+    }
 
     function initThreeScene() {
       const container = document.getElementById('canvas-container');
@@ -3038,10 +3045,11 @@
 
       const isDark = (getEffectiveTheme() === 'dark');
       const initBg = isDark ? 0x191a1d : 0xf1f3f4;
+      _colThemeBg.setHex(initBg);
 
       // 1. Scene & Camera
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(initBg);
+      scene.background = _colThemeBg.clone();
       scene.fog = new THREE.FogExp2(initBg, 0.04);
 
       camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 50);
@@ -3068,6 +3076,9 @@
       controls.minDistance = 2.0;
       controls.maxDistance = 8.5;
       controls.target.set(0, 0.1, 0);
+      controls.addEventListener('start', () => { isOrbitInteracting = true; markSceneDirty(); });
+      controls.addEventListener('change', () => { markSceneDirty(); });
+      controls.addEventListener('end', () => { isOrbitInteracting = false; markSceneDirty(); });
 
       // 4. Clean Laboratory Lighting Rig
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
@@ -3088,8 +3099,15 @@
       // 5. Construct Bioreactor 3D Models
       buildBioreactor3D();
 
-      // 6. Window Resize Handler
+      // 6. Window Resize & Tab Visibility Handlers
       window.addEventListener('resize', onWindowResize);
+      document.addEventListener('visibilitychange', () => {
+        isPageHidden = document.hidden;
+        if (!isPageHidden) {
+          lastTime = performance.now();
+          markSceneDirty();
+        }
+      });
     }
 
     function buildBioreactor3D() {
@@ -3399,25 +3417,24 @@
       const spargerRadius = 0.35;
       const angle = Math.random() * Math.PI * 2;
       const r = Math.random() * spargerRadius;
-      
+
       bMesh.position.x = Math.cos(angle) * r;
       bMesh.position.z = Math.sin(angle) * r;
       bMesh.position.y = initial ? (-0.85 + Math.random() * 1.5) : -0.85;
 
-      bMesh.userData = {
-        speedY: 0.008 + Math.random() * 0.015,
-        angle: angle,
-        orbitRadius: r,
-        swirlSpeed: (Math.random() - 0.5) * 0.05,
-        wobbleFreq: 2 + Math.random() * 4
-      };
+      const u = bMesh.userData;
+      u.speedY = 0.008 + Math.random() * 0.015;
+      u.angle = angle;
+      u.orbitRadius = r;
+      u.swirlSpeed = (Math.random() - 0.5) * 0.05;
+      u.wobbleFreq = 2 + Math.random() * 4;
 
       const sc = 0.6 + Math.random() * 0.9;
       bMesh.scale.set(sc, sc, sc);
     }
 
-    function updateThreeVisuals(deltaSec) {
-      if (!vesselGroup) return;
+    function updateThreeVisuals(deltaSec, updateControlsAlready = false) {
+      if (!vesselGroup || !renderer || !scene || !camera) return;
 
       const isStatic = (State.reactorType === 'static');
 
@@ -3425,7 +3442,7 @@
       const effectiveRpm = (State.activeFault === 'impeller_stall' || isStatic) ? 0.0 : State.rpm;
       const rps = effectiveRpm / 60.0;
       const rotAngle = rps * (Math.PI * 2) * deltaSec;
-      if (impellerShaftGroup && State.reactorType.startsWith('str')) {
+      if (impellerShaftGroup && State.reactorType.startsWith('str') && State.isRunning) {
         impellerShaftGroup.rotation.y += rotAngle;
       }
 
@@ -3438,27 +3455,21 @@
         liquidSurfaceMesh.scale.y = vortexScaleY;
       }
 
-      // Dynamic Optical Turbidity & Color Shift based on Biomass & Contamination (v2.0)
+      // Dynamic Optical Turbidity & Color Shift (Zero-GC pre-allocated THREE.Color)
       if (liquidMesh && liquidMesh.material) {
         const totalBio = State.X + State.X_contam;
-        const biomassFrac = Math.min(1.0, (totalBio - 0.8) / 10.0);
-        
-        const isDark = (getEffectiveTheme() === 'dark');
-        const baseColor = new THREE.Color(isDark ? 0x223548 : 0xdbeafe);
-        const matureColor = new THREE.Color(0xb45309);
-        const contamColor = new THREE.Color(0x524816); // Dirty yellow-green for microflora contamination
+        const biomassFrac = Math.max(0.0, Math.min(1.0, (totalBio - 0.8) / 10.0));
 
-        let targetCol = new THREE.Color();
-        targetCol.lerpColors(baseColor, matureColor, biomassFrac);
+        const baseColor = (getEffectiveTheme() === 'dark') ? _colBaseDark : _colBaseLight;
+        _colTarget.lerpColors(baseColor, _colMature, biomassFrac);
 
         if (State.X_contam > 0.05) {
-          const cFrac = Math.min(0.85, State.X_contam / (State.X + State.X_contam));
-          targetCol.lerp(contamColor, cFrac);
+          const cFrac = Math.min(0.85, State.X_contam / (totalBio || 1.0));
+          _colTarget.lerp(_colContam, cFrac);
         }
 
-        // If phage lysis collapse, clear broth
         if (State.activeFault === 'contam_phage' && State.X < 0.25) {
-          targetCol.lerp(baseColor, 0.75);
+          _colTarget.lerp(baseColor, 0.75);
           liquidMesh.material.transmission = 0.85;
           liquidMesh.material.roughness = 0.12;
         } else {
@@ -3466,65 +3477,77 @@
           liquidMesh.material.roughness = THREE.MathUtils.lerp(0.15, 0.42, biomassFrac);
         }
 
-        liquidMesh.material.color.copy(targetCol);
-        
+        liquidMesh.material.color.copy(_colTarget);
+
         if (liquidSurfaceMesh && liquidSurfaceMesh.material) {
           liquidSurfaceMesh.material.color.copy(liquidMesh.material.color);
         }
       }
 
-      // Thermal Jacket Color Indicator based on Broth Temperature
+      // Thermal Jacket Color Indicator relative to strain optimum (dirty-checked)
       if (thermalJacketMesh && thermalJacketMesh.material) {
-        if (State.temp_C > 30.5) {
-          thermalJacketMesh.material.color.setHex(0xd93025);
-        } else if (State.temp_C < 29.5) {
-          thermalJacketMesh.material.color.setHex(0x1a73e8);
-        } else {
-          thermalJacketMesh.material.color.setHex(0x1e8e3e);
+        const tOpt = State.optTemp ?? 30.0;
+        const nextJacketState = State.temp_C > (tOpt + 0.5) ? 'hot' : (State.temp_C < (tOpt - 0.5) ? 'cold' : 'opt');
+        if (nextJacketState !== lastJacketState) {
+          lastJacketState = nextJacketState;
+          if (nextJacketState === 'hot') thermalJacketMesh.material.color.setHex(0xd93025);
+          else if (nextJacketState === 'cold') thermalJacketMesh.material.color.setHex(0x1a73e8);
+          else thermalJacketMesh.material.color.setHex(0x1e8e3e);
         }
       }
 
-      // Animate Bubble Swarm (Buoyancy + Swirl)
+      // Animate Bubble Swarm (skip completely on static / zero-air vessels once hidden)
       const isAerationCut = (isStatic || State.activeFault === 'compressor' || State.vvm <= 0.05);
-      const vvmFactor = State.vvm * 1.2;
-      const rpmFactor = effectiveRpm / 450.0;
-      const surfaceY = 0.68;
-
-      bubbleParticles.forEach((b) => {
-        if (isAerationCut) {
-          b.visible = false;
-          return;
-        }
-        b.visible = true;
-        const u = b.userData;
-        
-        b.position.y += u.speedY * vvmFactor;
-
-        if (State.reactorType.startsWith('str')) {
-          u.angle += (rps * 0.08 + u.swirlSpeed);
-          
-          if (Math.abs(b.position.y - (-0.7)) < 0.25 || Math.abs(b.position.y - (-0.1)) < 0.25) {
-            u.orbitRadius = Math.min(0.78, u.orbitRadius + 0.005 * rpmFactor);
-          }
-          
-          b.position.x = Math.cos(u.angle) * u.orbitRadius;
-          b.position.z = Math.sin(u.angle) * u.orbitRadius;
-        } else if (State.reactorType === 'airlift') {
-          if (u.orbitRadius < 0.42) {
-            b.position.y += u.speedY * vvmFactor * 1.5;
-          } else {
-            b.position.y -= u.speedY * 0.5;
-            if (b.position.y < -0.85) b.position.y = -0.85;
+      if (isAerationCut) {
+        if (lastAerationCut !== true) {
+          lastAerationCut = true;
+          for (let i = 0; i < bubbleParticles.length; i++) {
+            bubbleParticles[i].visible = false;
           }
         }
+      } else {
+        lastAerationCut = false;
+        if (State.isRunning) {
+          const vvmFactor = State.vvm * 1.2;
+          const rpmFactor = effectiveRpm / 450.0;
+          const surfaceY = 0.68;
+          const isStr = State.reactorType.startsWith('str');
+          const isAirlift = (State.reactorType === 'airlift');
 
-        if (b.position.y > surfaceY) {
-          resetBubble(b);
+          for (let i = 0; i < bubbleParticles.length; i++) {
+            const b = bubbleParticles[i];
+            if (!b.visible) b.visible = true;
+            const u = b.userData;
+
+            b.position.y += u.speedY * vvmFactor;
+
+            if (isStr) {
+              u.angle += (rps * 0.08 + u.swirlSpeed);
+              if (Math.abs(b.position.y - (-0.7)) < 0.25 || Math.abs(b.position.y - (-0.1)) < 0.25) {
+                u.orbitRadius = Math.min(0.78, u.orbitRadius + 0.005 * rpmFactor);
+              }
+              b.position.x = Math.cos(u.angle) * u.orbitRadius;
+              b.position.z = Math.sin(u.angle) * u.orbitRadius;
+            } else if (isAirlift) {
+              if (u.orbitRadius < 0.42) {
+                b.position.y += u.speedY * vvmFactor * 1.5;
+              } else {
+                b.position.y -= u.speedY * 0.5;
+                if (b.position.y < -0.85) b.position.y = -0.85;
+              }
+            }
+
+            if (b.position.y > surfaceY) {
+              resetBubble(b);
+            }
+          }
         }
-      });
+      }
 
-      controls.update();
+      if (!updateControlsAlready) controls.update();
       renderer.render(scene, camera);
+      renderFrameCount++;
+      renderDirty = false;
     }
 
     function onWindowResize() {
@@ -3532,9 +3555,11 @@
       if (!container || !renderer || !camera) return;
       const w = container.clientWidth;
       const h = container.clientHeight;
+      if (w <= 0 || h <= 0) return;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
+      markSceneDirty();
     }
 
     /* Camera Preset Controls */
@@ -3550,6 +3575,7 @@
         camera.position.set(0, 3.8, 1.8);
         controls.target.set(0, 0.3, 0);
       }
+      markSceneDirty();
     }
 
     function resetCameraView() {
@@ -3938,10 +3964,204 @@
     });
 
     /* =========================================================================
-       7. MAIN SIMULATION & ANIMATION TICK LOOP
+       7. MAIN SIMULATION, CACHED HUD & ANIMATION TICK LOOP (v2.5)
        ========================================================================= */
     let lastTime = performance.now();
     let chartSampleTimer = 0.0;
+    let domUpdateTimer = 0.0;
+    const DOM_UPDATE_INTERVAL_SEC = 0.08; // ~12.5 Hz HUD text refresh decoupled from 60 FPS WebGL
+
+    const DOMCache = Object.create(null);
+    function getEl(id) {
+      let el = DOMCache[id];
+      if (!el || !el.isConnected) {
+        el = document.getElementById(id);
+        if (el) DOMCache[id] = el;
+      }
+      return el;
+    }
+
+    const lastUI = {
+      hypoxiaLevel: '',
+      shearState: '',
+      actuatorMode: '',
+      purityCrit: null,
+      turbidityLabel: '',
+      regime: '',
+      phaseKey: ''
+    };
+
+    function resetUIDirtyFlags() {
+      lastUI.hypoxiaLevel = '';
+      lastUI.shearState = '';
+      lastUI.actuatorMode = '';
+      lastUI.purityCrit = null;
+      lastUI.turbidityLabel = '';
+      lastUI.regime = '';
+      lastUI.phaseKey = '';
+      domUpdateTimer = DOM_UPDATE_INTERVAL_SEC;
+    }
+
+    function updateTelemetryDOM(simStep, displayedDO, actualDOSatPercent) {
+      const fallbackDO = Math.min(105.0, Math.max(0.0, (State.CL / Math.max(0.01, State.C_star)) * 100.0));
+      const doVal = displayedDO !== undefined ? displayedDO : fallbackDO;
+      const satVal = actualDOSatPercent !== undefined ? actualDOSatPercent : fallbackDO;
+
+      const elTime = getEl('disp-batch-time');
+      if (elTime) elTime.innerText = `${State.time_h.toFixed(2)} h`;
+      const elDays = getEl('disp-batch-days');
+      if (elDays) elDays.innerText = `Day ${(State.time_h / 24.0).toFixed(1)}`;
+
+      const elX = getEl('kpi-biomass');
+      if (elX) elX.innerText = State.X.toFixed(2);
+      const elS = getEl('kpi-substrate');
+      if (elS) elS.innerText = State.S.toFixed(2);
+      const elO2 = getEl('kpi-oxygen');
+      if (elO2) elO2.innerText = doVal.toFixed(1);
+      const elP = getEl('kpi-product');
+      if (elP) elP.innerText = State.P.toFixed(2);
+
+      // Dirty-checked Auto-DO actuator pill & slider sync
+      if (State.autoDOEnabled && State.reactorType !== 'static' && simStep) {
+        const mode = simStep.actuatorMode || 'standby';
+        if (lastUI.actuatorMode !== mode) {
+          lastUI.actuatorMode = mode;
+          const act = getEl('status-actuator');
+          if (act) {
+            if (mode === 'boosting') {
+              act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse"></span><span>${t('actuator_boosting')}</span>`;
+              act.className = 'text-blue-700 dark:text-blue-400 font-semibold inline-flex items-center gap-1.5';
+            } else if (mode === 'throttling') {
+              act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span><span>${t('actuator_throttling')}</span>`;
+              act.className = 'text-gray-500 dark:text-gray-400 font-semibold inline-flex items-center gap-1.5';
+            } else {
+              act.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('actuator_holding')}</span>`;
+              act.className = 'text-emerald-700 dark:text-emerald-400 font-semibold inline-flex items-center gap-1.5';
+            }
+          }
+        }
+        const inRpm = getEl('input-rpm');
+        if (inRpm) inRpm.value = Math.round(State.rpm);
+        const valRpm = getEl('val-rpm');
+        if (valRpm) valRpm.innerText = `${Math.round(State.rpm)} RPM`;
+        const inVvm = getEl('input-vvm');
+        if (inVvm) inVvm.value = State.vvm.toFixed(1);
+        const valVvm = getEl('val-vvm');
+        if (valVvm) valVvm.innerText = `${State.vvm.toFixed(1)} vvm`;
+      }
+
+      // Dirty-checked Safety Interlocks & Alarms
+      const hypLevel = satVal < 15.0 ? 'crit' : (satVal < 25.0 ? 'warn' : 'safe');
+      if (lastUI.hypoxiaLevel !== hypLevel) {
+        lastUI.hypoxiaLevel = hypLevel;
+        const hypoxiaAlarm = getEl('alarm-hypoxia');
+        if (hypoxiaAlarm) {
+          if (hypLevel === 'crit') {
+            hypoxiaAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400 animate-pulse"></span><span>${t('alarm_critical_o2')}</span>`;
+            hypoxiaAlarm.className = 'text-red-700 dark:text-red-400 font-semibold inline-flex items-center gap-1.5';
+          } else if (hypLevel === 'warn') {
+            hypoxiaAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400"></span><span>${t('alarm_warning_o2')}</span>`;
+            hypoxiaAlarm.className = 'text-amber-700 dark:text-amber-400 font-semibold inline-flex items-center gap-1.5';
+          } else {
+            hypoxiaAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('alarm_safe')}</span>`;
+            hypoxiaAlarm.className = 'text-emerald-700 dark:text-emerald-400 font-medium inline-flex items-center gap-1.5';
+          }
+        }
+      }
+
+      if (simStep) {
+        const shearKey = State.reactorType === 'static'
+          ? 'zero'
+          : (simStep.hydro.v_tip > (State.vTipCrit || 3.0) ? 'high' : 'opt');
+        if (lastUI.shearState !== shearKey) {
+          lastUI.shearState = shearKey;
+          const shearAlarm = getEl('alarm-shear');
+          if (shearAlarm) {
+            if (shearKey === 'zero') {
+              shearAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('alarm_zero_shear')}</span>`;
+              shearAlarm.className = 'text-emerald-700 dark:text-emerald-400 font-medium inline-flex items-center gap-1.5';
+            } else if (shearKey === 'high') {
+              shearAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400"></span><span>${t('alarm_high_shear')}</span>`;
+              shearAlarm.className = 'text-red-700 dark:text-red-400 font-semibold inline-flex items-center gap-1.5';
+            } else {
+              shearAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('alarm_optimal_shear')}</span>`;
+              shearAlarm.className = 'text-emerald-700 dark:text-emerald-400 font-medium inline-flex items-center gap-1.5';
+            }
+          }
+        }
+
+        const elMu = getEl('kpi-mu');
+        if (elMu) elMu.innerText = `${simStep.mu.toFixed(2)} h⁻¹`;
+        const elKla = getEl('kpi-kla');
+        if (elKla) elKla.innerText = `${simStep.kla.toFixed(1)} h⁻¹`;
+        const elRe = getEl('disp-reynolds');
+        if (elRe) elRe.innerText = Math.round(simStep.hydro.Re).toLocaleString();
+        const elVtip = getEl('disp-tip-speed');
+        if (elVtip) elVtip.innerText = `${simStep.hydro.v_tip.toFixed(2)} m/s`;
+        const elPd = getEl('disp-power-density');
+        if (elPd) elPd.innerText = `${simStep.hydro.P_density_kW_m3.toFixed(2)} kW/m³`;
+
+        if (lastUI.regime !== simStep.hydro.regime) {
+          lastUI.regime = simStep.hydro.regime;
+          const regimeEl = getEl('disp-regime');
+          if (regimeEl) regimeEl.innerText = simStep.hydro.regime;
+        }
+
+        const elOd = getEl('overlay-od');
+        if (elOd) elOd.innerText = (State.X * 1.05).toFixed(2);
+        const elSh = getEl('overlay-shear');
+        if (elSh) elSh.innerText = `${(simStep.hydro.v_tip * 6.0).toFixed(1)} s⁻¹`;
+        const turbLabel = State.X > 6.0 ? 'Dense (Turbid)' : (State.X > 2.5 ? 'Moderate' : 'Low (Clear)');
+        if (lastUI.turbidityLabel !== turbLabel) {
+          lastUI.turbidityLabel = turbLabel;
+          const elTurb = getEl('overlay-turbidity');
+          if (elTurb) elTurb.innerText = turbLabel;
+        }
+
+        // Dynamic Carbon Balance Auditor
+        const sTotalAvailable = (State.initial_S || 35.0) + (State.s_fed_total || 0.0);
+        const sConsumed = Math.max(0.0, sTotalAvailable - State.S);
+        const cInVal = sConsumed * 0.40;
+        const cFixedVal = Math.max(0.0, ((State.X - (State.initial_X || 0.8)) * 0.48) + (State.P * 0.45));
+        const cCo2Val = Math.max(0.0, cInVal - cFixedVal);
+        const cRecPct = cInVal > 0.01 ? (((cFixedVal + cCo2Val) / cInVal) * 100.0) : 100.0;
+        const elCIn = getEl('disp-c-in');
+        if (elCIn) elCIn.innerText = `${cInVal.toFixed(1)} g C/L`;
+        const elCFix = getEl('disp-c-fixed');
+        if (elCFix) elCFix.innerText = `${cFixedVal.toFixed(1)} g C/L`;
+        const elCCo2 = getEl('disp-c-co2');
+        if (elCCo2) elCCo2.innerText = `${cCo2Val.toFixed(1)} g C/L`;
+        const cRecEl = getEl('disp-c-recovery');
+        if (cRecEl) cRecEl.innerText = `${cRecPct.toFixed(1)}%`;
+
+        // Media & Biological Contamination Readouts
+        const nitrogenEl = getEl('disp-nitrogen');
+        if (nitrogenEl) nitrogenEl.innerText = `${State.N.toFixed(2)} g/L`;
+
+        const cnRatioEl = getEl('disp-cn-ratio');
+        if (cnRatioEl) {
+          let cnLabel = t('cn_status_opt');
+          if (State.cn_ratio > 12.0) cnLabel = t('cn_status_n_lim');
+          else if (State.cn_ratio < 4.0) cnLabel = t('cn_status_c_lim');
+          cnRatioEl.innerText = `${State.cn_ratio.toFixed(2)} (${cnLabel})`;
+        }
+
+        const purityEl = getEl('disp-purity');
+        if (purityEl) {
+          purityEl.innerText = `${State.culture_purity.toFixed(1)}%`;
+          const isPurCrit = State.culture_purity < 80.0;
+          if (lastUI.purityCrit !== isPurCrit) {
+            lastUI.purityCrit = isPurCrit;
+            purityEl.className = isPurCrit
+              ? 'text-red-600 dark:text-red-400 font-semibold tabular-nums'
+              : 'text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums';
+          }
+        }
+
+        const osmoEl = getEl('disp-osmo');
+        if (osmoEl) osmoEl.innerText = `${Math.round(State.osmolarity_mOsm)} mOsm`;
+      }
+    }
 
     function mainLoop(now) {
       const deltaSec = Math.min((now - lastTime) / 1000.0, 0.1);
@@ -3951,13 +4171,6 @@
         const dt_hours = deltaSec * State.speedMultiplier;
         const simStep = stepKinetics(dt_hours);
 
-        // Update DOM Telemetry readouts
-        document.getElementById('disp-batch-time').innerText = `${State.time_h.toFixed(2)} h`;
-        document.getElementById('disp-batch-days').innerText = `Day ${(State.time_h / 24.0).toFixed(1)}`;
-        
-        document.getElementById('kpi-biomass').innerText = State.X.toFixed(2);
-        document.getElementById('kpi-substrate').innerText = State.S.toFixed(2);
-        
         // Dissolved Oxygen with sensor drift simulation
         const actualDOSatPercent = ((State.CL / State.C_star) * 100.0);
         let displayedDO = actualDOSatPercent;
@@ -3965,92 +4178,15 @@
           displayedDO += 25.0;
         }
         displayedDO = Math.max(0.0, Math.min(130.0, displayedDO));
-        document.getElementById('kpi-oxygen').innerText = displayedDO.toFixed(1);
-        document.getElementById('kpi-product').innerText = State.P.toFixed(2);
-        
-        // Safety Interlocks & Alarms
-        const hypoxiaAlarm = document.getElementById('alarm-hypoxia');
-        if (hypoxiaAlarm) {
-          if (actualDOSatPercent < 15.0) {
-            hypoxiaAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400 animate-pulse"></span><span>${t('alarm_critical_o2')}</span>`;
-            hypoxiaAlarm.className = 'text-red-700 dark:text-red-400 font-semibold inline-flex items-center gap-1.5';
-          } else if (actualDOSatPercent < 25.0) {
-            hypoxiaAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400"></span><span>${t('alarm_warning_o2')}</span>`;
-            hypoxiaAlarm.className = 'text-amber-700 dark:text-amber-400 font-semibold inline-flex items-center gap-1.5';
-          } else {
-            hypoxiaAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('alarm_safe')}</span>`;
-            hypoxiaAlarm.className = 'text-emerald-700 dark:text-emerald-400 font-medium inline-flex items-center gap-1.5';
-          }
+
+        // Throttle heavy HUD text updates when on simulation tab
+        domUpdateTimer += deltaSec;
+        if (State.activeView === 'sim' && domUpdateTimer >= DOM_UPDATE_INTERVAL_SEC) {
+          domUpdateTimer = 0.0;
+          updateTelemetryDOM(simStep, displayedDO, actualDOSatPercent);
         }
 
-        const shearAlarm = document.getElementById('alarm-shear');
-        if (shearAlarm && simStep) {
-          if (State.reactorType === 'static') {
-            shearAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('alarm_zero_shear')}</span>`;
-            shearAlarm.className = 'text-emerald-700 dark:text-emerald-400 font-medium inline-flex items-center gap-1.5';
-          } else if (simStep.hydro.v_tip > (State.vTipCrit || 3.0)) {
-            shearAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400"></span><span>${t('alarm_high_shear')}</span>`;
-            shearAlarm.className = 'text-red-700 dark:text-red-400 font-semibold inline-flex items-center gap-1.5';
-          } else {
-            shearAlarm.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span><span>${t('alarm_optimal_shear')}</span>`;
-            shearAlarm.className = 'text-emerald-700 dark:text-emerald-400 font-medium inline-flex items-center gap-1.5';
-          }
-        }
-        
-        if (simStep) {
-          document.getElementById('kpi-mu').innerText = `${simStep.mu.toFixed(2)} h⁻¹`;
-          document.getElementById('kpi-kla').innerText = `${simStep.kla.toFixed(1)} h⁻¹`;
-          document.getElementById('disp-reynolds').innerText = Math.round(simStep.hydro.Re).toLocaleString();
-          document.getElementById('disp-tip-speed').innerText = `${simStep.hydro.v_tip.toFixed(2)} m/s`;
-          document.getElementById('disp-power-density').innerText = `${simStep.hydro.P_density_kW_m3.toFixed(2)} kW/m³`;
-          
-          const regimeEl = document.getElementById('disp-regime');
-          if (regimeEl) regimeEl.innerText = simStep.hydro.regime;
-
-          document.getElementById('overlay-od').innerText = (State.X * 1.05).toFixed(2);
-          document.getElementById('overlay-shear').innerText = `${(simStep.hydro.v_tip * 6.0).toFixed(1)} s⁻¹`;
-          document.getElementById('overlay-turbidity').innerText = State.X > 6.0 ? 'Dense (Turbid)' : (State.X > 2.5 ? 'Moderate' : 'Low (Clear)');
-
-          // Dynamic Carbon Balance Auditor (respects initial batch setup + Fed-Batch pulses)
-          const sTotalAvailable = (State.initial_S || 35.0) + (State.s_fed_total || 0.0);
-          const sConsumed = Math.max(0.0, sTotalAvailable - State.S);
-          const cInVal = sConsumed * 0.40;
-          const cFixedVal = Math.max(0.0, ((State.X - (State.initial_X || 0.8)) * 0.48) + (State.P * 0.45));
-          const cCo2Val = Math.max(0.0, cInVal - cFixedVal);
-          const cRecPct = cInVal > 0.01 ? (((cFixedVal + cCo2Val) / cInVal) * 100.0) : 100.0;
-          document.getElementById('disp-c-in').innerText = `${cInVal.toFixed(1)} g C/L`;
-          document.getElementById('disp-c-fixed').innerText = `${cFixedVal.toFixed(1)} g C/L`;
-          document.getElementById('disp-c-co2').innerText = `${cCo2Val.toFixed(1)} g C/L`;
-          const cRecEl = document.getElementById('disp-c-recovery');
-          if (cRecEl) cRecEl.innerText = `${cRecPct.toFixed(1)}%`;
-
-          // Media & Biological Contamination Readouts (v2.0)
-          const nitrogenEl = document.getElementById('disp-nitrogen');
-          if (nitrogenEl) nitrogenEl.innerText = `${State.N.toFixed(2)} g/L`;
-
-          const cnRatioEl = document.getElementById('disp-cn-ratio');
-          if (cnRatioEl) {
-            let cnLabel = t('cn_status_opt');
-            if (State.cn_ratio > 12.0) cnLabel = t('cn_status_n_lim');
-            else if (State.cn_ratio < 4.0) cnLabel = t('cn_status_c_lim');
-            cnRatioEl.innerText = `${State.cn_ratio.toFixed(2)} (${cnLabel})`;
-          }
-
-          const purityEl = document.getElementById('disp-purity');
-          if (purityEl) {
-            purityEl.innerText = `${State.culture_purity.toFixed(1)}%`;
-            if (State.culture_purity < 80.0) {
-              purityEl.className = 'text-red-600 dark:text-red-400 font-semibold tabular-nums';
-            } else {
-              purityEl.className = 'text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums';
-            }
-          }
-
-          const osmoEl = document.getElementById('disp-osmo');
-          if (osmoEl) osmoEl.innerText = `${Math.round(State.osmolarity_mOsm)} mOsm`;
-        }
-
-        // Push to Chart.js
+        // Push to Chart.js & Batch History
         chartSampleTimer += dt_hours;
         if (chartSampleTimer >= 0.25) {
           chartSampleTimer = 0.0;
@@ -4060,9 +4196,11 @@
           telemetryChart.data.datasets[2].data.push(displayedDO);
           telemetryChart.data.datasets[3].data.push(State.P);
 
-          // Growth Phase Detection & Shading (v2.3)
           const curPhase = classifyInstantaneousPhase(State);
-          updateGrowthPhaseUI(curPhase);
+          if (lastUI.phaseKey !== curPhase) {
+            lastUI.phaseKey = curPhase;
+            updateGrowthPhaseUI(curPhase);
+          }
           if (!telemetryChart.data.phases) telemetryChart.data.phases = [];
           telemetryChart.data.phases.push(curPhase);
 
@@ -4071,15 +4209,25 @@
             telemetryChart.data.datasets.forEach(ds => ds.data.shift());
             if (telemetryChart.data.phases.length > 70) telemetryChart.data.phases.shift();
           }
-          telemetryChart.update();
+          if (State.activeView === 'sim') {
+            telemetryChart.update('none');
+          }
 
-          // Record high-resolution batch history (v2.1)
           recordHistoryPoint(simStep, displayedDO);
         }
       }
 
-      // Render 3D Frame
-      updateThreeVisuals(deltaSec);
+      // Conditional 3D Render: skip GPU draw when tab hidden, dashboard active, or paused+settled
+      if (!isPageHidden && State.activeView === 'sim') {
+        if (State.isRunning) {
+          updateThreeVisuals(deltaSec, false);
+        } else {
+          const camMoved = controls ? controls.update() : false;
+          if (renderDirty || isOrbitInteracting || camMoved) {
+            updateThreeVisuals(deltaSec, true);
+          }
+        }
+      }
 
       requestAnimationFrame(mainLoop);
     }
@@ -4124,10 +4272,19 @@
       if (pbrGroup) pbrGroup.visible = (type === 'pbr');
       if (staticGroup) staticGroup.visible = (type === 'static');
       if (impellerShaftGroup) impellerShaftGroup.visible = type.startsWith('str');
+      lastAerationCut = null;
+      markSceneDirty();
     }
 
     function togglePlayPause() {
       State.isRunning = !State.isRunning;
+      if (!State.isRunning) {
+        flushBatchStorageIfDirty();
+        markSceneDirty();
+      } else {
+        lastTime = performance.now();
+        domUpdateTimer = DOM_UPDATE_INTERVAL_SEC;
+      }
       const btn = document.getElementById('btn-play-pause');
       const icon = document.getElementById('play-icon');
       const text = document.getElementById('play-text');
@@ -4199,6 +4356,8 @@
           lpClass.innerText = 'Mixed (Classic)';
         }
       }
+      lastAerationCut = null;
+      markSceneDirty();
     }
 
     function setFault(type) {
@@ -4239,6 +4398,8 @@
         badge.className = 'text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800/40 font-semibold inline-flex items-center gap-1.5';
         State.biofouling_factor = 0.40;
       }
+      lastAerationCut = null;
+      markSceneDirty();
     }
 
     function sterilizeAndResetCulture() {
@@ -4327,9 +4488,12 @@
       telemetryChart.data.labels = [];
       telemetryChart.data.phases = [];
       telemetryChart.data.datasets.forEach(ds => ds.data = []);
-      telemetryChart.update();
+      telemetryChart.update('none');
       updateGrowthPhaseUI('lag');
       setFault('none');
+      resetUIDirtyFlags();
+      markSceneDirty();
+      saveBatchRunToStorage();
     }
 
     function downloadBlobFile(content, mimeType, filename) {
@@ -4363,17 +4527,74 @@
         csv += `${Number(h.time_h).toFixed(2)},${Number(h.X).toFixed(3)},${Number(h.S).toFixed(2)},${Number(h.N).toFixed(2)},${Number(h.DO_pct).toFixed(1)},${Number(h.P).toFixed(3)},${Number(pur).toFixed(1)}\n`;
       }
 
-      downloadBlobFile(csv, 'text/csv;charset=utf-8;', `bioprocess_v2_4_run_${State.reactorType}.csv`);
+      downloadBlobFile(csv, 'text/csv;charset=utf-8;', `bioprocess_v2_5_run_${State.reactorType}.csv`);
     }
 
     /* =========================================================================
-       9. BATCH ANALYTICS & RESULTS DASHBOARD ENGINE (v2.1)
+       9. BATCH ANALYTICS & RESULTS DASHBOARD ENGINE (v2.5 Bounded + Idle Persist)
        ========================================================================= */
     let chartDashGrowth = null;
     let chartDashOxygen = null;
     let chartDashRates = null;
     let chartDashEnv = null;
     let telemetryFilterQuery = '';
+
+    const MAX_HISTORY_POINTS = 1500;
+    const RECENT_HIGH_RES_COUNT = 300;
+    let batchStorageDirty = false;
+    let storageSaveTimer = null;
+    let lastStorageSaveMs = 0;
+
+    function compactBatchHistory() {
+      const len = State.batchHistory.length;
+      if (len <= MAX_HISTORY_POINTS) return;
+      const olderEnd = Math.max(1, len - RECENT_HIGH_RES_COUNT);
+      const compacted = [State.batchHistory[0]];
+      for (let i = 1; i < olderEnd; i += 2) {
+        compacted.push(State.batchHistory[i]);
+      }
+      for (let i = olderEnd; i < len; i++) {
+        compacted.push(State.batchHistory[i]);
+      }
+      State.batchHistory = compacted;
+    }
+
+    function flushBatchStorageIfDirty() {
+      if (storageSaveTimer) {
+        clearTimeout(storageSaveTimer);
+        storageSaveTimer = null;
+      }
+      if (batchStorageDirty) {
+        saveBatchRunToStorage();
+      }
+    }
+
+    function scheduleSaveBatchRun() {
+      batchStorageDirty = true;
+      const now = performance.now();
+      if (storageSaveTimer || (now - lastStorageSaveMs) < 1800) {
+        if (!storageSaveTimer) {
+          storageSaveTimer = setTimeout(() => {
+            storageSaveTimer = null;
+            flushBatchStorageIfDirty();
+          }, 2000);
+        }
+        return;
+      }
+      if (typeof window.requestIdleCallback === 'function') {
+        storageSaveTimer = setTimeout(() => {
+          window.requestIdleCallback(() => {
+            storageSaveTimer = null;
+            flushBatchStorageIfDirty();
+          }, { timeout: 1000 });
+        }, 200);
+      } else {
+        storageSaveTimer = setTimeout(() => {
+          storageSaveTimer = null;
+          flushBatchStorageIfDirty();
+        }, 250);
+      }
+    }
 
     function recordHistoryPoint(simStep, displayedDO) {
       const doPct = displayedDO !== undefined ? displayedDO : ((State.CL / State.C_star) * 100);
@@ -4404,15 +4625,19 @@
       };
 
       State.batchHistory.push(point);
+      if (State.batchHistory.length > MAX_HISTORY_POINTS) {
+        compactBatchHistory();
+      }
 
-      const badge = document.getElementById('badge-history-count');
-      if (badge) badge.innerText = `${State.batchHistory.length} pts`;
-      const badgePts = document.getElementById('dash-badge-pts');
-      if (badgePts) badgePts.innerText = State.batchHistory.length;
+      const ptCount = State.batchHistory.length;
+      const badge = getEl('badge-history-count');
+      if (badge) badge.innerText = `${ptCount} pts`;
+      const badgePts = getEl('dash-badge-pts');
+      if (badgePts) badgePts.innerText = ptCount;
 
-      // Periodically persist to localStorage and refresh dashboard if active
-      if (State.batchHistory.length % 4 === 0) {
-        saveBatchRunToStorage();
+      // Defer localStorage serialization off the hot animation frame
+      if (ptCount % 4 === 0) {
+        scheduleSaveBatchRun();
         if (State.activeView === 'dash') {
           renderDashboard();
         }
@@ -4439,20 +4664,23 @@
           history: State.batchHistory
         };
         localStorage.setItem('bioprocess_batch_run', JSON.stringify(payload));
+        batchStorageDirty = false;
+        lastStorageSaveMs = performance.now();
       } catch (e) {}
     }
 
     function openStandaloneDashboard() {
+      flushBatchStorageIfDirty();
       saveBatchRunToStorage();
       window.open('dashboard.html', '_blank');
     }
 
     function switchView(view) {
       State.activeView = view;
-      const simView = document.getElementById('view-simulation');
-      const dashView = document.getElementById('view-dashboard');
-      const tabSim = document.getElementById('view-tab-sim');
-      const tabDash = document.getElementById('view-tab-dash');
+      const simView = getEl('view-simulation');
+      const dashView = getEl('view-dashboard');
+      const tabSim = getEl('view-tab-sim');
+      const tabDash = getEl('view-tab-dash');
 
       if (view === 'dash') {
         if (simView) simView.classList.add('hidden');
@@ -4463,6 +4691,7 @@
         if (tabDash) {
           tabDash.className = 'px-2.5 py-1 rounded-lg text-xs font-medium transition-all bg-white dark:bg-[#2b2d32] text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-[#383b42] inline-flex items-center gap-1.5';
         }
+        flushBatchStorageIfDirty();
         renderDashboard();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
@@ -4477,6 +4706,7 @@
         if (renderer && camera) {
           onWindowResize();
         }
+        markSceneDirty();
       }
     }
 
@@ -4595,8 +4825,15 @@
 
       const minDO = Math.min(...history.map(h => h.DO_pct));
       const avgKla = history.reduce((sum, h) => sum + (h.kla || 0), 0) / history.length;
-      const totalOUR = history.reduce((sum, h) => sum + ((h.our || 0) * 0.25), 0);
-      const hypoxiaHours = history.filter(h => h.DO_pct < 15.0).length * 0.25;
+      let totalOUR = 0.0;
+      let hypoxiaHours = 0.0;
+      for (let i = 1; i < history.length; i++) {
+        const dt = Math.max(0.0, (history[i].time_h || 0) - (history[i - 1].time_h || 0));
+        totalOUR += 0.5 * ((history[i - 1].our || 0) + (history[i].our || 0)) * dt;
+        const h0 = history[i - 1].DO_pct < 15.0 ? 1.0 : 0.0;
+        const h1 = history[i].DO_pct < 15.0 ? 1.0 : 0.0;
+        hypoxiaHours += 0.5 * (h0 + h1) * dt;
+      }
 
       const finalPurity = last.culture_purity !== undefined ? last.culture_purity : 100.0;
       const minPurity = Math.min(...history.map(h => h.culture_purity !== undefined ? h.culture_purity : 100.0));
@@ -4727,7 +4964,7 @@
           chartDashGrowth.data.datasets[1].data = dataS;
           chartDashGrowth.data.datasets[2].data = dataN;
           chartDashGrowth.data.datasets[3].data = dataP;
-          chartDashGrowth.update();
+          chartDashGrowth.update('none');
         } else {
           chartDashGrowth = new Chart(ctxGrowth.getContext('2d'), {
             type: 'line',
@@ -4759,7 +4996,7 @@
           chartDashOxygen.data.datasets[0].data = dataDO;
           chartDashOxygen.data.datasets[1].data = dataOUR;
           chartDashOxygen.data.datasets[2].data = datakLa;
-          chartDashOxygen.update();
+          chartDashOxygen.update('none');
         } else {
           chartDashOxygen = new Chart(ctxOxygen.getContext('2d'), {
             type: 'line',
@@ -4788,7 +5025,7 @@
           chartDashRates.data.datasets[0].data = dataMu;
           chartDashRates.data.datasets[1].data = dataQS;
           chartDashRates.data.datasets[2].data = dataQP;
-          chartDashRates.update();
+          chartDashRates.update('none');
         } else {
           chartDashRates = new Chart(ctxRates.getContext('2d'), {
             type: 'line',
@@ -4819,7 +5056,7 @@
           chartDashEnv.data.datasets[1].data = dataTemp;
           chartDashEnv.data.datasets[2].data = dataPh;
           chartDashEnv.data.datasets[3].data = dataOsmo;
-          chartDashEnv.update();
+          chartDashEnv.update('none');
         } else {
           chartDashEnv = new Chart(ctxEnv.getContext('2d'), {
             type: 'line',
@@ -4972,7 +5209,7 @@
         csv += `${h.time_h},${h.X},${h.S},${h.N},${h.DO_pct},${h.P},${h.mu},${h.kla},${h.our},${h.qs},${h.qp},${h.temp},${h.ph},${h.culture_purity},${h.osmolarity},${h.cn_ratio}\n`;
       }
 
-      downloadBlobFile(csv, 'text/csv;charset=utf-8;', `bioprocess_v2_4_full_batch_${State.reactorType}.csv`);
+      downloadBlobFile(csv, 'text/csv;charset=utf-8;', `bioprocess_v2_5_full_batch_${State.reactorType}.csv`);
     }
 
     function exportBatchJSON() {
@@ -4980,7 +5217,7 @@
       const payload = {
         metadata: {
           software: "bioprocess-visual-twin",
-          version: "2.4.0",
+          version: "2.5.0",
           author: "Ing. Juan José Álvarez Morales",
           strainKey: State.currentStrainKey || 'ecoli',
           strainName: Strains[State.currentStrainKey] ? Strains[State.currentStrainKey].name : 'Escherichia coli BL21(DE3)',
@@ -4999,7 +5236,7 @@
         telemetry: history
       };
 
-      downloadBlobFile(JSON.stringify(payload, null, 2), 'application/json;charset=utf-8;', `bioprocess_v2_4_manifest_${State.reactorType}.json`);
+      downloadBlobFile(JSON.stringify(payload, null, 2), 'application/json;charset=utf-8;', `bioprocess_v2_5_manifest_${State.reactorType}.json`);
     }
 
     // Initialize on DOM load
@@ -5034,6 +5271,7 @@
         }
       } catch (e) {}
 
+      window.addEventListener('beforeunload', flushBatchStorageIfDirty);
       requestAnimationFrame(mainLoop);
     });
   </script>

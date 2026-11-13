@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.5.0] - 2026-11-13
+
+### Changed & Optimized
+- **Zero-GC Three.js WebGL & Conditional GPU Sleep (`index.html`)**:
+  - Replaced per-frame `new THREE.Color(...)` allocations inside `applyTheme()` and `updateThreeVisuals()` with pre-allocated reusable `THREE.Color` instances and in-place `bubble.userData` mutation inside `resetBubble()`.
+  - Added conditional rendering sleep via `markSceneDirty()`, OrbitControls `start`/`change`/`end` listeners, and `document` `visibilitychange`: pauses GPU `renderer.render()` when the tab is hidden, when `activeView === 'dash'`, or when paused with camera settled.
+  - Added single-pass aeration-cut bubble visibility toggle (`lastAerationCut`) and strain-relative thermal jacket color dirty-checking (`State.optTemp ?? 30.0`).
+- **Pure ODE Step, Cached DOM & Throttled SCADA HUD (`index.html`)**:
+  - Decoupled `stepKinetics(dt_hours)` into a pure physics step returning `{ mu, kla, hydro, mu_contam, actuatorMode }` with zero inline DOM access.
+  - Introduced `DOMCache` (`getEl`), `lastUI` dirty-checking, `resetUIDirtyFlags()`, and `DOM_UPDATE_INTERVAL_SEC = 0.08` (12.5 Hz) throttled `updateTelemetryDOM()`, plus animation-free `telemetryChart.update('none')`.
+- **Bounded History Compaction & Time-Weighted Respirometry (`index.html`, `dashboard.html`)**:
+  - Added `MAX_HISTORY_POINTS = 1500` and `compactBatchHistory()` preserving `t = 0`, decimating older points by 2x, and retaining the latest `300` high-resolution snapshots.
+  - Replaced fixed `0.25 h` integration step in `renderDashboard()` with exact trapezoidal `dt` time-weighted integration for `totalOUR` and `hypoxiaHours`, invariant under history compaction.
+  - Switched `chartDashGrowth`, `chartDashOxygen`, `chartDashRates`, and `chartDashEnv` to `.update('none')`.
+  - Added debounced non-blocking `requestIdleCallback` `localStorage` persistence (`scheduleSaveBatchRun` / `flushBatchStorageIfDirty`) flushed on pause, view switch, export, and `beforeunload`.
+
 ## [2.4.0] - 2026-11-12
 
 ### Added
